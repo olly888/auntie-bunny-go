@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useOnlineStatus } from "@/hooks/use-online-status";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { BottomNav } from "@/components/ui/bottom-nav";
@@ -6,11 +6,11 @@ import { useNavigate } from "react-router-dom";
 import { User, CreditCard, Settings, Bell, Shield, HelpCircle } from "lucide-react";
 
 const Profile = () => {
-  const [isOnline, setIsOnline] = useState(true);
   const navigate = useNavigate();
+  const { isOnline, setIsOnline } = useOnlineStatus();
 
   const menuItems = [
-    { icon: User, label: "个人资料", path: "/profile" },
+    { icon: User, label: "个人资料", path: "/profile/details" },
     { icon: CreditCard, label: "收入明细", path: "/income" },
     { icon: Bell, label: "消息通知", path: "/notifications" },
     { icon: Shield, label: "安全设置", path: "/security" },
