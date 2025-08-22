@@ -13,7 +13,6 @@ import { useOnlineStatus } from "@/hooks/use-online-status";
 import { useCurrentTask } from "@/hooks/orders/useCurrentTask";
 import { useTodayStats } from "@/hooks/orders/useTodayStats";
 import { useOrdersRealtime } from "@/hooks/orders/useOrdersRealtime";
-import { useTaskHallOrders } from "@/hooks/orders/useTaskHallOrders";
 import { TaskHallList } from "@/components/orders/TaskHallList";
 import { OrderBroadcastModal } from "@/components/orders/OrderBroadcastModal";
 import { CurrentTaskCard } from "@/components/orders/CurrentTaskCard";
@@ -27,7 +26,6 @@ const Workbench = () => {
   // Data hooks
   const { data: currentTask } = useCurrentTask();
   const { data: todayStats } = useTodayStats();
-  const { data: taskHallOrders, refetch: refetchTaskHall } = useTaskHallOrders();
   const { newOrder, clearNewOrder } = useOrdersRealtime(isOnline);
 
   const hasCurrentTask = !!currentTask;
@@ -187,37 +185,17 @@ const Workbench = () => {
           <Card className="overflow-hidden">
             <Tabs defaultValue={hasCurrentTask ? "progress" : "new"} className="w-full">
               <div className="border-b border-border">
-                <div className="flex items-center justify-between px-4 py-2">
-                  <TabsList className="bg-transparent border-0 h-10">
-                    <TabsTrigger value="new" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
-                      任务大厅
-                    </TabsTrigger>
-                    <TabsTrigger value="progress" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
-                      进行中
-                    </TabsTrigger>
-                    <TabsTrigger value="completed" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
-                      已完成
-                    </TabsTrigger>
-                  </TabsList>
-                  
-                  <div className="flex items-center gap-2">
-                    {taskHallOrders && taskHallOrders.length > 0 && (
-                      <Badge variant="secondary" className="text-xs">
-                        {taskHallOrders.length}个新订单
-                      </Badge>
-                    )}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => refetchTaskHall()}
-                      className="p-2 h-8 w-8"
-                    >
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                      </svg>
-                    </Button>
-                  </div>
-                </div>
+                <TabsList className="w-full h-12 bg-transparent justify-start rounded-none border-0">
+                  <TabsTrigger value="new" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
+                    任务大厅
+                  </TabsTrigger>
+                  <TabsTrigger value="progress" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
+                    进行中
+                  </TabsTrigger>
+                  <TabsTrigger value="completed" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
+                    已完成
+                  </TabsTrigger>
+                </TabsList>
               </div>
               
               <div className="p-4">
