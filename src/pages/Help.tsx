@@ -101,18 +101,18 @@ const Help = () => {
           <Button 
             variant="outline" 
             className="h-20 flex-col gap-2"
-            onClick={handleCallService}
-          >
-            <Phone className="h-6 w-6" />
-            <span className="text-sm">客服电话</span>
-          </Button>
-          <Button 
-            variant="outline" 
-            className="h-20 flex-col gap-2"
             onClick={goToTraining}
           >
             <GraduationCap className="h-6 w-6" />
             <span className="text-sm">新手指南</span>
+          </Button>
+          <Button 
+            variant="outline" 
+            className="h-20 flex-col gap-2"
+            onClick={() => navigate(-1)}
+          >
+            <MessageCircle className="h-6 w-6" />
+            <span className="text-sm">联系站长</span>
           </Button>
         </div>
 
@@ -140,35 +140,23 @@ const Help = () => {
           </CardContent>
         </Card>
 
-        {/* Contact Service */}
+        {/* Contact Webmaster */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <MessageCircle className="h-5 w-5" />
-              联系客服
+              联系站长
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between p-3 bg-accent/30 rounded-lg">
-              <div>
-                <p className="text-sm font-medium">客服热线</p>
-                <p className="text-sm text-muted-foreground">400-123-4567</p>
-                <p className="text-xs text-muted-foreground">工作时间：9:00-21:00</p>
-              </div>
-              <Button onClick={handleCallService}>
-                拨打
-              </Button>
-            </div>
-
-            <div className="flex items-center justify-between p-3 bg-accent/30 rounded-lg">
-              <div>
-                <p className="text-sm font-medium">在线客服</p>
-                <p className="text-xs text-muted-foreground">点击进入在线咨询</p>
-              </div>
-              <Button variant="outline">
-                咨询
-                <ExternalLink className="h-4 w-4 ml-1" />
-              </Button>
+            <div className="flex flex-col items-center justify-center p-4 bg-accent/30 rounded-lg">
+              <img 
+                src="/src/assets/owner-wechat-qr.png" 
+                alt="站长企业微信二维码" 
+                className="w-32 h-32 mb-3"
+              />
+              <p className="text-sm font-medium">扫码联系站长</p>
+              <p className="text-xs text-muted-foreground">企业微信</p>
             </div>
           </CardContent>
         </Card>
@@ -244,9 +232,15 @@ const Help = () => {
               <ExternalLink className="h-4 w-4 ml-auto" />
             </Button>
             
-            <Button variant="outline" className="w-full justify-start">
+            <Button variant="outline" className="w-full justify-start" onClick={() => navigate("/legal/service-agreement")}>
               <HelpCircle className="h-4 w-4 mr-2" />
-              用户手册
+              服务协议
+              <ExternalLink className="h-4 w-4 ml-auto" />
+            </Button>
+            
+            <Button variant="outline" className="w-full justify-start" onClick={() => navigate("/legal/privacy")}>
+              <HelpCircle className="h-4 w-4 mr-2" />
+              隐私政策
               <ExternalLink className="h-4 w-4 ml-auto" />
             </Button>
           </CardContent>

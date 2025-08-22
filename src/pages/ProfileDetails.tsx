@@ -27,10 +27,8 @@ const ProfileDetails = () => {
     birthday: "1985-06-15",
     avatar: "",
     skills: ["家政清洁", "母婴护理", "老人陪护"],
-    serviceAreas: ["朝阳区", "海淀区"],
-    workingHours: "08:00-18:00",
-    emergencyOrders: true,
-    autoOnline: true
+    serviceStore: "华润城店",
+    workingHours: "08:00-18:00"
   });
 
   const [selectedSkills, setSelectedSkills] = useState(profile.skills);
@@ -154,13 +152,18 @@ const ProfileDetails = () => {
             </div>
             
             <div>
-              <Label>服务区域</Label>
-              <div className="flex gap-2 flex-wrap mt-1">
-                {profile.serviceAreas.map((area) => (
-                  <Badge key={area} variant="secondary">{area}</Badge>
-                ))}
-                <Button variant="outline" size="sm">添加区域</Button>
-              </div>
+              <Label>服务所属门店</Label>
+              <Select value={profile.serviceStore} onValueChange={(value) => setProfile({...profile, serviceStore: value})}>
+                <SelectTrigger>
+                  <SelectValue placeholder="请选择所属门店" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="华润城店">兔到到大冲华润城店</SelectItem>
+                  <SelectItem value="海岸城店">兔到到南山海岸城店</SelectItem>
+                  <SelectItem value="万象城店">兔到到罗湖万象城店</SelectItem>
+                  <SelectItem value="福田店">兔到到福田中心区店</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             
             <div>
@@ -190,45 +193,6 @@ const ProfileDetails = () => {
             <div className="flex items-center justify-between">
               <span className="text-sm">从业资格证</span>
               <Badge variant="secondary">待上传</Badge>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Availability */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5" />
-              可用性设置
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium">接收紧急订单</p>
-                <p className="text-xs text-muted-foreground">24小时内的紧急预约</p>
-              </div>
-              <Switch checked={profile.emergencyOrders} />
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium">默认上线状态</p>
-                <p className="text-xs text-muted-foreground">登录时自动上线接单</p>
-              </div>
-              <Switch checked={profile.autoOnline} />
-            </div>
-            
-            <Separator />
-            
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium">当前在线状态</p>
-                <p className="text-xs text-muted-foreground">
-                  {isOnline ? "正在接单中" : "已下线休息"}
-                </p>
-              </div>
-              <Switch checked={isOnline} onCheckedChange={setIsOnline} />
             </div>
           </CardContent>
         </Card>
