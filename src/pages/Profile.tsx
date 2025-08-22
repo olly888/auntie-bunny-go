@@ -1,9 +1,10 @@
+
 import { useOnlineStatus } from "@/hooks/use-online-status";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { useNavigate } from "react-router-dom";
-import { User, CreditCard, Settings, Bell, Shield, HelpCircle, Star } from "lucide-react";
+import { User, CreditCard, Settings, Bell, Shield, HelpCircle, Star, QrCode } from "lucide-react";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -11,6 +12,7 @@ const Profile = () => {
 
   const menuItems = [
     { icon: User, label: "个人资料", path: "/profile/details" },
+    { icon: QrCode, label: "我的二维码", path: "/my-qr" },
     { icon: CreditCard, label: "收入明细", path: "/income" },
     { icon: Star, label: "我的评价", path: "/reviews" },
     { icon: Shield, label: "我的保险", path: "/insurance" },

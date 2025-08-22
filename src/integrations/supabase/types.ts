@@ -14,16 +14,179 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          created_at: string
+          full_name: string | null
+          id: string
+          phone: string | null
+          role: string
+          store_id: string | null
+          updated_at: string
+          wecom_qr_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          role?: string
+          store_id?: string | null
+          updated_at?: string
+          wecom_qr_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          role?: string
+          store_id?: string | null
+          updated_at?: string
+          wecom_qr_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referral_events: {
+        Row: {
+          created_at: string
+          event_type: Database["public"]["Enums"]["referral_event_type"]
+          extra: Json
+          id: string
+          ip_hash: string | null
+          referral_id: string
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: Database["public"]["Enums"]["referral_event_type"]
+          extra?: Json
+          id?: string
+          ip_hash?: string | null
+          referral_id: string
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: Database["public"]["Enums"]["referral_event_type"]
+          extra?: Json
+          id?: string
+          ip_hash?: string | null
+          referral_id?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_events_referral_id_fkey"
+            columns: ["referral_id"]
+            isOneToOne: false
+            referencedRelation: "referrals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referrals: {
+        Row: {
+          created_at: string
+          id: string
+          invite_type: string
+          invitee_profile_id: string | null
+          inviter_id: string
+          metadata: Json
+          ref_code: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          invite_type: string
+          invitee_profile_id?: string | null
+          inviter_id: string
+          metadata?: Json
+          ref_code: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          invite_type?: string
+          invitee_profile_id?: string | null
+          inviter_id?: string
+          metadata?: Json
+          ref_code?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_invitee_profile_id_fkey"
+            columns: ["invitee_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_inviter_id_fkey"
+            columns: ["inviter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stores: {
+        Row: {
+          address: string | null
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      ensure_referral: {
+        Args: { invite_type: string }
+        Returns: {
+          created_at: string
+          id: string
+          invite_type: string
+          invitee_profile_id: string | null
+          inviter_id: string
+          metadata: Json
+          ref_code: string
+          status: string
+          updated_at: string
+        }
+      }
     }
     Enums: {
-      [_ in never]: never
+      referral_event_type: "scan" | "register" | "qualify" | "reward"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +313,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      referral_event_type: ["scan", "register", "qualify", "reward"],
+    },
   },
 } as const
