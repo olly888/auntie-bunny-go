@@ -14,6 +14,110 @@ export type Database = {
   }
   public: {
     Tables: {
+      order_photos: {
+        Row: {
+          created_at: string
+          id: string
+          order_id: string
+          photo_url: string
+          uploaded_by: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_id: string
+          photo_url: string
+          uploaded_by: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_id?: string
+          photo_url?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_photos_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "abnormal_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_photos_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          address: string
+          assigned_at: string | null
+          assignee_id: string | null
+          completed_at: string | null
+          created_at: string
+          distance_minutes: number | null
+          duration_minutes: number
+          id: string
+          latitude: number | null
+          longitude: number | null
+          payout: number
+          started_at: string | null
+          status: string
+          store_id: string | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          assigned_at?: string | null
+          assignee_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          distance_minutes?: number | null
+          duration_minutes: number
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          payout: number
+          started_at?: string | null
+          status?: string
+          store_id?: string | null
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          assigned_at?: string | null
+          assignee_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          distance_minutes?: number | null
+          duration_minutes?: number
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          payout?: number
+          started_at?: string | null
+          status?: string
+          store_id?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -167,9 +271,77 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      abnormal_orders: {
+        Row: {
+          address: string | null
+          assigned_at: string | null
+          assignee_id: string | null
+          completed_at: string | null
+          created_at: string | null
+          distance_minutes: number | null
+          duration_minutes: number | null
+          id: string | null
+          latitude: number | null
+          longitude: number | null
+          payout: number | null
+          started_at: string | null
+          status: string | null
+          store_id: string | null
+          type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          address?: string | null
+          assigned_at?: string | null
+          assignee_id?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          distance_minutes?: number | null
+          duration_minutes?: number | null
+          id?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          payout?: number | null
+          started_at?: string | null
+          status?: string | null
+          store_id?: string | null
+          type?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string | null
+          assigned_at?: string | null
+          assignee_id?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          distance_minutes?: number | null
+          duration_minutes?: number | null
+          id?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          payout?: number | null
+          started_at?: string | null
+          status?: string | null
+          store_id?: string | null
+          type?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      claim_order: {
+        Args: { order_id: string }
+        Returns: boolean
+      }
       ensure_referral: {
         Args: { invite_type: string }
         Returns: {
@@ -183,6 +355,10 @@ export type Database = {
           status: string
           updated_at: string
         }
+      }
+      update_order_status: {
+        Args: { new_status: string; order_id: string }
+        Returns: boolean
       }
     }
     Enums: {

@@ -8,12 +8,25 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useNavigate } from "react-router-dom";
 import { Phone } from "lucide-react";
 import rabbitMascot from "@/assets/rabbit-mascot.png";
+import { useOnlineStatus } from "@/hooks/use-online-status";
+import { useCurrentTask } from "@/hooks/orders/useCurrentTask";
+import { useTodayStats } from "@/hooks/orders/useTodayStats";
+import { useOrdersRealtime } from "@/hooks/orders/useOrdersRealtime";
+import { TaskHallList } from "@/components/orders/TaskHallList";
+import { OrderBroadcastModal } from "@/components/orders/OrderBroadcastModal";
+import { CurrentTaskCard } from "@/components/orders/CurrentTaskCard";
 
 const Workbench = () => {
-  const [isOnline, setIsOnline] = useState(true);
-  const [hasCurrentTask, setHasCurrentTask] = useState(false);
+  const { isOnline, setIsOnline } = useOnlineStatus();
   const [showOfflineDialog, setShowOfflineDialog] = useState(false);
   const navigate = useNavigate();
+  
+  // Data hooks
+  const { data: currentTask } = useCurrentTask();
+  const { data: todayStats } = useTodayStats();
+  const { newOrder, clearNewOrder } = useOrdersRealtime(isOnline);
+
+  const hasCurrentTask = !!currentTask;
 
   const handleToggleOnline = (checked: boolean) => {
     if (checked) {
@@ -29,22 +42,20 @@ const Workbench = () => {
 
   const confirmGoOffline = () => {
     setIsOnline(false);
-    setHasCurrentTask(false);
     setShowOfflineDialog(false);
   };
 
-  // 模拟数据
-  const todayStats = {
-    completed: 5,
-    earnings: 123.5,
-    rating: 100
+  const handleViewOrderDetails = () => {
+    navigate("/order-service");
   };
 
-  const currentTask = hasCurrentTask ? {
-    type: "洗碗兔",
-    timeLeft: 15,
-    address: "深圳市南山区xx小区 A栋 1201"
-  } : null;
+  // Default stats if loading
+  const stats = todayStats || {
+    completed: 0,
+    earnings: 0,
+    workHours: 0,
+    rating: 100
+  };
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -111,63 +122,60 @@ const Workbench = () => {
 
         {/* 今日核心数据 */}
         <div className="grid grid-cols-3 gap-4">
-          <DataCard title="今日完成" value={todayStats.completed} unit="单" />
-          <DataCard title="今日收入" value={`¥${todayStats.earnings}`} />
-          <DataCard title="今日工作" value={5} unit="小时" />
-        </div>
-
-
-        {/* 当前任务区域 */}
-        <div>
-          
-          {currentTask ? (
-            <div className="bg-gradient-card border-2 border-primary rounded-xl p-6 shadow-card">
-              <div className="flex items-center gap-4">
-                <div className="text-2xl">🐰</div>
-                <div className="flex-1">
-                  <div className="font-semibold text-foreground mb-1">
-                    {currentTask.type} | 剩余约 {currentTask.timeLeft} 分钟
-                  </div>
-                  <div className="text-sm text-muted-foreground mb-3">
-                    📍 {currentTask.address}
-                  </div>
-                  <Button variant="outline" size="sm" onClick={() => navigate("/order-service")}>
-                    查看详情
-                  </Button>
-                </div>
-              </div>
-            </div>
+          {hasCurrentTask ? (
+            <>
+              <DataCard title="已完成" value={stats.completed} unit="单" />
+              <DataCard title="预估提成" value={`¥${stats.earnings.toFixed(1)}`} />
+              <DataCard title="好评率" value={stats.rating} unit="%" />
+            </>
           ) : (
-            <Card className="p-8 text-center border-2 border-dashed border-primary/30 bg-primary/5">
-              <img 
-                src={rabbitMascot} 
-                alt="兔到到吉祥物" 
-                className="w-20 h-20 mx-auto mb-4 opacity-80"
-              />
-              <div className="space-y-2">
-                <p className="font-medium text-foreground">等待新订单中...</p>
-                <p className="text-sm text-muted-foreground">
-                  {isOnline ? "保持在线状态，随时准备接单" : "请先上线后等待订单"}
-                </p>
-              </div>
-            </Card>
+            <>
+              <DataCard title="今日完成" value={stats.completed} unit="单" />
+              <DataCard title="预估提成" value={`¥${stats.earnings.toFixed(1)}`} />
+              <DataCard title="今日工时" value={stats.workHours} unit="小时" />
+            </>
           )}
         </div>
 
-        {/* 演示按钮：模拟接到任务 */}
-        {isOnline && !currentTask && (
-          <Button 
-            variant="outline" 
-            size="lg" 
-            className="w-full"
-            onClick={() => setHasCurrentTask(true)}
-          >
-            模拟接到任务
-          </Button>
+
+        {/* 当前任务或任务大厅区域 */}
+        {hasCurrentTask ? (
+          <CurrentTaskCard 
+            task={currentTask!} 
+            onViewDetails={handleViewOrderDetails}
+          />
+        ) : (
+          <div className="space-y-6">
+            {/* 任务大厅 */}
+            <TaskHallList />
+            
+            {/* 等待状态提示 */}
+            {isOnline && (
+              <Card className="p-8 text-center border-2 border-dashed border-primary/30 bg-primary/5">
+                <img 
+                  src={rabbitMascot} 
+                  alt="兔到到吉祥物" 
+                  className="w-20 h-20 mx-auto mb-4 opacity-80"
+                />
+                <div className="space-y-2">
+                  <p className="font-medium text-foreground">等待新订单中...</p>
+                  <p className="text-sm text-muted-foreground">
+                    保持在线状态，随时准备接单
+                  </p>
+                </div>
+              </Card>
+            )}
+          </div>
         )}
       </div>
       
       <BottomNav />
+      
+      {/* 新订单广播弹窗 */}
+      <OrderBroadcastModal 
+        order={newOrder} 
+        onClose={clearNewOrder}
+      />
     </div>
   );
 };
