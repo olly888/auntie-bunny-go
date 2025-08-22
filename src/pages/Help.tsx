@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -14,7 +14,7 @@ const Help = () => {
     {
       id: "payment",
       question: "如何查看我的收入明细？",
-      answer: "您可以在个人页面点击"收入明细"查看每日、每月的详细收入记录，包括服务费、奖励和提成等。"
+      answer: '您可以在个人页面点击"收入明细"查看每日、每月的详细收入记录，包括服务费、奖励和提成等。'
     },
     {
       id: "schedule",
@@ -34,7 +34,7 @@ const Help = () => {
     {
       id: "insurance",
       question: "工作期间是否有保险保障？",
-      answer: "兔到到为所有在线服务员工提供工作期间的意外伤害保险，具体保障内容可在"我的保险"中查看。"
+      answer: '兔到到为所有在线服务员工提供工作期间的意外伤害保险，具体保障内容可在"我的保险"中查看。'
     }
   ];
 
