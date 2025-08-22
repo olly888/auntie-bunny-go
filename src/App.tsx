@@ -11,6 +11,9 @@ import Workbench from "./pages/Workbench";
 import Profile from "./pages/Profile";
 import ProfileDetails from "./pages/ProfileDetails";
 import Income from "./pages/Income";
+import IncomeDetails from "./pages/IncomeDetails";
+import Performance from "./pages/Performance";
+import BankCards from "./pages/BankCards";
 import Reviews from "./pages/Reviews";
 import Insurance from "./pages/Insurance";
 import Settings from "./pages/Settings";
@@ -45,6 +48,9 @@ function App() {
                 <Route path="/my-qr" element={<MyQRCode />} />
                 <Route path="/r/:code" element={<ReferralLanding />} />
                 <Route path="/income" element={<Income />} />
+                <Route path="/income/details" element={<IncomeDetails />} />
+                <Route path="/income/performance" element={<Performance />} />
+                <Route path="/income/bank-cards" element={<BankCards />} />
                 <Route path="/reviews" element={<Reviews />} />
                 <Route path="/insurance" element={<Insurance />} />
                 <Route path="/settings" element={<Settings />} />
