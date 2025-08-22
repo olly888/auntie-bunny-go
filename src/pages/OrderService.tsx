@@ -12,7 +12,8 @@ const OrderService = () => {
   // 订单信息
   const orderInfo = {
     address: "深圳市南山区xx小区 A栋 1201",
-    phone: "138****1234",
+    phone: "13812341234",
+    phoneDisplay: "138****1234",
     notes: ["#家有宠物#", "#厨房油污重#"]
   };
 
@@ -70,8 +71,13 @@ const OrderService = () => {
             <Input
               placeholder="请输入用户手机尾号后4位"
               value={verificationCode}
-              onChange={(e) => setVerificationCode(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, ''); // 只允许数字
+                setVerificationCode(value);
+              }}
               maxLength={4}
+              inputMode="numeric"
+              pattern="\d*"
               className="text-center text-lg"
             />
             <Button 
@@ -136,11 +142,13 @@ const OrderService = () => {
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-sm text-muted-foreground mb-1">联系用户</div>
-                <div className="font-medium">{orderInfo.phone}</div>
+                <div className="font-medium">{orderInfo.phoneDisplay}</div>
               </div>
-              <Button variant="outline" size="sm">
-                <Phone className="w-4 h-4" />
-              </Button>
+              <a href={`tel:${orderInfo.phone}`}>
+                <Button variant="outline" size="sm">
+                  <Phone className="w-4 h-4" />
+                </Button>
+              </a>
             </div>
             
             <div>
@@ -171,10 +179,16 @@ const OrderService = () => {
             </div>
           </div>
           
-          <Button variant="outline" className="w-full">
-            <Navigation className="w-4 h-4 mr-2" />
-            使用高德地图导航
-          </Button>
+          <a 
+            href="https://uri.amap.com/navigation?to=116.481488,39.990464,深圳市南山区xx小区"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button variant="outline" className="w-full">
+              <Navigation className="w-4 h-4 mr-2" />
+              使用高德地图导航
+            </Button>
+          </a>
         </div>
 
         {/* 状态操作区 */}

@@ -7,6 +7,7 @@ import Workbench from "./pages/Workbench";
 import OrderGrab from "./pages/OrderGrab";
 import OrderService from "./pages/OrderService";
 import Income from "./pages/Income";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/order-grab" element={<OrderGrab />} />
           <Route path="/order-service" element={<OrderService />} />
           <Route path="/income" element={<Income />} />
+          <Route path="/profile" element={<Profile />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

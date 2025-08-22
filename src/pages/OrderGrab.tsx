@@ -34,7 +34,7 @@ const OrderGrab = () => {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-background rounded-2xl p-8 max-w-sm w-full shadow-2xl animate-scale-in">
+      <div className="bg-background rounded-2xl p-8 max-w-sm w-full shadow-2xl animate-in fade-in-0 zoom-in-95 duration-300">
         
         {/* 响铃图标 */}
         <div className="text-center mb-6">

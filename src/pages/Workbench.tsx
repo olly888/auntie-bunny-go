@@ -8,6 +8,7 @@ import rabbitMascot from "@/assets/rabbit-mascot.png";
 
 const Workbench = () => {
   const [isOnline, setIsOnline] = useState(true);
+  const [hasCurrentTask, setHasCurrentTask] = useState(false);
   const navigate = useNavigate();
 
   // 模拟数据
@@ -17,11 +18,11 @@ const Workbench = () => {
     rating: 100
   };
 
-  const currentTask = {
+  const currentTask = hasCurrentTask ? {
     type: "洗碗兔",
     timeLeft: 15,
     address: "深圳市南山区xx小区 A栋 1201"
-  };
+  } : null;
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -58,7 +59,7 @@ const Workbench = () => {
                   <div className="text-sm text-muted-foreground mb-3">
                     📍 {currentTask.address}
                   </div>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={() => navigate("/order-service")}>
                     查看详情
                   </Button>
                 </div>
@@ -84,20 +85,35 @@ const Workbench = () => {
             variant="primary" 
             size="lg" 
             className="w-full"
-            onClick={() => setIsOnline(!isOnline)}
+            onClick={() => {
+              setIsOnline(!isOnline);
+              if (!isOnline) setHasCurrentTask(false); // 下线时清除任务
+            }}
           >
             {isOnline ? "下线休息" : "上线接单"}
           </Button>
           
+          {/* 演示按钮：模拟接到任务 */}
+          {isOnline && !currentTask && (
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="w-full"
+              onClick={() => setHasCurrentTask(true)}
+            >
+              模拟接到任务
+            </Button>
+          )}
+          
           {!currentTask && (
-          <Button 
-            variant="outline" 
-            size="lg" 
-            className="w-full"
-            onClick={() => navigate("/income")}
-          >
-            查看我的收入
-          </Button>
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="w-full"
+              onClick={() => navigate("/income")}
+            >
+              查看我的收入
+            </Button>
           )}
         </div>
       </div>
