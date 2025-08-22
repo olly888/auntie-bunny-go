@@ -38,6 +38,18 @@ const Workbench = () => {
               <p className="text-sm text-primary-foreground/80">
                 今天又是充满活力的一天 🌟
               </p>
+              {/* 微型业绩条 - 仅在无当前任务时显示 */}
+              {!currentTask && (
+                <button
+                  onClick={() => navigate("/income")}
+                  className="mt-3 flex items-center gap-3 text-sm bg-primary-foreground/10 rounded-lg px-3 py-2 hover:bg-primary-foreground/20 transition-colors"
+                >
+                  <span className="text-primary-foreground/90">
+                    今日 {todayStats.completed}单 · ¥{todayStats.earnings} · {todayStats.rating}%
+                  </span>
+                  <span className="text-xs text-primary-foreground/60">点击查看详情</span>
+                </button>
+              )}
             </div>
             <Button
               variant="secondary"
@@ -62,15 +74,6 @@ const Workbench = () => {
           offText="下线休息"
         />
 
-        {/* 今日业绩看板 */}
-        <div>
-          <h2 className="text-lg font-semibold text-foreground mb-4">今日业绩</h2>
-          <div className="grid grid-cols-3 gap-4">
-            <DataCard title="已完成" value={todayStats.completed} unit="单" />
-            <DataCard title="预估提成" value={`¥${todayStats.earnings}`} />
-            <DataCard title="好评率" value={todayStats.rating} unit="%" />
-          </div>
-        </div>
 
         {/* 当前任务区域 */}
         <div>

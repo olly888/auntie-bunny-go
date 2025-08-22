@@ -32,7 +32,7 @@ export function BottomNav() {
                 key={item.path}
                 onClick={() => navigate(item.path)}
                 className={cn(
-                  "flex flex-col items-center justify-center py-2 px-3 rounded-lg transition-colors",
+                  "flex flex-col items-center justify-center py-2 px-3 rounded-lg transition-colors relative",
                   isActive 
                     ? "text-primary bg-primary/10" 
                     : "text-muted-foreground hover:text-foreground"
@@ -40,7 +40,15 @@ export function BottomNav() {
                 aria-current={isActive ? "page" : undefined}
                 aria-label={item.label}
               >
-                <Icon className="w-5 h-5 mb-1" />
+                <div className="relative">
+                  <Icon className="w-5 h-5 mb-1" />
+                  {/* 收入徽章 */}
+                  {item.path === "/income" && (
+                    <div className="absolute -top-1 -right-2 bg-primary text-primary-foreground text-xs rounded-full px-1.5 py-0.5 min-w-[20px] text-center leading-none">
+                      ¥123.5
+                    </div>
+                  )}
+                </div>
                 <span className="text-xs font-medium">{item.label}</span>
               </button>
             );
