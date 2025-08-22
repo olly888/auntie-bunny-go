@@ -10,6 +10,10 @@ export interface Order {
   distance_minutes: number | null;
   status: string;
   created_at: string;
+  assigned_at?: string | null;
+  started_at?: string | null;
+  completed_at?: string | null;
+  assignee_id?: string | null;
 }
 
 export const useTaskHallOrders = () => {
