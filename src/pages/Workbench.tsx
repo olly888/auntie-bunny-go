@@ -110,19 +110,15 @@ const Workbench = () => {
         </Card>
 
         {/* 今日核心数据 */}
-        <div>
-          <h2 className="text-lg font-semibold text-foreground mb-4">今日数据</h2>
-          <div className="grid grid-cols-3 gap-4">
-            <DataCard title="已完成" value={todayStats.completed} unit="单" />
-            <DataCard title="今日收入" value={`¥${todayStats.earnings}`} />
-            <DataCard title="好评率" value={todayStats.rating} unit="%" />
-          </div>
+        <div className="grid grid-cols-3 gap-4">
+          <DataCard title="今日完成" value={todayStats.completed} unit="单" />
+          <DataCard title="今日收入" value={`¥${todayStats.earnings}`} />
+          <DataCard title="今日工作" value={5} unit="小时" />
         </div>
 
 
         {/* 当前任务区域 */}
         <div>
-          <h2 className="text-lg font-semibold text-foreground mb-4">当前任务</h2>
           
           {currentTask ? (
             <div className="bg-gradient-card border-2 border-primary rounded-xl p-6 shadow-card">

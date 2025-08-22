@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { BottomNav } from "@/components/ui/bottom-nav";
 import { Phone, Navigation, AlertTriangle, Camera } from "lucide-react";
 
 type ServiceStatus = "departing" | "enroute" | "arrived" | "verification" | "serving" | "completed";
@@ -14,7 +15,10 @@ const OrderService = () => {
     address: "深圳市南山区xx小区 A栋 1201",
     phone: "13812341234",
     phoneDisplay: "138****1234",
-    notes: ["#家有宠物#", "#厨房油污重#"]
+    notes: ["#家有宠物#", "#厨房油污重#"],
+    serviceItem: "厨房深清",
+    serviceTime: "今天 14:00-16:00",
+    commissionEstimate: 25.0
   };
 
   const handleStatusChange = (nextStatus: ServiceStatus) => {
@@ -32,7 +36,7 @@ const OrderService = () => {
       case "departing":
         return (
           <Button 
-            variant="primary" 
+            variant="secondary" 
             size="xl" 
             className="w-full"
             onClick={() => handleStatusChange("enroute")}
@@ -44,7 +48,7 @@ const OrderService = () => {
       case "enroute":
         return (
           <Button 
-            variant="primary" 
+            variant="warning" 
             size="xl" 
             className="w-full"
             onClick={() => handleStatusChange("arrived")}
@@ -56,7 +60,7 @@ const OrderService = () => {
       case "arrived":
         return (
           <Button 
-            variant="primary" 
+            variant="success" 
             size="xl" 
             className="w-full"
             onClick={() => handleStatusChange("verification")}
@@ -117,7 +121,7 @@ const OrderService = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20">
       
       {/* 紧急求助按钮 */}
       <div className="flex justify-end p-4">
@@ -129,9 +133,9 @@ const OrderService = () => {
 
       <div className="max-w-md mx-auto px-4 pb-6 space-y-6">
         
-        {/* 用户信息区 */}
+        {/* 订单信息区 */}
         <div className="bg-card rounded-xl p-6 shadow-card">
-          <h2 className="text-lg font-semibold mb-4">用户信息</h2>
+          <h2 className="text-lg font-semibold mb-4">订单信息</h2>
           
           <div className="space-y-3">
             <div>
@@ -149,6 +153,21 @@ const OrderService = () => {
                   <Phone className="w-4 h-4" />
                 </Button>
               </a>
+            </div>
+
+            <div>
+              <div className="text-sm text-muted-foreground mb-1">服务项目</div>
+              <div className="font-medium">{orderInfo.serviceItem}</div>
+            </div>
+
+            <div>
+              <div className="text-sm text-muted-foreground mb-1">服务时间</div>
+              <div className="font-medium">{orderInfo.serviceTime}</div>
+            </div>
+
+            <div>
+              <div className="text-sm text-muted-foreground mb-1">预计提成</div>
+              <div className="font-medium text-success">¥{orderInfo.commissionEstimate}</div>
             </div>
             
             <div>
@@ -197,6 +216,8 @@ const OrderService = () => {
           {getStatusButton()}
         </div>
       </div>
+      
+      <BottomNav />
     </div>
   );
 };

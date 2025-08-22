@@ -12,8 +12,6 @@ const Profile = () => {
   const menuItems = [
     { icon: User, label: "个人资料", path: "/profile/details" },
     { icon: CreditCard, label: "收入明细", path: "/income" },
-    { icon: Bell, label: "消息通知", path: "/notifications" },
-    { icon: Shield, label: "安全设置", path: "/security" },
     { icon: Settings, label: "系统设置", path: "/settings" },
     { icon: HelpCircle, label: "帮助中心", path: "/help" },
   ];

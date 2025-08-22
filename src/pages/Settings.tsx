@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Palette, Globe, Bell, Zap, Trash2, Moon, Sun, Monitor } from "lucide-react";
+import { ArrowLeft, Palette, Globe, Bell, Zap, Trash2, Moon, Sun, Monitor, HelpCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Settings = () => {
@@ -340,6 +340,32 @@ const Settings = () => {
                 onCheckedChange={(checked) => updateNestedSetting("interactions", "reducedAnimation", checked)}
               />
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Legal and Terms */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <HelpCircle className="h-5 w-5" />
+              法律与条款
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Button 
+              variant="outline" 
+              className="w-full justify-start" 
+              onClick={() => navigate("/legal/service-agreement")}
+            >
+              服务协议
+            </Button>
+            <Button 
+              variant="outline" 
+              className="w-full justify-start" 
+              onClick={() => navigate("/legal/privacy")}
+            >
+              隐私政策
+            </Button>
           </CardContent>
         </Card>
 

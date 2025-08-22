@@ -15,6 +15,8 @@ import Notifications from "./pages/Notifications";
 import Security from "./pages/Security";
 import Settings from "./pages/Settings";
 import Help from "./pages/Help";
+import LegalServiceAgreement from "./pages/LegalServiceAgreement";
+import LegalPrivacyPolicy from "./pages/LegalPrivacyPolicy";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,10 +36,12 @@ const App = () => (
             <Route path="/training" element={<TrainingCenter />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/profile/details" element={<ProfileDetails />} />
-            <Route path="/notifications" element={<Notifications />} />
-            <Route path="/security" element={<Security />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/help" element={<Help />} />
+        <Route path="/notifications" element={<Notifications />} />
+        <Route path="/security" element={<Security />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/help" element={<Help />} />
+        <Route path="/legal/service-agreement" element={<LegalServiceAgreement />} />
+        <Route path="/legal/privacy" element={<LegalPrivacyPolicy />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
