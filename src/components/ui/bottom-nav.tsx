@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Home, ShoppingCart, CreditCard, Settings } from "lucide-react";
+import { Home, CreditCard, BookOpen, User } from "lucide-react";
 
 interface NavItem {
   path: string;
@@ -10,9 +10,9 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { path: "/", icon: Home, label: "工作台" },
-  { path: "/order-service", icon: ShoppingCart, label: "服务" },
-  { path: "/income", icon: CreditCard, label: "收入" },
-  { path: "/profile", icon: Settings, label: "我的" },
+  { path: "/income", icon: CreditCard, label: "我的收入" },
+  { path: "/training", icon: BookOpen, label: "培训中心" },
+  { path: "/profile", icon: User, label: "个人中心" },
 ];
 
 export function BottomNav() {

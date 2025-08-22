@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { StatusIndicator } from "@/components/ui/status-indicator";
+import { SlideToggle } from "@/components/ui/slide-toggle";
 import { DataCard } from "@/components/ui/data-card";
 import { BottomNav } from "@/components/ui/bottom-nav";
+import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
+import { Phone } from "lucide-react";
 import rabbitMascot from "@/assets/rabbit-mascot.png";
 
 const Workbench = () => {
@@ -28,10 +30,36 @@ const Workbench = () => {
     <div className="min-h-screen bg-background pb-20">
       <div className="max-w-md mx-auto p-4 space-y-6">
         
-        {/* 状态切换按钮 */}
-        <StatusIndicator
-          status={isOnline ? (currentTask ? "busy" : "online") : "offline"}
-          text={isOnline ? (currentTask ? "🔴 服务中，暂不接单" : "🟢 上线接单中") : "🟡 已下线"}
+        {/* 顶部问候卡片 */}
+        <Card className="p-6 bg-gradient-primary text-primary-foreground">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-lg font-semibold mb-1">早上好，小兔！</h1>
+              <p className="text-sm text-primary-foreground/80">
+                今天又是充满活力的一天 🌟
+              </p>
+            </div>
+            <Button
+              variant="secondary"
+              size="sm"
+              className="bg-primary-foreground/10 text-primary-foreground border-primary-foreground/20 hover:bg-primary-foreground/20"
+              onClick={() => window.location.href = "tel:400-123-4567"}
+            >
+              <Phone className="w-4 h-4 mr-1" />
+              紧急求助
+            </Button>
+          </div>
+        </Card>
+
+        {/* 滑动上线/下线控制 */}
+        <SlideToggle
+          isOn={isOnline}
+          onToggle={(newState) => {
+            setIsOnline(newState);
+            if (!newState) setHasCurrentTask(false); // 下线时清除任务
+          }}
+          onText="上线接单"
+          offText="下线休息"
         />
 
         {/* 今日业绩看板 */}
@@ -66,56 +94,33 @@ const Workbench = () => {
               </div>
             </div>
           ) : (
-            <div className="bg-gradient-card rounded-xl p-8 text-center shadow-card">
+            <Card className="p-8 text-center border-2 border-dashed border-primary/30 bg-primary/5">
               <img 
                 src={rabbitMascot} 
                 alt="兔到到吉祥物" 
                 className="w-20 h-20 mx-auto mb-4 opacity-80"
               />
-              <p className="text-muted-foreground">
-                暂无服务，请保持在线，随时准备接单哦！
-              </p>
-            </div>
+              <div className="space-y-2">
+                <p className="font-medium text-foreground">等待新订单中...</p>
+                <p className="text-sm text-muted-foreground">
+                  {isOnline ? "保持在线状态，随时准备接单" : "请先上线后等待订单"}
+                </p>
+              </div>
+            </Card>
           )}
         </div>
 
-        {/* 控制按钮 */}
-        <div className="space-y-3">
+        {/* 演示按钮：模拟接到任务 */}
+        {isOnline && !currentTask && (
           <Button 
-            variant="primary" 
+            variant="outline" 
             size="lg" 
             className="w-full"
-            onClick={() => {
-              setIsOnline(!isOnline);
-              if (!isOnline) setHasCurrentTask(false); // 下线时清除任务
-            }}
+            onClick={() => setHasCurrentTask(true)}
           >
-            {isOnline ? "下线休息" : "上线接单"}
+            模拟接到任务
           </Button>
-          
-          {/* 演示按钮：模拟接到任务 */}
-          {isOnline && !currentTask && (
-            <Button 
-              variant="outline" 
-              size="lg" 
-              className="w-full"
-              onClick={() => setHasCurrentTask(true)}
-            >
-              模拟接到任务
-            </Button>
-          )}
-          
-          {!currentTask && (
-            <Button 
-              variant="outline" 
-              size="lg" 
-              className="w-full"
-              onClick={() => navigate("/income")}
-            >
-              查看我的收入
-            </Button>
-          )}
-        </div>
+        )}
       </div>
       
       <BottomNav />
