@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Phone, MessageCircle, Mail, HelpCircle, Clock, CreditCard, Shield, AlertCircle } from "lucide-react";
+import { ArrowLeft, Phone, MessageCircle, Mail, HelpCircle, Clock, AlertCircle } from "lucide-react";
 
 const Help = () => {
   const navigate = useNavigate();
