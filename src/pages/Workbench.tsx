@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { SlideToggle } from "@/components/ui/slide-toggle";
+import { Switch } from "@/components/ui/switch";
 import { DataCard } from "@/components/ui/data-card";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { Card } from "@/components/ui/card";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useNavigate } from "react-router-dom";
 import { Phone } from "lucide-react";
 import rabbitMascot from "@/assets/rabbit-mascot.png";
@@ -11,7 +12,26 @@ import rabbitMascot from "@/assets/rabbit-mascot.png";
 const Workbench = () => {
   const [isOnline, setIsOnline] = useState(true);
   const [hasCurrentTask, setHasCurrentTask] = useState(false);
+  const [showOfflineDialog, setShowOfflineDialog] = useState(false);
   const navigate = useNavigate();
+
+  const handleToggleOnline = (checked: boolean) => {
+    if (checked) {
+      setIsOnline(true);
+    } else {
+      if (hasCurrentTask) {
+        setShowOfflineDialog(true);
+      } else {
+        setIsOnline(false);
+      }
+    }
+  };
+
+  const confirmGoOffline = () => {
+    setIsOnline(false);
+    setHasCurrentTask(false);
+    setShowOfflineDialog(false);
+  };
 
   // 模拟数据
   const todayStats = {
@@ -38,18 +58,6 @@ const Workbench = () => {
               <p className="text-sm text-primary-foreground/80">
                 今天又是充满活力的一天 🌟
               </p>
-              {/* 微型业绩条 - 仅在无当前任务时显示 */}
-              {!currentTask && (
-                <button
-                  onClick={() => navigate("/income")}
-                  className="mt-3 flex items-center gap-3 text-sm bg-primary-foreground/10 rounded-lg px-3 py-2 hover:bg-primary-foreground/20 transition-colors"
-                >
-                  <span className="text-primary-foreground/90">
-                    今日 {todayStats.completed}单 · ¥{todayStats.earnings} · {todayStats.rating}%
-                  </span>
-                  <span className="text-xs text-primary-foreground/60">点击查看详情</span>
-                </button>
-              )}
             </div>
             <Button
               variant="secondary"
@@ -63,16 +71,53 @@ const Workbench = () => {
           </div>
         </Card>
 
-        {/* 滑动上线/下线控制 */}
-        <SlideToggle
-          isOn={isOnline}
-          onToggle={(newState) => {
-            setIsOnline(newState);
-            if (!newState) setHasCurrentTask(false); // 下线时清除任务
-          }}
-          onText="上线接单"
-          offText="下线休息"
-        />
+        {/* 上线/下线开关控制 */}
+        <Card className="p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className={`w-3 h-3 rounded-full ${isOnline ? 'bg-green-500' : 'bg-gray-400'}`} />
+              <span className="font-medium text-foreground">
+                {isOnline ? "上线接单" : "下线休息"}
+              </span>
+            </div>
+            <AlertDialog open={showOfflineDialog} onOpenChange={setShowOfflineDialog}>
+              <Switch
+                checked={isOnline}
+                onCheckedChange={handleToggleOnline}
+                className="data-[state=checked]:bg-green-500"
+              />
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>确认下线</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {hasCurrentTask 
+                      ? "您当前有进行中的任务，下线将自动完成当前任务。确定要下线吗？"
+                      : "确定要下线休息吗？下线后将无法接收新订单。"
+                    }
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel onClick={() => setShowOfflineDialog(false)}>
+                    取消
+                  </AlertDialogCancel>
+                  <AlertDialogAction onClick={confirmGoOffline}>
+                    确认下线
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        </Card>
+
+        {/* 今日核心数据 */}
+        <div>
+          <h2 className="text-lg font-semibold text-foreground mb-4">今日数据</h2>
+          <div className="grid grid-cols-3 gap-4">
+            <DataCard title="已完成" value={todayStats.completed} unit="单" />
+            <DataCard title="今日收入" value={`¥${todayStats.earnings}`} />
+            <DataCard title="好评率" value={todayStats.rating} unit="%" />
+          </div>
+        </div>
 
 
         {/* 当前任务区域 */}
