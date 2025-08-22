@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
+import { OnlineStatusProvider } from "@/hooks/use-online-status";
 import Index from "./pages/Index";
 import Workbench from "./pages/Workbench";
 import Profile from "./pages/Profile";
@@ -31,33 +32,35 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/workbench" element={<Workbench />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/profile/details" element={<ProfileDetails />} />
-              <Route path="/my-qr" element={<MyQRCode />} />
-              <Route path="/r/:code" element={<ReferralLanding />} />
-              <Route path="/income" element={<Income />} />
-              <Route path="/reviews" element={<Reviews />} />
-              <Route path="/insurance" element={<Insurance />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/security" element={<Security />} />
-              <Route path="/notifications" element={<Notifications />} />
-              <Route path="/help" element={<Help />} />
-              <Route path="/training" element={<TrainingCenter />} />
-              <Route path="/order-grab" element={<OrderGrab />} />
-              <Route path="/order-service" element={<OrderService />} />
-              <Route path="/legal/service-agreement" element={<LegalServiceAgreement />} />
-              <Route path="/legal/privacy-policy" element={<LegalPrivacyPolicy />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
+        <OnlineStatusProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/workbench" element={<Workbench />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/profile/details" element={<ProfileDetails />} />
+                <Route path="/my-qr" element={<MyQRCode />} />
+                <Route path="/r/:code" element={<ReferralLanding />} />
+                <Route path="/income" element={<Income />} />
+                <Route path="/reviews" element={<Reviews />} />
+                <Route path="/insurance" element={<Insurance />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/security" element={<Security />} />
+                <Route path="/notifications" element={<Notifications />} />
+                <Route path="/help" element={<Help />} />
+                <Route path="/training" element={<TrainingCenter />} />
+                <Route path="/order-grab" element={<OrderGrab />} />
+                <Route path="/order-service" element={<OrderService />} />
+                <Route path="/legal/service-agreement" element={<LegalServiceAgreement />} />
+                <Route path="/legal/privacy-policy" element={<LegalPrivacyPolicy />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </TooltipProvider>
+        </OnlineStatusProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
