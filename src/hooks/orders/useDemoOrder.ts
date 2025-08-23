@@ -9,7 +9,7 @@ export const useDemoOrder = () => {
 
   const createDemoOrder = async (): Promise<boolean> => {
     try {
-      const { data, error } = await supabase.rpc('create_demo_order_for_my_store');
+      const { data, error } = await supabase.rpc('create_demo_order_for_my_store' as any);
       
       if (error) {
         console.error('Error creating demo order:', error);
