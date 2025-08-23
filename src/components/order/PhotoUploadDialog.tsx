@@ -94,10 +94,15 @@ const PhotoUploadDialog = ({ open, onOpenChange, orderId, onUploadComplete }: Ph
     } catch (error) {
       console.error('Upload error:', error);
       toast({
-        title: "上传失败",
-        description: "请稍后重试",
-        variant: "destructive",
+        title: "上传失败，已跳过",
+        description: "继续体验后续流程",
       });
+      
+      // For demo purposes, still proceed to completion
+      setTimeout(() => {
+        onOpenChange(false);
+        onUploadComplete();
+      }, 1500);
     } finally {
       setUploading(false);
     }
@@ -105,6 +110,36 @@ const PhotoUploadDialog = ({ open, onOpenChange, orderId, onUploadComplete }: Ph
 
   const removeUploadedFile = (index: number) => {
     setUploadedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSkip = async () => {
+    try {
+      // Update order status to completed for demo purposes
+      const { error: updateError } = await (supabase as any)
+        .from('orders')
+        .update({ 
+          status: 'completed',
+          completed_at: new Date().toISOString()
+        })
+        .eq('id', orderId);
+
+      if (updateError) {
+        console.error('Skip update error:', updateError);
+      }
+
+      toast({
+        title: "已跳过照片上传",
+        description: "继续体验后续流程",
+      });
+
+      onOpenChange(false);
+      onUploadComplete();
+    } catch (error) {
+      console.error('Skip error:', error);
+      // Still proceed for demo purposes
+      onOpenChange(false);
+      onUploadComplete();
+    }
   };
 
   return (
@@ -178,6 +213,14 @@ const PhotoUploadDialog = ({ open, onOpenChange, orderId, onUploadComplete }: Ph
               disabled={uploading}
             >
               取消
+            </Button>
+            <Button 
+              variant="secondary" 
+              className="flex-1"
+              onClick={handleSkip}
+              disabled={uploading}
+            >
+              跳过上传（演示）
             </Button>
             {uploadedFiles.length > 0 && (
               <Button 
