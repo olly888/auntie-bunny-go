@@ -38,7 +38,7 @@ function App() {
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<Workbench />} />
             <Route path="/tasks" element={<TaskHall />} />
             <Route path="/grab/:orderId" element={<OrderGrab />} />
             <Route path="/service/:orderId" element={<OrderService />} />

@@ -143,7 +143,7 @@ const OrderService = () => {
       title: "服务完成",
       description: "感谢您的辛勤工作！",
     });
-    navigate('/workbench', { state: { activeTab: 'in-progress' } });
+    navigate('/', { state: { activeTab: 'inprogress' } });
   };
 
   const formatTime = (seconds: number) => {
@@ -234,7 +234,7 @@ const OrderService = () => {
     <div className="flex flex-col h-screen bg-background">
       {/* Top Navigation - Fixed height */}
       <div className="flex items-center justify-between p-4 border-b bg-background z-10">
-        <Button variant="ghost" size="sm" onClick={() => navigate('/workbench', { state: { activeTab: 'in-progress' } })}>
+        <Button variant="ghost" size="sm" onClick={() => navigate('/', { state: { activeTab: 'inprogress' } })}>
           <ArrowLeft className="w-4 h-4 mr-2" />
           返回
         </Button>

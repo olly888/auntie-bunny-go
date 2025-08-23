@@ -36,7 +36,11 @@ const Workbench = () => {
   // Set active tab from navigation state
   useEffect(() => {
     if (location.state?.activeTab) {
-      setActiveTab(location.state.activeTab);
+      // Validate activeTab value against allowed values
+      const validTabs = ["hall", "inprogress", "done"];
+      if (validTabs.includes(location.state.activeTab)) {
+        setActiveTab(location.state.activeTab);
+      }
     }
   }, [location.state]);
 
@@ -320,7 +324,7 @@ const Workbench = () => {
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    onClick={() => navigate("/order-service")}
+                    onClick={() => navigate(`/service/${currentOrder.id}`)}
                     className="px-6"
                   >
                     查看详情

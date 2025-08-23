@@ -24,7 +24,7 @@ export function BottomNav() {
       <div className="max-w-md mx-auto px-4">
         <div className="flex items-center justify-around py-2">
           {navItems.map((item) => {
-            const isActive = location.pathname === item.path;
+            const isActive = item.path === "/" ? location.pathname === "/" : location.pathname.startsWith(item.path);
             const Icon = item.icon;
             
             return (
