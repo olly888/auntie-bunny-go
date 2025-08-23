@@ -7,12 +7,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useNavigate } from "react-router-dom";
-import { Phone, Bell } from "lucide-react";
+import { Phone, Bell, RefreshCw } from "lucide-react";
 import rabbitMascot from "@/assets/rabbit-mascot.png";
 import { useOnlineStatus } from "@/hooks/use-online-status";
 import { useCurrentTask } from "@/hooks/orders/useCurrentTask";
 import { useTodayStats } from "@/hooks/orders/useTodayStats";
 import { useOrdersRealtime } from "@/hooks/orders/useOrdersRealtime";
+import { useTaskHallOrders } from "@/hooks/orders/useTaskHallOrders";
 import { TaskHallList } from "@/components/orders/TaskHallList";
 import { OrderBroadcastModal } from "@/components/orders/OrderBroadcastModal";
 import { CurrentTaskCard } from "@/components/orders/CurrentTaskCard";
@@ -26,6 +27,7 @@ const Workbench = () => {
   // Data hooks
   const { data: currentTask } = useCurrentTask();
   const { data: todayStats } = useTodayStats();
+  const { data: taskHallOrders, refetch: refetchTaskHall } = useTaskHallOrders();
   const { newOrder, clearNewOrder } = useOrdersRealtime(isOnline);
 
   const hasCurrentTask = !!currentTask;
@@ -185,17 +187,32 @@ const Workbench = () => {
           <Card className="overflow-hidden">
             <Tabs defaultValue={hasCurrentTask ? "progress" : "new"} className="w-full">
               <div className="border-b border-border">
-                <TabsList className="w-full h-12 bg-transparent justify-start rounded-none border-0">
-                  <TabsTrigger value="new" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
-                    任务大厅
-                  </TabsTrigger>
-                  <TabsTrigger value="progress" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
-                    进行中
-                  </TabsTrigger>
-                  <TabsTrigger value="completed" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
-                    已完成
-                  </TabsTrigger>
-                </TabsList>
+                <div className="flex items-center justify-between">
+                  <TabsList className="h-12 bg-transparent justify-start rounded-none border-0">
+                    <TabsTrigger value="new" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none flex items-center gap-2">
+                      任务大厅
+                      {taskHallOrders && taskHallOrders.length > 0 && (
+                        <Badge variant="destructive" className="h-4 w-4 p-0 text-2xs flex items-center justify-center">
+                          {taskHallOrders.length}
+                        </Badge>
+                      )}
+                    </TabsTrigger>
+                    <TabsTrigger value="progress" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
+                      进行中
+                    </TabsTrigger>
+                    <TabsTrigger value="completed" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
+                      已完成
+                    </TabsTrigger>
+                  </TabsList>
+                  <Button
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => refetchTaskHall()}
+                    className="mr-4 p-2"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
               
               <div className="p-4">
