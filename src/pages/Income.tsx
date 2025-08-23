@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { BottomNav } from "@/components/ui/bottom-nav";
@@ -6,8 +7,10 @@ import { TimeFilter } from "@/components/income/TimeFilter";
 import { LoadingSkeleton } from "@/components/income/LoadingSkeleton";
 import { useIncomeData, TimePeriod } from "@/hooks/useIncomeData";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useNavigate } from "react-router-dom";
 
 const Income = () => {
+  const navigate = useNavigate();
   const [period, setPeriod] = useState<TimePeriod>('month');
   const [selectedDate, setSelectedDate] = useState(new Date());
   
@@ -18,10 +21,30 @@ const Income = () => {
   }
 
   const menuItems = [
-    { icon: FileText, title: "收入明细", description: "查看详细收入记录" },
-    { icon: TrendingUp, title: "我的业绩", description: "查看服务统计" },
-    { icon: CreditCard, title: "我的银行卡", description: "管理提现账户" },
-    { icon: HelpCircle, title: "薪资说明", description: "了解薪资计算规则" }
+    { 
+      icon: FileText, 
+      title: "收入明细", 
+      description: "查看详细收入记录",
+      path: "/income/details"
+    },
+    { 
+      icon: TrendingUp, 
+      title: "我的业绩", 
+      description: "查看服务统计",
+      path: "/income/performance"
+    },
+    { 
+      icon: CreditCard, 
+      title: "我的银行卡", 
+      description: "管理提现账户",
+      path: "/wallet/cards"
+    },
+    { 
+      icon: HelpCircle, 
+      title: "薪资说明", 
+      description: "了解薪资计算规则",
+      path: "/income/salary"
+    }
   ];
 
   return (
@@ -84,6 +107,7 @@ const Income = () => {
                 key={index}
                 variant="ghost"
                 className="w-full h-auto p-4 justify-between bg-card hover:bg-accent/50 shadow-card"
+                onClick={() => navigate(item.path)}
               >
                 <div className="flex items-center gap-4">
                   <div className="p-2 bg-primary/10 rounded-lg">
@@ -102,7 +126,12 @@ const Income = () => {
 
         {/* 提现按钮 */}
         <div className="pt-4">
-          <Button variant="primary" size="lg" className="w-full">
+          <Button 
+            variant="primary" 
+            size="lg" 
+            className="w-full"
+            onClick={() => navigate('/wallet/cards')}
+          >
             <CreditCard className="w-5 h-5 mr-2" />
             申请提现
           </Button>

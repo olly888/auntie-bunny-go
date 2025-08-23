@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      bank_accounts: {
+        Row: {
+          account_holder: string
+          account_number_last4: string
+          bank_name: string
+          created_at: string
+          id: string
+          is_default: boolean
+          owner_profile_id: string
+          updated_at: string
+        }
+        Insert: {
+          account_holder: string
+          account_number_last4: string
+          bank_name: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          owner_profile_id: string
+          updated_at?: string
+        }
+        Update: {
+          account_holder?: string
+          account_number_last4?: string
+          bank_name?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          owner_profile_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bank_accounts_owner_profile_id_fkey"
+            columns: ["owner_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customer_notes: {
         Row: {
           author_id: string
