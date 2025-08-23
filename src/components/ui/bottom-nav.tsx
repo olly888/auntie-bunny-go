@@ -42,12 +42,6 @@ export function BottomNav() {
               >
                 <div className="relative">
                   <Icon className="w-5 h-5 mb-1" />
-                  {/* 收入徽章 */}
-                  {item.path === "/income" && (
-                    <div className="absolute -top-1 -right-2 bg-primary text-primary-foreground text-xs rounded-full px-1.5 py-0.5 min-w-[20px] text-center leading-none">
-                      ¥123.5
-                    </div>
-                  )}
                 </div>
                 <span className="text-xs font-medium">{item.label}</span>
               </button>

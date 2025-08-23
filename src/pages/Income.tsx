@@ -35,12 +35,6 @@ const Income = () => {
       title: "我的银行卡", 
       description: "管理提现账户",
       path: "/wallet/cards"
-    },
-    { 
-      icon: HelpCircle, 
-      title: "薪资说明", 
-      description: "了解薪资计算规则",
-      path: "/income/salary"
     }
   ];
 
