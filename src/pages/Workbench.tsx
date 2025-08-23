@@ -121,13 +121,29 @@ const Workbench = () => {
           </div>
 
           <TabsContent value="hall" className="mt-4">
-            <Card className="p-8 text-center border-2 border-dashed border-muted-foreground/30">
+            <Card className="p-8 text-center border-2 border-dashed border-primary/30 bg-primary/5">
+              <img 
+                src={rabbitMascot} 
+                alt="兔到到吉祥物" 
+                className="w-20 h-20 mx-auto mb-4 opacity-80"
+              />
               <div className="space-y-2">
-                <p className="font-medium text-foreground">暂无可抢订单</p>
+                <p className="font-medium text-foreground">等待新订单中...</p>
                 <p className="text-sm text-muted-foreground">
-                  请稍后刷新或保持在线等待新订单
+                  {isOnline ? "保持在线状态，随时准备接单" : "请先上线后等待订单"}
                 </p>
               </div>
+              {/* 演示按钮：模拟接到任务 */}
+              {isOnline && !currentTask && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-4"
+                  onClick={() => setHasCurrentTask(true)}
+                >
+                  模拟接到任务
+                </Button>
+              )}
             </Card>
           </TabsContent>
 
@@ -160,29 +176,13 @@ const Workbench = () => {
                 </div>
               </div>
             ) : (
-              <Card className="p-8 text-center border-2 border-dashed border-primary/30 bg-primary/5">
-                <img 
-                  src={rabbitMascot} 
-                  alt="兔到到吉祥物" 
-                  className="w-20 h-20 mx-auto mb-4 opacity-80"
-                />
+              <Card className="p-8 text-center border-2 border-dashed border-muted-foreground/30">
                 <div className="space-y-2">
-                  <p className="font-medium text-foreground">等待新订单中...</p>
+                  <p className="font-medium text-foreground">暂无进行中的任务</p>
                   <p className="text-sm text-muted-foreground">
-                    {isOnline ? "保持在线状态，随时准备接单" : "请先上线后等待订单"}
+                    请到任务大厅接单开始工作
                   </p>
                 </div>
-                {/* 演示按钮：模拟接到任务 */}
-                {isOnline && (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="mt-4"
-                    onClick={() => setHasCurrentTask(true)}
-                  >
-                    模拟接到任务
-                  </Button>
-                )}
               </Card>
             )}
           </TabsContent>
