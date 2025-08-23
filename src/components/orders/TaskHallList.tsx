@@ -1,5 +1,3 @@
-import { RefreshCw } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { OrderCard } from "./OrderCard";
 import { useTaskHallOrders, useClaimOrder } from "@/hooks/orders/useTaskHallOrders";
 import { useToast } from "@/hooks/use-toast";
@@ -53,27 +51,8 @@ export function TaskHallList() {
     }
   };
 
-  const handleRefresh = () => {
-    refetch();
-  };
-
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-foreground">
-          任务大厅 ({orders.length}个新订单)
-        </h3>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleRefresh}
-          disabled={isLoading}
-          className="text-muted-foreground hover:text-foreground"
-        >
-          <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-        </Button>
-      </div>
-
       {isLoading && orders.length === 0 ? (
         <div className="text-center py-8 text-muted-foreground">
           加载中...
