@@ -1,47 +1,77 @@
+
 import React, { useState, useEffect } from 'react';
-import { Clock } from 'lucide-react';
+import { Clock, AlertTriangle } from 'lucide-react';
 
 interface OrderCountdownProps {
   createdAt: string;
-  durationMinutes?: number;
+  variant?: 'broadcast' | 'taskHall';
+  onExpire?: () => void;
 }
 
-export function OrderCountdown({ createdAt, durationMinutes = 10 }: OrderCountdownProps) {
-  const [timeLeft, setTimeLeft] = useState<number>(0);
+export function OrderCountdown({ createdAt, variant = 'taskHall', onExpire }: OrderCountdownProps) {
+  const [timeRemaining, setTimeRemaining] = useState(0);
+  const [isExpired, setIsExpired] = useState(false);
 
   useEffect(() => {
-    const calculateTimeLeft = () => {
+    const updateCountdown = () => {
       const createdTime = new Date(createdAt).getTime();
-      const expiryTime = createdTime + (durationMinutes * 60 * 1000);
       const now = Date.now();
-      const remaining = Math.max(0, Math.floor((expiryTime - now) / 1000));
-      return remaining;
+      const elapsed = now - createdTime;
+      
+      let totalTime: number;
+      if (variant === 'broadcast') {
+        // 10 seconds for broadcast popup
+        totalTime = 10 * 1000;
+      } else {
+        // 40 seconds total (10s broadcast + 30s task hall before escalation)
+        totalTime = 40 * 1000;
+      }
+      
+      const remaining = Math.max(0, totalTime - elapsed);
+      setTimeRemaining(remaining);
+      
+      if (remaining === 0 && !isExpired) {
+        setIsExpired(true);
+        onExpire?.();
+      }
     };
 
-    const updateTimer = () => {
-      setTimeLeft(calculateTimeLeft());
-    };
-
-    updateTimer();
-    const interval = setInterval(updateTimer, 1000);
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 100);
 
     return () => clearInterval(interval);
-  }, [createdAt, durationMinutes]);
+  }, [createdAt, variant, onExpire, isExpired]);
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
+  const seconds = Math.ceil(timeRemaining / 1000);
+  const progress = variant === 'broadcast' 
+    ? (timeRemaining / (10 * 1000)) * 100
+    : (timeRemaining / (40 * 1000)) * 100;
 
-  const isExpired = timeLeft === 0;
+  if (isExpired && variant === 'taskHall') {
+    return (
+      <div className="flex items-center text-orange-600">
+        <AlertTriangle className="w-4 h-4 mr-1" />
+        <span className="text-sm font-medium">即将转入异常处理</span>
+      </div>
+    );
+  }
 
   return (
-    <div className={`flex items-center text-sm ${
-      isExpired ? 'text-muted-foreground' : 'text-destructive'
-    }`}>
-      <Clock className="w-3 h-3 mr-1" />
-      {isExpired ? '已过期' : formatTime(timeLeft)}
+    <div className="flex items-center space-x-2">
+      <Clock className={`w-4 h-4 ${seconds <= 5 ? 'text-red-500' : 'text-orange-500'}`} />
+      <div className="flex-1">
+        <div className={`text-sm font-medium ${seconds <= 5 ? 'text-red-500' : 'text-orange-500'}`}>
+          {variant === 'broadcast' ? '抢单倒计时' : '自动升级倒计时'}: {seconds}秒
+        </div>
+        <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+          <div 
+            className={`h-1.5 rounded-full transition-all duration-100 ${
+              seconds <= 5 ? 'bg-red-500' : 'bg-orange-500'
+            }`}
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      </div>
     </div>
   );
 }

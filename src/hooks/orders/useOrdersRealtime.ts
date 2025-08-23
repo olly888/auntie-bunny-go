@@ -1,44 +1,91 @@
-import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { Order } from './useTaskHallOrders';
 
-export const useOrdersRealtime = (isOnline: boolean) => {
+import { useEffect, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+
+export interface Order {
+  id: string;
+  type: string;
+  duration_minutes: number;
+  address: string;
+  payout: number;
+  distance_minutes: number | null;
+  status: string;
+  created_at: string;
+  contact_phone?: string | null;
+  contact_name?: string | null;
+  store_id?: string | null;
+}
+
+export const useOrdersRealtime = () => {
   const [newOrder, setNewOrder] = useState<Order | null>(null);
+  const queryClient = useQueryClient();
+
+  // Get current user's profile to check store_id and role
+  const { data: profile } = useQuery({
+    queryKey: ['current-profile'],
+    queryFn: async () => {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) return null;
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('store_id, role')
+        .eq('id', user.user.id)
+        .single();
+
+      if (error) throw error;
+      return data;
+    }
+  });
 
   useEffect(() => {
-    if (!isOnline) return;
+    if (!profile) return;
 
-    console.log('Setting up realtime subscription for new orders...');
+    console.log('Setting up realtime subscription for store:', profile.store_id);
     
     const channel = supabase
-      .channel('new-orders')
+      .channel('orders-realtime')
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
           table: 'orders',
-          filter: 'status=eq.pending'
+          filter: `store_id=eq.${profile.store_id}`
         },
         (payload) => {
           console.log('New order received:', payload);
           const order = payload.new as Order;
-          setNewOrder(order);
+          
+          // Only show broadcast for pending orders in the same store
+          if (order.status === 'pending' && order.store_id === profile.store_id) {
+            setNewOrder(order);
+            
+            // Auto-hide after 10 seconds
+            setTimeout(() => {
+              setNewOrder(null);
+            }, 10000);
+          }
+
+          // Invalidate relevant queries
+          queryClient.invalidateQueries({ queryKey: ['task-hall-orders'] });
         }
       )
-      .subscribe((status) => {
-        console.log('Realtime subscription status:', status);
-      });
+      .subscribe();
 
     return () => {
       console.log('Cleaning up realtime subscription');
       supabase.removeChannel(channel);
     };
-  }, [isOnline]);
+  }, [profile, queryClient]);
 
-  const clearNewOrder = () => {
+  const dismissOrder = () => {
     setNewOrder(null);
   };
 
-  return { newOrder, clearNewOrder };
+  return {
+    newOrder,
+    dismissOrder
+  };
 };

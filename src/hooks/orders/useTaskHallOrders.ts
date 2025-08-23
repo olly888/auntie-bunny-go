@@ -1,3 +1,4 @@
+
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -16,17 +17,31 @@ export interface Order {
   assignee_id?: string | null;
   contact_phone?: string | null;
   contact_name?: string | null;
+  store_id?: string | null;
 }
 
 export const useTaskHallOrders = () => {
   return useQuery({
     queryKey: ['task-hall-orders'],
     queryFn: async () => {
-      // Get orders that are pending and have been around for >10 seconds (missed the initial broadcast)
+      // Get current user's profile to filter by store
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) return [];
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('store_id')
+        .eq('id', user.user.id)
+        .single();
+
+      if (!profile?.store_id) return [];
+
+      // Get orders that are pending, in the same store, and have been around for >10 seconds
       const { data, error } = await supabase
         .from('orders')
-        .select('id, type, duration_minutes, address, payout, distance_minutes, status, created_at')
+        .select('id, type, duration_minutes, address, payout, distance_minutes, status, created_at, store_id')
         .eq('status', 'pending')
+        .eq('store_id', profile.store_id)
         .lt('created_at', new Date(Date.now() - 10000).toISOString()) // older than 10 seconds
         .order('created_at', { ascending: false });
 
