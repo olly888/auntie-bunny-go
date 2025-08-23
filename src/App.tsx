@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Workbench from "./pages/Workbench";
+import TaskHall from "./pages/TaskHall";
 import OrderGrab from "./pages/OrderGrab";
 import OrderService from "./pages/OrderService";
 import Income from "./pages/Income";
@@ -32,6 +33,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Workbench />} />
+            <Route path="/task-hall" element={<TaskHall />} />
             <Route path="/order-grab" element={<OrderGrab />} />
             <Route path="/order-service" element={<OrderService />} />
             <Route path="/income" element={<Income />} />

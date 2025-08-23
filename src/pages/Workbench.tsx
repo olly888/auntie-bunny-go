@@ -3,18 +3,34 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useNavigate } from "react-router-dom";
-import { Phone, RefreshCw } from "lucide-react";
+import { Phone, RefreshCw, Plus } from "lucide-react";
+import { OrderCard } from "@/components/order/OrderCard";
+import { useOrders } from "@/hooks/useOrders";
 import rabbitMascot from "@/assets/rabbit-mascot.png";
 
 const Workbench = () => {
   const [isOnline, setIsOnline] = useState(true);
-  const [hasCurrentTask, setHasCurrentTask] = useState(false);
   const [showOfflineDialog, setShowOfflineDialog] = useState(false);
   const [activeTab, setActiveTab] = useState("inprogress");
   const navigate = useNavigate();
+  
+  const { 
+    pendingOrders, 
+    myActiveOrders, 
+    completedOrders,
+    loading,
+    claimOrder,
+    updateOrderStatus,
+    createDemoOrder,
+    refetch
+  } = useOrders();
+
+  const hasCurrentTask = myActiveOrders.length > 0;
+  const currentTask = myActiveOrders[0] || null;
 
   const handleToggleOnline = (checked: boolean) => {
     if (checked) {
@@ -30,22 +46,23 @@ const Workbench = () => {
 
   const confirmGoOffline = () => {
     setIsOnline(false);
-    setHasCurrentTask(false);
     setShowOfflineDialog(false);
   };
 
-  // 模拟数据
-  const todayStats = {
-    completed: 5,
-    earnings: 123.5,
-    rating: 100
-  };
+  // 计算今日统计
+  const todayCompletedCount = completedOrders.filter(order => {
+    const today = new Date();
+    const orderDate = new Date(order.completed_at || order.created_at);
+    return orderDate.toDateString() === today.toDateString();
+  }).length;
 
-  const currentTask = hasCurrentTask ? {
-    type: "洗碗兔",
-    timeLeft: 15,
-    address: "深圳市南山区xx小区 A栋 1201"
-  } : null;
+  const todayEarnings = completedOrders
+    .filter(order => {
+      const today = new Date();
+      const orderDate = new Date(order.completed_at || order.created_at);
+      return orderDate.toDateString() === today.toDateString();
+    })
+    .reduce((sum, order) => sum + Number(order.payout), 0);
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -99,7 +116,7 @@ const Workbench = () => {
           </div>
           {/* 内嵌统计信息 */}
           <div className="text-xs text-muted-foreground mt-2">
-            今日：{todayStats.completed} 单 · ¥{todayStats.earnings} · 5 小时
+            今日：{todayCompletedCount} 单 · ¥{todayEarnings} · {myActiveOrders.length > 0 ? '服务中' : '空闲'}
           </div>
         </Card>
 
@@ -107,73 +124,112 @@ const Workbench = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="flex items-center justify-between">
             <TabsList className="grid w-full max-w-sm grid-cols-3">
-              <TabsTrigger value="hall">任务大厅</TabsTrigger>
-              <TabsTrigger value="inprogress">进行中</TabsTrigger>
-              <TabsTrigger value="done">已完成</TabsTrigger>
+              <TabsTrigger value="hall" className="relative">
+                任务大厅
+                {pendingOrders.length > 0 && (
+                  <Badge variant="destructive" className="absolute -top-2 -right-2 h-5 w-5 p-0 text-xs">
+                    {pendingOrders.length}
+                  </Badge>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="inprogress" className="relative">
+                进行中
+                {myActiveOrders.length > 0 && (
+                  <Badge variant="default" className="absolute -top-2 -right-2 h-5 w-5 p-0 text-xs">
+                    {myActiveOrders.length}
+                  </Badge>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="done" className="relative">
+                已完成
+                {completedOrders.length > 0 && (
+                  <Badge variant="secondary" className="absolute -top-2 -right-2 h-5 w-5 p-0 text-xs">
+                    {completedOrders.length}
+                  </Badge>
+                )}
+              </TabsTrigger>
             </TabsList>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => console.log('refresh')}
-            >
-              <RefreshCw className="w-4 h-4" />
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={createDemoOrder}
+                disabled={loading}
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={refetch}
+                disabled={loading}
+              >
+                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              </Button>
+            </div>
           </div>
 
           <TabsContent value="hall" className="mt-4">
-            <Card className="p-8 text-center border-2 border-dashed border-primary/30 bg-primary/5">
-              <img 
-                src={rabbitMascot} 
-                alt="兔到到吉祥物" 
-                className="w-20 h-20 mx-auto mb-4 opacity-80"
-              />
-              <div className="space-y-2">
-                <p className="font-medium text-foreground">等待新订单中...</p>
-                <p className="text-sm text-muted-foreground">
-                  {isOnline ? "保持在线状态，随时准备接单" : "请先上线后等待订单"}
-                </p>
+            {pendingOrders.length > 0 ? (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">
+                    {pendingOrders.length} 个可抢订单
+                  </span>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => navigate('/task-hall')}
+                  >
+                    查看全部
+                  </Button>
+                </div>
+                {pendingOrders.slice(0, 3).map(order => (
+                  <OrderCard
+                    key={order.id}
+                    order={order}
+                    onClaim={claimOrder}
+                    variant="pending"
+                  />
+                ))}
+                {pendingOrders.length > 3 && (
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => navigate('/task-hall')}
+                  >
+                    查看更多 ({pendingOrders.length - 3} 个)
+                  </Button>
+                )}
               </div>
-              {/* 演示按钮：模拟接到任务 */}
-              {isOnline && !currentTask && (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-4"
-                  onClick={() => setHasCurrentTask(true)}
-                >
-                  模拟接到任务
-                </Button>
-              )}
-            </Card>
+            ) : (
+              <Card className="p-8 text-center border-2 border-dashed border-primary/30 bg-primary/5">
+                <img 
+                  src={rabbitMascot} 
+                  alt="兔到到吉祥物" 
+                  className="w-20 h-20 mx-auto mb-4 opacity-80"
+                />
+                <div className="space-y-2">
+                  <p className="font-medium text-foreground">等待新订单中...</p>
+                  <p className="text-sm text-muted-foreground">
+                    {isOnline ? "保持在线状态，随时准备接单" : "请先上线后等待订单"}
+                  </p>
+                </div>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="inprogress" className="mt-4">
-            {currentTask ? (
-              <div className="bg-gradient-card border-2 border-primary rounded-xl p-6 shadow-card">
-                <div className="flex items-center gap-4">
-                  <div className="text-2xl">🐰</div>
-                  <div className="flex-1">
-                    <div className="font-semibold text-foreground mb-1">
-                      {currentTask.type} | 剩余约 {currentTask.timeLeft} 分钟
-                    </div>
-                    <div className="text-sm text-muted-foreground mb-3">
-                      📍 {currentTask.address}
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" onClick={() => navigate("/order-service")}>
-                        查看详情
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => window.location.href = "tel:400-123-4567"}
-                      >
-                        <Phone className="w-4 h-4 mr-1" />
-                        紧急求助
-                      </Button>
-                    </div>
-                  </div>
-                </div>
+            {myActiveOrders.length > 0 ? (
+              <div className="space-y-4">
+                {myActiveOrders.map(order => (
+                  <OrderCard
+                    key={order.id}
+                    order={order}
+                    onStatusUpdate={updateOrderStatus}
+                    variant={order.status === 'in_progress' ? 'in_progress' : 'assigned'}
+                  />
+                ))}
               </div>
             ) : (
               <Card className="p-8 text-center border-2 border-dashed border-muted-foreground/30">
@@ -188,14 +244,27 @@ const Workbench = () => {
           </TabsContent>
 
           <TabsContent value="done" className="mt-4">
-            <Card className="p-8 text-center border-2 border-dashed border-muted-foreground/30">
-              <div className="space-y-2">
-                <p className="font-medium text-foreground">暂无已完成订单</p>
-                <p className="text-sm text-muted-foreground">
-                  完成任务后将在这里显示历史记录
-                </p>
+            {completedOrders.length > 0 ? (
+              <div className="space-y-4">
+                {completedOrders.slice(0, 10).map(order => (
+                  <OrderCard
+                    key={order.id}
+                    order={order}
+                    variant="completed"
+                    showActions={false}
+                  />
+                ))}
               </div>
-            </Card>
+            ) : (
+              <Card className="p-8 text-center border-2 border-dashed border-muted-foreground/30">
+                <div className="space-y-2">
+                  <p className="font-medium text-foreground">暂无已完成订单</p>
+                  <p className="text-sm text-muted-foreground">
+                    完成任务后将在这里显示历史记录
+                  </p>
+                </div>
+              </Card>
+            )}
           </TabsContent>
         </Tabs>
       </div>
