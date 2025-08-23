@@ -44,31 +44,31 @@ function App() {
           <Route path="/" element={<Workbench />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/tasks" element={<TaskHall />} />
-            <Route path="/grab/:orderId" element={<OrderGrab />} />
-            <Route path="/service/:orderId" element={<OrderService />} />
-            <Route path="/workbench" element={<Workbench />} />
-            <Route path="/income" element={<Income />} />
-            <Route path="/income/details" element={<IncomeDetails />} />
-            <Route path="/income/performance" element={<MyPerformance />} />
-            <Route path="/income/salary" element={<SalaryExplanation />} />
-            <Route path="/withdraw" element={<Withdraw />} />
-            <Route path="/withdraw/history" element={<WithdrawHistory />} />
-            <Route path="/wallet/cards" element={<MyBankCards />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/profile/details" element={<ProfileDetails />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/help" element={<Help />} />
-            <Route path="/training" element={<TrainingCenter />} />
-            <Route path="/training/course/:courseId" element={<CoursePlayer />} />
-            <Route path="/reviews" element={<Reviews />} />
-            <Route path="/invitations" element={<Invitations />} />
-            <Route path="/insurance" element={<Insurance />} />
-            <Route path="/notifications" element={<Notifications />} />
-            <Route path="/security" element={<Security />} />
-            <Route path="/legal/service-agreement" element={<LegalServiceAgreement />} />
-            <Route path="/legal/privacy-policy" element={<LegalPrivacyPolicy />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <Route path="/grab/:orderId" element={<OrderGrab />} />
+          <Route path="/service/:orderId" element={<OrderService />} />
+          <Route path="/workbench" element={<Workbench />} />
+          <Route path="/income" element={<Income />} />
+          <Route path="/income/details" element={<IncomeDetails />} />
+          <Route path="/income/performance" element={<MyPerformance />} />
+          <Route path="/income/salary" element={<SalaryExplanation />} />
+          <Route path="/withdraw" element={<Withdraw />} />
+          <Route path="/withdraw/history" element={<WithdrawHistory />} />
+          <Route path="/wallet/cards" element={<MyBankCards />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/profile/details" element={<ProfileDetails />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/help" element={<Help />} />
+          <Route path="/training" element={<TrainingCenter />} />
+          <Route path="/training/course/:courseId" element={<CoursePlayer />} />
+          <Route path="/reviews" element={<Reviews />} />
+          <Route path="/invitations" element={<Invitations />} />
+          <Route path="/insurance" element={<Insurance />} />
+          <Route path="/notifications" element={<Notifications />} />
+          <Route path="/security" element={<Security />} />
+          <Route path="/legal/service-agreement" element={<LegalServiceAgreement />} />
+          <Route path="/legal/privacy-policy" element={<LegalPrivacyPolicy />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </TooltipProvider>
     </QueryClientProvider>
   );
