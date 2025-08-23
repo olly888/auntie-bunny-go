@@ -252,7 +252,12 @@ const OrderService = () => {
       />
 
       {/* Bottom Drawer - Non-modal overlay */}
-      <Drawer open={true}>
+      <Drawer open={bottomSheetOpen} onOpenChange={(open) => {
+        setBottomSheetOpen(open);
+        if (!open) {
+          navigate('/workbench');
+        }
+      }}>
         <DrawerContent className="max-h-[65vh] border-t-2">
           <DrawerHeader className="pb-2">
             <div className="flex items-center justify-between">
