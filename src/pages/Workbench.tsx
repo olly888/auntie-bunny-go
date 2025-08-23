@@ -184,9 +184,9 @@ const Workbench = () => {
           )}
 
           {/* 任务大厅与管理区 */}
-          <Card className="overflow-hidden">
+          <div className="overflow-hidden">
             <Tabs defaultValue={hasCurrentTask ? "progress" : "new"} className="w-full">
-              <div className="border-b border-border">
+              <div className="border-b border-border bg-card rounded-t-lg">
                 <div className="flex items-center justify-between">
                   <TabsList className="h-12 bg-transparent justify-start rounded-none border-0">
                     <TabsTrigger value="new" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none flex items-center gap-2">
@@ -215,10 +215,10 @@ const Workbench = () => {
                 </div>
               </div>
               
-              <div className="p-4">
+              <div className="space-y-3">
                 <TabsContent value="new" className="mt-0">
                   {!hasCurrentTask ? (
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                       <TaskHallList />
                       {isOnline && (
                         <div className="p-6 text-center border-2 border-dashed border-primary/30 bg-primary/5 rounded-lg">
@@ -270,7 +270,7 @@ const Workbench = () => {
                 </TabsContent>
               </div>
             </Tabs>
-          </Card>
+          </div>
         </div>
       </div>
       

@@ -51,8 +51,8 @@ export const useTaskHallOrders = () => {
       
       return taskHallOrders as Order[];
     },
-    refetchInterval: 10000, // Refetch every 10 seconds
-    staleTime: 5000, // Consider data stale after 5 seconds
+    refetchInterval: 60000, // Refetch every 60 seconds (1 minute)
+    staleTime: 30000, // Consider data stale after 30 seconds
   });
 };
 
