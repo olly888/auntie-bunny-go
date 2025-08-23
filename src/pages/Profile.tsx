@@ -13,7 +13,7 @@ const Profile = () => {
     { icon: User, label: "个人资料", path: "/profile/details" },
     { icon: Share2, label: "我的邀请", path: "/invitations" },
     { icon: Star, label: "我的评价", path: "/reviews" },
-    { icon: Shield, label: "我的保险", path: "/insurance" },
+    // { icon: Shield, label: "我的保险", path: "/insurance" }, // 隐藏保险功能，下一阶段开发
     { icon: Settings, label: "系统设置", path: "/settings" },
     { icon: HelpCircle, label: "帮助中心", path: "/help" },
   ];

@@ -19,6 +19,7 @@ import ProfileDetails from "./pages/ProfileDetails";
 import Settings from "./pages/Settings";
 import Help from "./pages/Help";
 import TrainingCenter from "./pages/TrainingCenter";
+import CoursePlayer from "./pages/CoursePlayer";
 import Reviews from "./pages/Reviews";
 import Invitations from "./pages/Invitations";
 import Insurance from "./pages/Insurance";
@@ -53,6 +54,7 @@ function App() {
             <Route path="/settings" element={<Settings />} />
             <Route path="/help" element={<Help />} />
             <Route path="/training" element={<TrainingCenter />} />
+            <Route path="/training/course/:courseId" element={<CoursePlayer />} />
             <Route path="/reviews" element={<Reviews />} />
             <Route path="/invitations" element={<Invitations />} />
             <Route path="/insurance" element={<Insurance />} />

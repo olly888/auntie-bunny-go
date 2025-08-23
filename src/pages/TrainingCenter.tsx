@@ -4,14 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { cn } from "@/lib/utils";
-import { Clock, BookOpen, Award, Bell, Play, Check } from "lucide-react";
+import { Clock, BookOpen, Award, Play, Check } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const TrainingCenter = () => {
+  const navigate = useNavigate();
+  
   // 模拟数据
   const learningProgress = {
-    completed: 12,
-    total: 18,
-    percentage: 67,
+    completed: 15,
+    total: 15,
+    percentage: 100,
     nextDeadline: "2024-01-15"
   };
 
@@ -30,18 +33,18 @@ const TrainingCenter = () => {
       title: "家庭清洁标准流程",
       type: "required", 
       duration: "60分钟",
-      completed: false,
+      completed: true,
       description: "掌握标准清洁流程，确保服务质量达标",
-      progress: 30
+      progress: 100
     },
     {
       id: 3,
       title: "安全作业规范",
       type: "required",
       duration: "30分钟", 
-      completed: false,
+      completed: true,
       description: "了解作业安全要求，保护自身和客户安全",
-      progress: 0
+      progress: 100
     },
     {
       id: 4,
@@ -57,9 +60,9 @@ const TrainingCenter = () => {
       title: "客户投诉处理技巧", 
       type: "optional",
       duration: "35分钟",
-      completed: false,
+      completed: true,
       description: "学会妥善处理客户投诉，化解矛盾冲突",
-      progress: 0
+      progress: 100
     }
   ];
 
@@ -71,14 +74,19 @@ const TrainingCenter = () => {
     return type === 'required' ? '必修' : '选修';
   };
 
+  const handleCourseAction = (courseId: number) => {
+    navigate(`/training/course/${courseId}`);
+  };
+
+  const allCoursesCompleted = courses.every(course => course.completed);
+
   return (
     <div className="min-h-screen bg-background pb-20">
       <div className="max-w-md mx-auto p-4 space-y-6">
         
         {/* 页面标题 */}
-        <div className="text-center py-4">
-          <h1 className="text-2xl font-bold text-foreground mb-2">培训中心</h1>
-          <p className="text-muted-foreground text-sm">提升技能，成为更专业的服务者</p>
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">培训中心</h1>
         </div>
 
         {/* 学习进度总览 */}
@@ -105,21 +113,6 @@ const TrainingCenter = () => {
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Award className="w-4 h-4" />
               <span>继续努力，距离认证还差 {learningProgress.total - learningProgress.completed} 门课程</span>
-            </div>
-          </div>
-        </Card>
-
-        {/* 学习提醒 */}
-        <Card className="p-4 bg-warning/5 border-warning/20">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-warning/10 flex items-center justify-center">
-              <Bell className="w-4 h-4 text-warning" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium text-warning-foreground">学习提醒</p>
-              <p className="text-xs text-muted-foreground">
-                必修课程需在 {learningProgress.nextDeadline} 前完成
-              </p>
             </div>
           </div>
         </Card>
@@ -176,6 +169,7 @@ const TrainingCenter = () => {
                         size="sm" 
                         variant={course.completed ? "secondary" : "primary"}
                         className="text-xs px-3 py-1"
+                        onClick={() => handleCourseAction(course.id)}
                       >
                         {course.completed ? "复习" : course.progress > 0 ? "继续" : "开始"}
                       </Button>
@@ -195,20 +189,47 @@ const TrainingCenter = () => {
         </div>
 
         {/* 认证信息 */}
-        <Card className="p-4 bg-accent/5 border-accent/20">
+        <Card className={cn(
+          "p-4",
+          allCoursesCompleted 
+            ? "bg-success/5 border-success/20" 
+            : "bg-accent/5 border-accent/20"
+        )}>
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center">
-              <Award className="w-4 h-4 text-accent-foreground" />
+            <div className={cn(
+              "w-8 h-8 rounded-full flex items-center justify-center",
+              allCoursesCompleted 
+                ? "bg-success/10" 
+                : "bg-accent/10"
+            )}>
+              <Award className={cn(
+                "w-4 h-4",
+                allCoursesCompleted 
+                  ? "text-success" 
+                  : "text-accent-foreground"
+              )} />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-medium text-accent-foreground">服务认证</p>
+              <p className={cn(
+                "text-sm font-medium",
+                allCoursesCompleted 
+                  ? "text-success-foreground" 
+                  : "text-accent-foreground"
+              )}>
+                {allCoursesCompleted ? "🎉 恭喜！服务认证已完成" : "服务认证"}
+              </p>
               <p className="text-xs text-muted-foreground">
-                完成所有必修课程后可获得专业服务认证
+                {allCoursesCompleted 
+                  ? "您已通过专业服务认证，可以提供更优质的服务" 
+                  : "完成所有必修课程后可获得专业服务认证"
+                }
               </p>
             </div>
-            <Button variant="outline" size="sm" className="text-xs">
-              了解详情
-            </Button>
+            {!allCoursesCompleted && (
+              <Button variant="outline" size="sm" className="text-xs">
+                了解详情
+              </Button>
+            )}
           </div>
         </Card>
       </div>
