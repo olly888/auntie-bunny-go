@@ -24,47 +24,47 @@ interface OrderCardProps {
 
 export function OrderCard({ order, onClaim, isLoading = false }: OrderCardProps) {
   return (
-    <div className="bg-card border border-border rounded-lg p-4 shadow-sm border-l-4 border-l-primary">
-      <div className="space-y-3">
-        {/* Order Type & Countdown */}
-        <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-lg text-card-foreground">{order.type}</h3>
-          <OrderCountdown createdAt={order.created_at} variant="taskHall" />
-        </div>
-
-        {/* Details Grid */}
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div className="flex items-center">
-            <DollarSign className="w-4 h-4 text-success mr-2" />
-            <span className="font-semibold text-success">¥{order.payout}</span>
+    <div className="p-4 bg-background/60 border border-border/30 rounded-lg hover:bg-background/80 transition-all duration-200">
+      <div className="flex items-center justify-between">
+        <div className="flex-1 space-y-3">
+          <div className="flex items-center gap-3">
+            <h3 className="font-medium text-foreground text-base">{order.type}</h3>
+            <OrderCountdown createdAt={order.created_at} variant="taskHall" />
           </div>
-          <div className="flex items-center">
-            <Clock className="w-4 h-4 text-primary mr-2" />
-            <span className="text-card-foreground">{order.duration_minutes}分钟</span>
-          </div>
-        </div>
-
-        {/* Address */}
-        <div className="flex items-start">
-          <MapPin className="w-4 h-4 text-destructive mr-2 mt-0.5 flex-shrink-0" />
-          <div className="flex-1">
-            <p className="text-sm text-card-foreground">{order.address}</p>
-            {order.distance_minutes && (
-              <p className="text-xs text-muted-foreground mt-1">
-                预计{order.distance_minutes}分钟路程
+          
+          <div className="grid grid-cols-3 gap-4 text-sm">
+            <div>
+              <p className="text-muted-foreground text-xs">酬劳</p>
+              <p className="font-semibold text-primary">¥{order.payout}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground text-xs">时长</p>
+              <p className="font-medium text-foreground">{order.duration_minutes}分钟</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground text-xs">距离</p>
+              <p className="font-medium text-foreground">
+                {order.distance_minutes ? `${order.distance_minutes}分钟` : '--'}
               </p>
-            )}
+            </div>
+          </div>
+          
+          <div>
+            <p className="text-muted-foreground text-xs mb-1">地址</p>
+            <p className="text-sm text-foreground">{order.address}</p>
           </div>
         </div>
-
-        {/* Action Button */}
-        <Button 
-          onClick={() => onClaim(order.id)}
-          disabled={isLoading}
-          className="w-full"
-        >
-          {isLoading ? '抢单中...' : '抢单'}
-        </Button>
+        
+        <div className="ml-4">
+          <Button 
+            onClick={() => onClaim(order.id)}
+            disabled={isLoading}
+            size="sm"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-button"
+          >
+            {isLoading ? "抢单中..." : "立即抢单"}
+          </Button>
+        </div>
       </div>
     </div>
   );
