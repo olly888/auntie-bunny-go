@@ -28,7 +28,7 @@ const Workbench = () => {
   const { data: currentTask } = useCurrentTask();
   const { data: todayStats } = useTodayStats();
   const { data: taskHallOrders, refetch: refetchTaskHall } = useTaskHallOrders();
-  const { newOrder, clearNewOrder } = useOrdersRealtime(isOnline);
+  const { newOrder, dismissOrder } = useOrdersRealtime();
 
   const hasCurrentTask = !!currentTask;
   const isInProgress = currentTask?.status === 'in_progress';
@@ -279,7 +279,7 @@ const Workbench = () => {
       {/* 新订单广播弹窗 */}
       <OrderBroadcastModal 
         order={newOrder} 
-        onClose={clearNewOrder}
+        onClose={dismissOrder}
       />
     </div>
   );
