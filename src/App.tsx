@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Workbench from "./pages/Workbench";
 import OrderGrab from "./pages/OrderGrab";
+import TaskHall from "./pages/TaskHall";
 import OrderService from "./pages/OrderService";
 import Income from "./pages/Income";
 import TrainingCenter from "./pages/TrainingCenter";
@@ -33,6 +34,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Workbench />} />
             <Route path="/order-grab" element={<OrderGrab />} />
+            <Route path="/task-hall" element={<TaskHall />} />
             <Route path="/order-service" element={<OrderService />} />
             <Route path="/income" element={<Income />} />
             <Route path="/training" element={<TrainingCenter />} />

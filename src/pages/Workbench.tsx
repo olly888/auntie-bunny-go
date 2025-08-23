@@ -5,22 +5,38 @@ import { BottomNav } from "@/components/ui/bottom-nav";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
-import { Phone, RefreshCw } from "lucide-react";
+import { Phone, RefreshCw, Plus } from "lucide-react";
+import { GrabModal, OrderInfo } from "@/components/order/GrabModal";
+import { OrderCard } from "@/components/order/OrderCard";
+import { useDemoOrders } from "@/hooks/useDemoOrders";
+import { toast } from "@/hooks/use-toast";
 import rabbitMascot from "@/assets/rabbit-mascot.png";
 
 const Workbench = () => {
   const [isOnline, setIsOnline] = useState(true);
-  const [hasCurrentTask, setHasCurrentTask] = useState(false);
   const [showOfflineDialog, setShowOfflineDialog] = useState(false);
   const [activeTab, setActiveTab] = useState("inprogress");
+  const [showGrabModal, setShowGrabModal] = useState(false);
+  const [broadcastOrder, setBroadcastOrder] = useState<OrderInfo | null>(null);
   const navigate = useNavigate();
+  
+  const { 
+    pendingOrders, 
+    completedOrders, 
+    currentOrder, 
+    todayStats, 
+    createOrder, 
+    claimOrder, 
+    completeOrder 
+  } = useDemoOrders();
 
   const handleToggleOnline = (checked: boolean) => {
     if (checked) {
       setIsOnline(true);
     } else {
-      if (hasCurrentTask) {
+      if (currentOrder) {
         setShowOfflineDialog(true);
       } else {
         setIsOnline(false);
@@ -30,22 +46,92 @@ const Workbench = () => {
 
   const confirmGoOffline = () => {
     setIsOnline(false);
-    setHasCurrentTask(false);
     setShowOfflineDialog(false);
   };
 
-  // 模拟数据
-  const todayStats = {
-    completed: 5,
-    earnings: 123.5,
-    rating: 100
+  // 模拟广播弹窗
+  const simulateBroadcast = () => {
+    if (!isOnline) {
+      toast({
+        title: "请先上线",
+        description: "需要先上线才能接收订单推送",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const newOrder = createOrder();
+    const orderInfo: OrderInfo = {
+      id: newOrder.id,
+      type: newOrder.type,
+      duration: newOrder.duration,
+      address: newOrder.address,
+      distance: newOrder.distance,
+      payout: newOrder.payout
+    };
+    
+    setBroadcastOrder(orderInfo);
+    setShowGrabModal(true);
+    
+    toast({
+      title: "新订单推送！",
+      description: "10秒倒计时开始，请及时抢单",
+    });
   };
 
-  const currentTask = hasCurrentTask ? {
-    type: "洗碗兔",
-    timeLeft: 15,
-    address: "深圳市南山区xx小区 A栋 1201"
-  } : null;
+  // 处理抢单
+  const handleGrabOrder = () => {
+    if (broadcastOrder) {
+      claimOrder(broadcastOrder.id);
+      setShowGrabModal(false);
+      setBroadcastOrder(null);
+      setActiveTab("inprogress");
+      
+      toast({
+        title: "抢单成功！",
+        description: `已成功抢到${broadcastOrder.type}订单`,
+      });
+    }
+  };
+
+  // 处理超时（订单流入任务大厅）
+  const handleTimeout = () => {
+    setShowGrabModal(false);
+    setBroadcastOrder(null);
+    setActiveTab("hall");
+    
+    toast({
+      title: "订单已流入任务大厅",
+      description: "您可以到任务大厅主动选择订单",
+    });
+  };
+
+  // 从任务大厅抢单
+  const handleClaimFromHall = (orderId: string) => {
+    const claimedOrder = claimOrder(orderId);
+    if (claimedOrder) {
+      setActiveTab("inprogress");
+      toast({
+        title: "抢单成功！",
+        description: `已成功抢到${claimedOrder.type}订单`,
+      });
+    }
+  };
+
+  // 完成当前订单
+  const handleCompleteOrder = () => {
+    if (currentOrder) {
+      completeOrder();
+      setActiveTab("done");
+      toast({
+        title: "订单已完成！",
+        description: `恭喜您完成${currentOrder.type}订单，获得¥${currentOrder.payout}提成`,
+      });
+    }
+  };
+
+  // 计算工作时长（简化计算）
+  const workHours = Math.floor(todayStats.completed * 0.75);
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -80,7 +166,7 @@ const Workbench = () => {
                 <AlertDialogHeader>
                   <AlertDialogTitle>确认下线</AlertDialogTitle>
                   <AlertDialogDescription>
-                    {hasCurrentTask 
+                    {currentOrder 
                       ? "您当前有进行中的任务，下线将自动完成当前任务。确定要下线吗？"
                       : "确定要下线休息吗？下线后将无法接收新订单。"
                     }
@@ -99,80 +185,161 @@ const Workbench = () => {
           </div>
           {/* 内嵌统计信息 */}
           <div className="text-xs text-muted-foreground mt-2">
-            今日：{todayStats.completed} 单 · ¥{todayStats.earnings} · 5 小时
+            今日：{todayStats.completed} 单 · ¥{todayStats.earnings} · {workHours} 小时
           </div>
+          
+          {/* 演示功能按钮 */}
+          {isOnline && !currentOrder && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="mt-3 w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+              onClick={simulateBroadcast}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              模拟广播弹窗
+            </Button>
+          )}
         </Card>
 
         {/* TAB栏 */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="flex items-center justify-between">
             <TabsList className="grid w-full max-w-sm grid-cols-3">
-              <TabsTrigger value="hall">任务大厅</TabsTrigger>
-              <TabsTrigger value="inprogress">进行中</TabsTrigger>
-              <TabsTrigger value="done">已完成</TabsTrigger>
+              <TabsTrigger value="hall" className="relative">
+                任务大厅
+                {pendingOrders.length > 0 && (
+                  <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 text-xs bg-primary text-primary-foreground">
+                    {pendingOrders.length}
+                  </Badge>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="inprogress" className="relative">
+                进行中
+                {currentOrder && (
+                  <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 text-xs bg-success text-success-foreground">
+                    1
+                  </Badge>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="done" className="relative">
+                已完成
+                {completedOrders.length > 0 && (
+                  <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 text-xs bg-muted text-muted-foreground">
+                    {completedOrders.length}
+                  </Badge>
+                )}
+              </TabsTrigger>
             </TabsList>
             <Button 
               variant="ghost" 
               size="icon"
-              onClick={() => console.log('refresh')}
+              onClick={() => navigate("/task-hall")}
+              title="查看任务大厅"
             >
               <RefreshCw className="w-4 h-4" />
             </Button>
           </div>
 
           <TabsContent value="hall" className="mt-4">
-            <Card className="p-8 text-center border-2 border-dashed border-primary/30 bg-primary/5">
-              <img 
-                src={rabbitMascot} 
-                alt="兔到到吉祥物" 
-                className="w-20 h-20 mx-auto mb-4 opacity-80"
-              />
-              <div className="space-y-2">
-                <p className="font-medium text-foreground">等待新订单中...</p>
-                <p className="text-sm text-muted-foreground">
-                  {isOnline ? "保持在线状态，随时准备接单" : "请先上线后等待订单"}
-                </p>
+            {pendingOrders.length > 0 ? (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm text-muted-foreground">
+                    {pendingOrders.length} 个待抢订单
+                  </span>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => navigate("/task-hall")}
+                  >
+                    查看全部
+                  </Button>
+                </div>
+                {pendingOrders.slice(0, 3).map((order) => (
+                  <OrderCard
+                    key={order.id}
+                    order={order}
+                    onClaim={handleClaimFromHall}
+                    variant="compact"
+                  />
+                ))}
+                {pendingOrders.length > 3 && (
+                  <Card className="p-4 text-center bg-muted/50">
+                    <p className="text-sm text-muted-foreground mb-2">
+                      还有 {pendingOrders.length - 3} 个订单
+                    </p>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => navigate("/task-hall")}
+                    >
+                      查看更多订单
+                    </Button>
+                  </Card>
+                )}
               </div>
-              {/* 演示按钮：模拟接到任务 */}
-              {isOnline && !currentTask && (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-4"
-                  onClick={() => setHasCurrentTask(true)}
-                >
-                  模拟接到任务
-                </Button>
-              )}
-            </Card>
+            ) : (
+              <Card className="p-8 text-center border-2 border-dashed border-primary/30 bg-primary/5">
+                <img 
+                  src={rabbitMascot} 
+                  alt="兔到到吉祥物" 
+                  className="w-20 h-20 mx-auto mb-4 opacity-80"
+                />
+                <div className="space-y-2">
+                  <p className="font-medium text-foreground">等待新订单中...</p>
+                  <p className="text-sm text-muted-foreground">
+                    {isOnline ? "保持在线状态，随时准备接单" : "请先上线后等待订单"}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-3">
+                    点击下方按钮体验订单推送
+                  </p>
+                </div>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="inprogress" className="mt-4">
-            {currentTask ? (
-              <div className="bg-gradient-card border-2 border-primary rounded-xl p-6 shadow-card">
-                <div className="flex items-center gap-4">
-                  <div className="text-2xl">🐰</div>
+            {currentOrder ? (
+              <div className="bg-gradient-card border-2 border-success rounded-xl p-6 shadow-card">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="text-2xl">{currentOrder.type.split(' ')[0]}</div>
                   <div className="flex-1">
                     <div className="font-semibold text-foreground mb-1">
-                      {currentTask.type} | 剩余约 {currentTask.timeLeft} 分钟
+                      {currentOrder.type}
                     </div>
-                    <div className="text-sm text-muted-foreground mb-3">
-                      📍 {currentTask.address}
+                    <div className="text-sm text-muted-foreground mb-2">
+                      📍 {currentOrder.address} ({currentOrder.distance})
                     </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" onClick={() => navigate("/order-service")}>
-                        查看详情
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => window.location.href = "tel:400-123-4567"}
-                      >
-                        <Phone className="w-4 h-4 mr-1" />
-                        紧急求助
-                      </Button>
+                    <div className="text-sm font-medium text-success">
+                      预计提成：¥{currentOrder.payout}
                     </div>
                   </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => navigate("/order-service")}
+                  >
+                    查看详情
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => window.location.href = "tel:400-123-4567"}
+                  >
+                    <Phone className="w-4 h-4 mr-1" />
+                    紧急求助
+                  </Button>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    className="bg-success hover:bg-success/90 text-success-foreground ml-auto"
+                    onClick={handleCompleteOrder}
+                  >
+                    完成订单
+                  </Button>
                 </div>
               </div>
             ) : (
@@ -188,17 +355,60 @@ const Workbench = () => {
           </TabsContent>
 
           <TabsContent value="done" className="mt-4">
-            <Card className="p-8 text-center border-2 border-dashed border-muted-foreground/30">
-              <div className="space-y-2">
-                <p className="font-medium text-foreground">暂无已完成订单</p>
-                <p className="text-sm text-muted-foreground">
-                  完成任务后将在这里显示历史记录
-                </p>
+            {completedOrders.length > 0 ? (
+              <div className="space-y-3">
+                <div className="text-sm text-muted-foreground mb-3">
+                  今日已完成 {todayStats.completed} 单，共获得 ¥{todayStats.earnings} 提成
+                </div>
+                {completedOrders.slice(0, 5).map((order) => (
+                  <Card key={order.id} className="p-4 bg-gradient-card">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="font-medium text-card-foreground mb-1">
+                          {order.type}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {order.address} | {order.duration}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {order.createdAt.toLocaleString()}
+                        </div>
+                      </div>
+                      <div className="text-lg font-bold text-success">
+                        +¥{order.payout}
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+                {completedOrders.length > 5 && (
+                  <div className="text-center text-sm text-muted-foreground">
+                    显示最近 5 条记录，共 {completedOrders.length} 条
+                  </div>
+                )}
               </div>
-            </Card>
+            ) : (
+              <Card className="p-8 text-center border-2 border-dashed border-muted-foreground/30">
+                <div className="space-y-2">
+                  <p className="font-medium text-foreground">暂无已完成订单</p>
+                  <p className="text-sm text-muted-foreground">
+                    完成任务后将在这里显示历史记录
+                  </p>
+                </div>
+              </Card>
+            )}
           </TabsContent>
         </Tabs>
       </div>
+      
+      {/* 抢单弹窗 */}
+      {broadcastOrder && (
+        <GrabModal
+          orderInfo={broadcastOrder}
+          isVisible={showGrabModal}
+          onGrab={handleGrabOrder}
+          onTimeout={handleTimeout}
+        />
+      )}
       
       <BottomNav />
     </div>
