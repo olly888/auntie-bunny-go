@@ -29,7 +29,7 @@ export function TaskHallList() {
         queryClient.invalidateQueries({ queryKey: ['current-task'] });
         queryClient.invalidateQueries({ queryKey: ['task-hall-orders'] });
         
-        // Navigate to order service page
+        // 修复导航：传递正确的 orderId 参数
         navigate(`/order-service/${orderId}`);
       } else {
         toast({

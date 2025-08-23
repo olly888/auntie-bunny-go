@@ -20,6 +20,7 @@ import { TaskHallList } from "@/components/orders/TaskHallList";
 import { OrderBroadcastModal } from "@/components/orders/OrderBroadcastModal";
 import { CurrentTaskCard } from "@/components/orders/CurrentTaskCard";
 import { CompletedTodayList } from "@/components/orders/CompletedTodayList";
+import { OneClickExperienceButton } from "@/components/orders/OneClickExperienceButton";
 
 const Workbench = () => {
   const { isOnline, setIsOnline } = useOnlineStatus();
@@ -58,7 +59,11 @@ const Workbench = () => {
   };
 
   const handleViewOrderDetails = () => {
-    navigate("/order-service");
+    if (currentTask) {
+      navigate(`/order-service/${currentTask.id}`);
+    } else {
+      navigate("/order-service");
+    }
   };
 
   const handleNotificationClick = () => {
@@ -158,6 +163,11 @@ const Workbench = () => {
                 今日: {todayStats.completed}单 · ¥{todayStats.earnings.toFixed(0)} · {todayStats.workHours}h
               </div>
             )}
+            
+            {/* 一键体验按钮 */}
+            <div className="mt-3 text-center">
+              <OneClickExperienceButton />
+            </div>
           </div>
           
         </div>
@@ -244,7 +254,7 @@ const Workbench = () => {
                             保持在线状态，随时准备接单
                           </p>
                           <p className="text-xs text-blue-600 mt-2">
-                            💡 点击上方 <TestTube className="w-3 h-3 inline mx-1" /> 按钮生成测试订单体验完整流程
+                            💡 点击上方"一键体验"按钮生成测试订单体验完整流程
                           </p>
                         </div>
                       </div>

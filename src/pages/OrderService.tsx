@@ -7,8 +7,9 @@ import { PhotoUploader } from "@/components/orders/PhotoUploader";
 import { CustomerNotes } from "@/components/orders/CustomerNotes";
 import { useCurrentTask, useUpdateOrderStatus } from "@/hooks/orders/useCurrentTask";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Phone, Navigation, AlertTriangle, Camera, MapPin } from "lucide-react";
+import { ArrowLeft, Phone, Navigation, AlertTriangle, Camera, MapPin, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { OneClickExperienceButton } from "@/components/orders/OneClickExperienceButton";
 
 type ServiceStatus = "departing" | "enroute" | "arrived" | "verification" | "serving" | "completed";
 
@@ -32,12 +33,57 @@ const OrderService = () => {
     }
   }, [orderId, order, navigate]);
 
-  if (isLoading || !order) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
           <p className="text-muted-foreground">加载订单信息...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 改进空状态处理
+  if (!order) {
+    return (
+      <div className="min-h-screen bg-background">
+        {/* Top Bar */}
+        <header className="sticky top-0 z-10 bg-background border-b px-4 py-3">
+          <div className="flex items-center justify-between">
+            <Button variant="ghost" size="sm" onClick={() => navigate('/workbench')}>
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
+            <h1 className="font-semibold">订单详情</h1>
+            <div className="w-8"></div>
+          </div>
+        </header>
+
+        {/* Empty State */}
+        <div className="flex items-center justify-center min-h-[60vh] p-8">
+          <div className="text-center max-w-sm">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
+              <span className="text-3xl">🎯</span>
+            </div>
+            <h2 className="text-xl font-semibold mb-2">暂无当前任务</h2>
+            <p className="text-muted-foreground mb-6">
+              您当前没有进行中的订单任务。返回工作台抢单或体验演示流程。
+            </p>
+            <div className="space-y-3">
+              <Button 
+                onClick={() => navigate('/workbench')}
+                className="w-full"
+              >
+                返回工作台
+              </Button>
+              <div className="text-center">
+                <OneClickExperienceButton />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                💡 使用"一键体验"快速生成订单并体验完整服务流程
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     );
