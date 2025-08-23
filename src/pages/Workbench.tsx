@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -7,13 +8,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useNavigate } from "react-router-dom";
-import { Phone, Bell, RefreshCw } from "lucide-react";
+import { Phone, Bell, RefreshCw, TestTube } from "lucide-react";
 import rabbitMascot from "@/assets/rabbit-mascot.png";
 import { useOnlineStatus } from "@/hooks/use-online-status";
 import { useCurrentTask } from "@/hooks/orders/useCurrentTask";
 import { useTodayStats } from "@/hooks/orders/useTodayStats";
 import { useOrdersRealtime } from "@/hooks/orders/useOrdersRealtime";
 import { useTaskHallOrders } from "@/hooks/orders/useTaskHallOrders";
+import { useDemoOrder } from "@/hooks/orders/useDemoOrder";
 import { TaskHallList } from "@/components/orders/TaskHallList";
 import { OrderBroadcastModal } from "@/components/orders/OrderBroadcastModal";
 import { CurrentTaskCard } from "@/components/orders/CurrentTaskCard";
@@ -22,6 +24,7 @@ import { CompletedTodayList } from "@/components/orders/CompletedTodayList";
 const Workbench = () => {
   const { isOnline, setIsOnline } = useOnlineStatus();
   const [showOfflineDialog, setShowOfflineDialog] = useState(false);
+  const [isCreatingDemo, setIsCreatingDemo] = useState(false);
   const navigate = useNavigate();
   
   // Data hooks
@@ -29,6 +32,7 @@ const Workbench = () => {
   const { data: todayStats } = useTodayStats();
   const { data: taskHallOrders, refetch: refetchTaskHall } = useTaskHallOrders();
   const { newOrder, dismissOrder } = useOrdersRealtime();
+  const { createDemoOrder } = useDemoOrder();
 
   const hasCurrentTask = !!currentTask;
   const isInProgress = currentTask?.status === 'in_progress';
@@ -59,6 +63,12 @@ const Workbench = () => {
 
   const handleNotificationClick = () => {
     navigate("/notifications");
+  };
+
+  const handleCreateDemoOrder = async () => {
+    setIsCreatingDemo(true);
+    await createDemoOrder();
+    setIsCreatingDemo(false);
   };
 
   // Default stats if loading
@@ -193,14 +203,26 @@ const Workbench = () => {
                     已完成
                   </TabsTrigger>
                 </TabsList>
-                <Button
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => refetchTaskHall()}
-                  className="mr-4 p-2"
-                >
-                  <RefreshCw className="w-4 h-4" />
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost" 
+                    size="sm"
+                    onClick={handleCreateDemoOrder}
+                    disabled={isCreatingDemo}
+                    className="p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                    title="生成测试订单（用于体验广播弹窗和抢单流程）"
+                  >
+                    <TestTube className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => refetchTaskHall()}
+                    className="p-2"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
             </div>
             
@@ -220,6 +242,9 @@ const Workbench = () => {
                           <p className="text-sm font-medium text-foreground">等待新订单中...</p>
                           <p className="text-xs text-muted-foreground">
                             保持在线状态，随时准备接单
+                          </p>
+                          <p className="text-xs text-blue-600 mt-2">
+                            💡 点击上方 <TestTube className="w-3 h-3 inline mx-1" /> 按钮生成测试订单体验完整流程
                           </p>
                         </div>
                       </div>
