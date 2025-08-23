@@ -1,19 +1,15 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { BottomNav } from "@/components/ui/bottom-nav";
-import { ArrowLeft, CreditCard, Star } from "lucide-react";
+import { BankCardForm } from "@/components/bank-cards/BankCardForm";
+import { ArrowLeft, CreditCard, Star, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useBankAccounts } from "@/hooks/useBankAccounts";
 
 const MyBankCards = () => {
   const navigate = useNavigate();
-  
-  // Static demo bank card for MVP
-  const mockBankCard = {
-    id: "card_001",
-    bank_name: "招商银行",
-    account_holder: "李阿姨",
-    account_number_last4: "8888",
-    is_default: true
-  };
+  const { data: bankCards, isLoading } = useBankAccounts();
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -32,29 +28,61 @@ const MyBankCards = () => {
           <h1 className="text-2xl font-bold text-foreground">我的银行卡</h1>
         </div>
 
-        {/* 绑定的银行卡 */}
-        <div className="bg-card rounded-xl p-4 shadow-card">
-          <div className="flex items-start gap-3">
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <CreditCard className="w-5 h-5 text-primary" />
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="font-medium text-foreground">{mockBankCard.bank_name}</span>
-                <div className="flex items-center gap-1 text-xs bg-primary/10 text-primary px-2 py-1 rounded">
-                  <Star className="w-3 h-3 fill-current" />
-                  默认
-                </div>
-              </div>
-              <div className="text-sm text-muted-foreground mb-1">
-                {mockBankCard.account_holder}
-              </div>
-              <div className="text-sm text-muted-foreground">
-                ****{mockBankCard.account_number_last4}
-              </div>
-            </div>
+        {/* 绑定的银行卡列表 */}
+        {isLoading ? (
+          <div className="text-center py-8 text-muted-foreground">
+            加载中...
           </div>
-        </div>
+        ) : (
+          <div className="space-y-3">
+            {bankCards && bankCards.length > 0 ? (
+              bankCards.map((card) => (
+                <div key={card.id} className="bg-card rounded-xl p-4 shadow-card">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      <CreditCard className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-medium text-foreground">{card.bank_name}</span>
+                        {card.is_default && (
+                          <div className="flex items-center gap-1 text-xs bg-primary/10 text-primary px-2 py-1 rounded">
+                            <Star className="w-3 h-3 fill-current" />
+                            默认
+                          </div>
+                        )}
+                      </div>
+                      <div className="text-sm text-muted-foreground mb-1">
+                        {card.account_holder}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        ****{card.account_number_last4}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                暂无银行卡信息
+              </div>
+            )}
+
+            {/* 添加银行卡按钮 */}
+            <Button
+              variant="outline" 
+              className="w-full h-auto p-4 justify-center bg-card hover:bg-accent/50 shadow-card border-2 border-dashed border-muted-foreground/20 hover:border-primary/30"
+              onClick={() => setIsFormOpen(true)}
+            >
+              <div className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors">
+                <div className="p-2 bg-muted/20 rounded-lg">
+                  <Plus className="w-5 h-5" />
+                </div>
+                <span className="font-medium">添加银行卡</span>
+              </div>
+            </Button>
+          </div>
+        )}
 
         {/* 安全提示 */}
         <div className="bg-gradient-to-r from-success/5 to-success/10 border border-success/20 rounded-xl p-4">
@@ -75,6 +103,12 @@ const MyBankCards = () => {
       </div>
       
       <BottomNav />
+
+      {/* 添加银行卡表单 */}
+      <BankCardForm 
+        isOpen={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+      />
     </div>
   );
 };
