@@ -63,14 +63,14 @@ const PhotoUploadDialog = ({ open, onOpenChange, orderId, onUploadComplete }: Ph
         uploaded_by: user.user.id
       }));
 
-      const { error: insertError } = await supabase
+      const { error: insertError } = await (supabase as any)
         .from('order_photos')
         .insert(photoRecords);
 
       if (insertError) throw insertError;
 
       // Update order status to completed
-      const { error: updateError } = await supabase
+      const { error: updateError } = await (supabase as any)
         .from('orders')
         .update({ 
           status: 'completed',

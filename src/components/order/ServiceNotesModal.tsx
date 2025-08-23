@@ -29,7 +29,7 @@ const ServiceNotesModal = ({ open, onOpenChange, orderId, customerPhone, onCompl
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error('用户未登录');
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('customer_notes')
         .insert({
           order_id: orderId,

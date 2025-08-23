@@ -70,7 +70,7 @@ const OrderService = () => {
   const loadCustomerNotes = async () => {
     setLoadingNotes(true);
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('customer_notes')
         .select('*')
         .eq('customer_phone', orderInfo.phone)
