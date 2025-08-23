@@ -44,7 +44,7 @@ export const useDemoOrders = () => {
   const [completedOrders, setCompletedOrders] = useState<DemoOrder[]>([]);
   const [currentOrder, setCurrentOrder] = useState<DemoOrder | null>(null);
 
-  // 从 localStorage 加载数据
+  // 从 localStorage 加载数据并自动注入演示订单
   useEffect(() => {
     const savedPending = localStorage.getItem(DEMO_ORDERS_KEY);
     const savedCompleted = localStorage.getItem(COMPLETED_ORDERS_KEY);
@@ -58,7 +58,20 @@ export const useDemoOrders = () => {
         })));
       } catch (e) {
         console.error('Error parsing saved pending orders:', e);
+        // 如果解析失败，创建初始演示订单
+        const initialOrders = [
+          createDemoOrder('demo-1'),
+          createDemoOrder('demo-2')
+        ];
+        setPendingOrders(initialOrders);
       }
+    } else {
+      // 如果没有保存的数据，创建初始演示订单
+      const initialOrders = [
+        createDemoOrder('demo-1'),
+        createDemoOrder('demo-2')
+      ];
+      setPendingOrders(initialOrders);
     }
 
     if (savedCompleted) {

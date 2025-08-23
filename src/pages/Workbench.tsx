@@ -108,6 +108,25 @@ const Workbench = () => {
 
   // 从任务大厅抢单
   const handleClaimFromHall = (orderId: string) => {
+    // 验证是否可以抢单
+    if (!isOnline) {
+      toast({
+        title: "请先上线",
+        description: "需要先上线才能抢单",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (currentOrder) {
+      toast({
+        title: "当前已有任务",
+        description: "请先完成当前任务再抢新订单",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const claimedOrder = claimOrder(orderId);
     if (claimedOrder) {
       setActiveTab("inprogress");
@@ -116,6 +135,14 @@ const Workbench = () => {
         description: `已成功抢到${claimedOrder.type}订单`,
       });
     }
+  };
+
+  // 刷新当前页面内容
+  const handleRefresh = () => {
+    toast({
+      title: "已刷新",
+      description: "内容已更新到最新状态",
+    });
   };
 
   // 完成当前订单
@@ -234,8 +261,8 @@ const Workbench = () => {
             <Button 
               variant="ghost" 
               size="icon"
-              onClick={() => navigate("/task-hall")}
-              title="查看任务大厅"
+              onClick={handleRefresh}
+              title="刷新"
             >
               <RefreshCw className="w-4 h-4" />
             </Button>
@@ -248,15 +275,11 @@ const Workbench = () => {
                   <span className="text-sm text-muted-foreground">
                     {pendingOrders.length} 个待抢订单
                   </span>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => navigate("/task-hall")}
-                  >
-                    查看全部
-                  </Button>
+                  <span className="text-xs text-muted-foreground">
+                    {isOnline ? "实时更新中" : "离线状态"}
+                  </span>
                 </div>
-                {pendingOrders.slice(0, 3).map((order) => (
+                {pendingOrders.map((order) => (
                   <OrderCard
                     key={order.id}
                     order={order}
@@ -264,20 +287,6 @@ const Workbench = () => {
                     variant="compact"
                   />
                 ))}
-                {pendingOrders.length > 3 && (
-                  <Card className="p-4 text-center bg-muted/50">
-                    <p className="text-sm text-muted-foreground mb-2">
-                      还有 {pendingOrders.length - 3} 个订单
-                    </p>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => navigate("/task-hall")}
-                    >
-                      查看更多订单
-                    </Button>
-                  </Card>
-                )}
               </div>
             ) : (
               <Card className="p-8 text-center border-2 border-dashed border-primary/30 bg-primary/5">
