@@ -3,8 +3,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
+import Auth from "./pages/Auth";
 import TaskHall from "./pages/TaskHall";
 import OrderGrab from "./pages/OrderGrab";
 import OrderService from "./pages/OrderService";
@@ -39,10 +40,10 @@ function App() {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Workbench />} />
-            <Route path="/tasks" element={<TaskHall />} />
+        <Routes>
+          <Route path="/" element={<Workbench />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/tasks" element={<TaskHall />} />
             <Route path="/grab/:orderId" element={<OrderGrab />} />
             <Route path="/service/:orderId" element={<OrderService />} />
             <Route path="/workbench" element={<Workbench />} />
@@ -68,7 +69,6 @@ function App() {
             <Route path="/legal/privacy-policy" element={<LegalPrivacyPolicy />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
   );
