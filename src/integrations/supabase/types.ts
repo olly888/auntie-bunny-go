@@ -311,29 +311,7 @@ export type Database = {
       }
     }
     Views: {
-      abnormal_orders: {
-        Row: {
-          address: string | null
-          assigned_at: string | null
-          assignee_id: string | null
-          completed_at: string | null
-          contact_name: string | null
-          contact_phone: string | null
-          created_at: string | null
-          distance_minutes: number | null
-          duration_minutes: number | null
-          id: string | null
-          latitude: number | null
-          longitude: number | null
-          payout: number | null
-          started_at: string | null
-          status: string | null
-          store_id: string | null
-          type: string | null
-          updated_at: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       claim_order: {
