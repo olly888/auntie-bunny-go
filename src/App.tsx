@@ -14,6 +14,8 @@ import IncomeDetails from "./pages/IncomeDetails";
 import MyPerformance from "./pages/MyPerformance";
 import MyBankCards from "./pages/MyBankCards";
 import SalaryExplanation from "./pages/SalaryExplanation";
+import Withdraw from "./pages/Withdraw";
+import WithdrawHistory from "./pages/WithdrawHistory";
 import Profile from "./pages/Profile";
 import ProfileDetails from "./pages/ProfileDetails";
 import Settings from "./pages/Settings";
@@ -48,6 +50,8 @@ function App() {
             <Route path="/income/details" element={<IncomeDetails />} />
             <Route path="/income/performance" element={<MyPerformance />} />
             <Route path="/income/salary" element={<SalaryExplanation />} />
+            <Route path="/withdraw" element={<Withdraw />} />
+            <Route path="/withdraw/history" element={<WithdrawHistory />} />
             <Route path="/wallet/cards" element={<MyBankCards />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/profile/details" element={<ProfileDetails />} />

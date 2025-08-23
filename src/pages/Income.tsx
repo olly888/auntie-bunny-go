@@ -116,7 +116,7 @@ const Income = () => {
             variant="primary" 
             size="lg" 
             className="w-full"
-            onClick={() => navigate('/wallet/cards')}
+            onClick={() => navigate('/withdraw')}
           >
             <CreditCard className="w-5 h-5 mr-2" />
             申请提现
