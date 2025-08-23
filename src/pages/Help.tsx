@@ -1,174 +1,251 @@
-
-
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { BottomNav } from "@/components/ui/bottom-nav";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { ArrowLeft, HelpCircle, Phone, MessageCircle, GraduationCap, Send, ExternalLink } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Phone, MessageCircle, Mail, HelpCircle, Clock, AlertCircle } from "lucide-react";
 
 const Help = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  
+  const [feedbackForm, setFeedbackForm] = useState({
+    category: "",
+    title: "",
+    description: "",
+    contact: ""
+  });
 
-  const faqData = [
+  const faqItems = [
     {
-      id: "payment",
-      question: "如何查看我的收入明细？",
-      answer: '您可以在个人页面点击"收入明细"查看每日、每月的详细收入记录，包括服务费、奖励和提成等。'
+      question: "如何开始接单？",
+      answer: "完成实名认证和培训课程后，在工作台页面开启\"在线接单\"状态即可开始接收订单。建议先完成基础培训课程，提升服务技能。"
     },
     {
-      id: "schedule",
-      question: "如何调整我的工作时间？",
-      answer: "在工作台页面，您可以通过上线/下线开关控制接单状态。在个人设置中也可以设置您的偏好工作时间段。"
+      question: "订单完成后多久能收到款项？",
+      answer: "订单完成并获得客户确认后，款项将在1-3个工作日内到账。您可以在\"我的收入\"页面查看详细的收入记录和提现进度。"
     },
     {
-      id: "order",
-      question: "接到订单后如何操作？",
-      answer: "接单后请按照订单详情中的地址准时到达，完成服务后在APP中确认完成，用户确认后您将收到相应的服务费用。"
+      question: "如何提升服务评分？",
+      answer: "保持良好的服务态度、按时到达、认真完成服务内容、与客户保持良好沟通。参加培训课程提升专业技能也有助于获得更高评分。"
     },
     {
-      id: "rating",
-      question: "如何提高我的服务评分？",
-      answer: "保持良好的服务态度、准时到达、认真完成每项服务、与用户积极沟通，都有助于提高您的服务评分。"
+      question: "忘记密码怎么办？",
+      answer: "在登录页面点击\"忘记密码\"，输入手机号码获取验证码重置密码。如仍有问题，请联系客服协助处理。"
     },
     {
-      id: "insurance",
-      question: "工作期间是否有保险保障？",
-      answer: '兔到到为所有在线服务员工提供工作期间的意外伤害保险，具体保障内容可在"我的保险"中查看。'
+      question: "如何修改服务区域？",
+      answer: "进入\"个人中心\" > \"个人资料\"，在服务信息中可以添加或删除服务区域。建议选择熟悉且方便到达的区域。"
+    },
+    {
+      question: "培训课程如何参与？",
+      answer: "点击\"培训中心\"查看可用课程，选择适合的课程报名参加。完成课程可获得认证，有助于接收更多优质订单。"
     }
   ];
 
-  const contactMethods = [
-    {
-      icon: Phone,
-      title: "客服热线",
-      description: "400-888-0000",
-      subtitle: "7×24小时服务",
-      action: () => window.location.href = "tel:400-888-0000"
-    },
-    {
-      icon: MessageCircle,
-      title: "在线客服",
-      description: "微信客服",
-      subtitle: "快速响应",
-      action: () => {
-        // 这里可以跳转到微信客服或内置聊天
-        alert("正在连接在线客服...");
-      }
-    },
-    {
-      icon: Mail,
-      title: "邮件反馈",
-      description: "help@tudaodao.com",
-      subtitle: "24小时内回复",
-      action: () => window.location.href = "mailto:help@tudaodao.com"
+  const handleFeedbackSubmit = () => {
+    if (!feedbackForm.category || !feedbackForm.title || !feedbackForm.description) {
+      toast({
+        variant: "destructive",
+        title: "信息不完整",
+        description: "请填写完整的反馈信息",
+      });
+      return;
     }
-  ];
+
+    toast({
+      title: "反馈已提交",
+      description: "感谢您的反馈，我们会在3个工作日内回复",
+    });
+
+    setFeedbackForm({
+      category: "",
+      title: "",
+      description: "",
+      contact: ""
+    });
+  };
+
+  const handleCallService = () => {
+    window.location.href = "tel:400-123-4567";
+  };
+
+  const goToTraining = () => {
+    navigate("/training");
+  };
 
   return (
-    <div className="min-h-screen bg-background pb-20">
-      <div className="max-w-md mx-auto">
-        
-        {/* 顶部导航 */}
-        <div className="flex items-center justify-between p-4 border-b bg-card">
-          <button 
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <div className="sticky top-0 z-10 bg-card shadow-card p-4">
+        <div className="max-w-md mx-auto flex items-center gap-3">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => navigate("/profile")}
           >
-            <ArrowLeft className="w-5 h-5" />
-            <span>返回</span>
-          </button>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
           <h1 className="text-lg font-semibold">帮助中心</h1>
-          <div className="w-16"></div>
+        </div>
+      </div>
+
+      <div className="max-w-md mx-auto p-4 space-y-6">
+        {/* Quick Actions */}
+        <div className="grid grid-cols-2 gap-4">
+          <Button 
+            variant="outline" 
+            className="h-20 flex-col gap-2"
+            onClick={goToTraining}
+          >
+            <GraduationCap className="h-6 w-6" />
+            <span className="text-sm">新手指南</span>
+          </Button>
+          <Button 
+            variant="outline" 
+            className="h-20 flex-col gap-2"
+            onClick={() => navigate(-1)}
+          >
+            <MessageCircle className="h-6 w-6" />
+            <span className="text-sm">联系站长</span>
+          </Button>
         </div>
 
-        <div className="p-4 space-y-6">
-
-          {/* 紧急求助 */}
-          <Card className="p-4 bg-red-50 border-red-200">
-            <div className="flex items-center gap-3">
-              <AlertCircle className="w-6 h-6 text-red-600" />
-              <div className="flex-1">
-                <h3 className="font-semibold text-red-800">紧急求助</h3>
-                <p className="text-sm text-red-700">遇到紧急情况请立即联系</p>
-              </div>
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="border-red-300 text-red-700 hover:bg-red-100"
-                onClick={() => window.location.href = "tel:400-888-0000"}
-              >
-                <Phone className="w-4 h-4 mr-1" />
-                拨打
-              </Button>
-            </div>
-          </Card>
-
-          {/* 常见问题 */}
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <HelpCircle className="w-5 h-5 text-primary" />
-              <h2 className="text-lg font-semibold">常见问题</h2>
-            </div>
-            
+        {/* FAQ */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <HelpCircle className="h-5 w-5" />
+              常见问题
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
             <Accordion type="single" collapsible className="w-full">
-              {faqData.map((faq) => (
-                <AccordionItem key={faq.id} value={faq.id}>
-                  <AccordionTrigger className="text-left">
-                    {faq.question}
+              {faqItems.map((item, index) => (
+                <AccordionItem key={index} value={`item-${index}`}>
+                  <AccordionTrigger className="text-left text-sm">
+                    {item.question}
                   </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground">
-                    {faq.answer}
+                  <AccordionContent className="text-sm text-muted-foreground">
+                    {item.answer}
                   </AccordionContent>
                 </AccordionItem>
               ))}
             </Accordion>
-          </div>
+          </CardContent>
+        </Card>
 
-          {/* 联系我们 */}
-          <div>
-            <h2 className="text-lg font-semibold mb-4">联系我们</h2>
-            <div className="space-y-3">
-              {contactMethods.map((method, index) => {
-                const Icon = method.icon;
-                return (
-                  <Card key={index} className="p-4">
-                    <button
-                      onClick={method.action}
-                      className="w-full flex items-center gap-4 text-left hover:bg-accent/50 transition-colors rounded-lg p-2 -m-2"
-                    >
-                      <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                        <Icon className="w-5 h-5 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-medium">{method.title}</h3>
-                        <p className="text-sm text-muted-foreground">{method.description}</p>
-                        <p className="text-xs text-muted-foreground">{method.subtitle}</p>
-                      </div>
-                      <span className="text-muted-foreground">›</span>
-                    </button>
-                  </Card>
-                );
-              })}
+        {/* Contact Webmaster */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MessageCircle className="h-5 w-5" />
+              联系站长
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-col items-center justify-center p-4 bg-accent/30 rounded-lg">
+              <img 
+                src="/src/assets/owner-wechat-qr.png" 
+                alt="站长企业微信二维码" 
+                className="w-32 h-32 mb-3"
+              />
+              <p className="text-sm font-medium">扫码联系站长</p>
+              <p className="text-xs text-muted-foreground">企业微信</p>
             </div>
-          </div>
+          </CardContent>
+        </Card>
 
-          {/* 服务时间 */}
-          <Card className="p-4 bg-blue-50 border-blue-200">
-            <div className="flex items-center gap-3">
-              <Clock className="w-5 h-5 text-blue-600" />
-              <div>
-                <h3 className="font-medium text-blue-800">客服服务时间</h3>
-                <p className="text-sm text-blue-700">周一至周日 08:00-22:00</p>
-                <p className="text-xs text-blue-600 mt-1">紧急情况24小时热线服务</p>
-              </div>
+        {/* Feedback Form */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Send className="h-5 w-5" />
+              意见反馈
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label>反馈类型</Label>
+              <Select value={feedbackForm.category} onValueChange={(value) => setFeedbackForm({...feedbackForm, category: value})}>
+                <SelectTrigger>
+                  <SelectValue placeholder="请选择反馈类型" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="bug">功能异常</SelectItem>
+                  <SelectItem value="feature">功能建议</SelectItem>
+                  <SelectItem value="service">服务问题</SelectItem>
+                  <SelectItem value="other">其他问题</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-          </Card>
 
-        </div>
+            <div>
+              <Label>问题标题</Label>
+              <Input
+                value={feedbackForm.title}
+                onChange={(e) => setFeedbackForm({...feedbackForm, title: e.target.value})}
+                placeholder="简要描述您遇到的问题"
+              />
+            </div>
+
+            <div>
+              <Label>详细描述</Label>
+              <Textarea
+                value={feedbackForm.description}
+                onChange={(e) => setFeedbackForm({...feedbackForm, description: e.target.value})}
+                placeholder="请详细描述问题的具体情况..."
+                rows={4}
+              />
+            </div>
+
+            <div>
+              <Label>联系方式（可选）</Label>
+              <Input
+                value={feedbackForm.contact}
+                onChange={(e) => setFeedbackForm({...feedbackForm, contact: e.target.value})}
+                placeholder="方便我们回复您（手机号或邮箱）"
+              />
+            </div>
+
+            <Button onClick={handleFeedbackSubmit} className="w-full">
+              <Send className="h-4 w-4 mr-2" />
+              提交反馈
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Additional Resources */}
+        <Card>
+          <CardHeader>
+            <CardTitle>更多资源</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button variant="outline" className="w-full justify-start" onClick={goToTraining}>
+              <GraduationCap className="h-4 w-4 mr-2" />
+              培训课程
+              <ExternalLink className="h-4 w-4 ml-auto" />
+            </Button>
+            
+            <Button variant="outline" className="w-full justify-start" onClick={() => navigate("/legal/service-agreement")}>
+              <HelpCircle className="h-4 w-4 mr-2" />
+              服务协议
+              <ExternalLink className="h-4 w-4 ml-auto" />
+            </Button>
+            
+            <Button variant="outline" className="w-full justify-start" onClick={() => navigate("/legal/privacy")}>
+              <HelpCircle className="h-4 w-4 mr-2" />
+              隐私政策
+              <ExternalLink className="h-4 w-4 ml-auto" />
+            </Button>
+          </CardContent>
+        </Card>
       </div>
-      
-      <BottomNav />
     </div>
   );
 };

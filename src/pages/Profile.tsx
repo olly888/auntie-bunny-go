@@ -1,10 +1,9 @@
-
 import { useOnlineStatus } from "@/hooks/use-online-status";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { useNavigate } from "react-router-dom";
-import { User, CreditCard, Settings, Bell, Shield, HelpCircle, Star, QrCode } from "lucide-react";
+import { User, CreditCard, Settings, Bell, Shield, HelpCircle, Star } from "lucide-react";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -12,7 +11,7 @@ const Profile = () => {
 
   const menuItems = [
     { icon: User, label: "个人资料", path: "/profile/details" },
-    { icon: QrCode, label: "邀请赚钱", path: "/my-qr" },
+    { icon: CreditCard, label: "收入明细", path: "/income" },
     { icon: Star, label: "我的评价", path: "/reviews" },
     { icon: Shield, label: "我的保险", path: "/insurance" },
     { icon: Settings, label: "系统设置", path: "/settings" },
@@ -58,8 +57,8 @@ const Profile = () => {
             <div className="text-xs text-muted-foreground">累计服务</div>
           </div>
           <div className="bg-card rounded-lg p-4 text-center shadow-card">
-            <div className="text-lg font-bold text-foreground">5小时</div>
-            <div className="text-xs text-muted-foreground">总服务工时</div>
+            <div className="text-lg font-bold text-foreground">5</div>
+            <div className="text-xs text-muted-foreground">服务时长</div>
           </div>
         </div>
 

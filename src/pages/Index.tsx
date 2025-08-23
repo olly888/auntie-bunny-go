@@ -1,19 +1,11 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+// Update this page (the content is just a fallback if you fail to update the page)
 
 const Index = () => {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // 自动重定向到工作台
-    navigate("/workbench");
-  }, [navigate]);
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="text-center">
-        <h1 className="text-2xl font-semibold mb-2">兔到到</h1>
-        <p className="text-muted-foreground">正在跳转到工作台...</p>
+        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
+        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
       </div>
     </div>
   );
