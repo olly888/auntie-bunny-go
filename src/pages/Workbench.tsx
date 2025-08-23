@@ -8,14 +8,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useNavigate } from "react-router-dom";
-import { Phone, Bell, RefreshCw, TestTube } from "lucide-react";
+import { Phone, Bell, RefreshCw } from "lucide-react";
 import rabbitMascot from "@/assets/rabbit-mascot.png";
 import { useOnlineStatus } from "@/hooks/use-online-status";
 import { useCurrentTask } from "@/hooks/orders/useCurrentTask";
 import { useTodayStats } from "@/hooks/orders/useTodayStats";
 import { useOrdersRealtime } from "@/hooks/orders/useOrdersRealtime";
 import { useTaskHallOrders } from "@/hooks/orders/useTaskHallOrders";
-import { useDemoOrder } from "@/hooks/orders/useDemoOrder";
 import { TaskHallList } from "@/components/orders/TaskHallList";
 import { OrderBroadcastModal } from "@/components/orders/OrderBroadcastModal";
 import { CurrentTaskCard } from "@/components/orders/CurrentTaskCard";
@@ -25,7 +24,6 @@ import { OneClickExperienceButton } from "@/components/orders/OneClickExperience
 const Workbench = () => {
   const { isOnline, setIsOnline } = useOnlineStatus();
   const [showOfflineDialog, setShowOfflineDialog] = useState(false);
-  const [isCreatingDemo, setIsCreatingDemo] = useState(false);
   const navigate = useNavigate();
   
   // Data hooks
@@ -33,7 +31,6 @@ const Workbench = () => {
   const { data: todayStats } = useTodayStats();
   const { data: taskHallOrders, refetch: refetchTaskHall } = useTaskHallOrders();
   const { newOrder, dismissOrder } = useOrdersRealtime();
-  const { createDemoOrder } = useDemoOrder();
 
   const hasCurrentTask = !!currentTask;
   const isInProgress = currentTask?.status === 'in_progress';
@@ -68,12 +65,6 @@ const Workbench = () => {
 
   const handleNotificationClick = () => {
     navigate("/notifications");
-  };
-
-  const handleCreateDemoOrder = async () => {
-    setIsCreatingDemo(true);
-    await createDemoOrder();
-    setIsCreatingDemo(false);
   };
 
   // Default stats if loading
@@ -125,7 +116,7 @@ const Workbench = () => {
                   {isOnline ? "上线接单中" : "已下线"}
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  {isOnline ? "保持在线以接收新订单" : "点击开关上线开始接单"}
+                  {isOnline ? "保持在线状态以接收新订单" : "点击开关上线开始接单"}
                 </div>
               </div>
               
@@ -214,16 +205,6 @@ const Workbench = () => {
                   </TabsTrigger>
                 </TabsList>
                 <div className="flex items-center gap-2">
-                  <Button
-                    variant="ghost" 
-                    size="sm"
-                    onClick={handleCreateDemoOrder}
-                    disabled={isCreatingDemo}
-                    className="p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                    title="生成测试订单（用于体验广播弹窗和抢单流程）"
-                  >
-                    <TestTube className="w-4 h-4" />
-                  </Button>
                   <Button
                     variant="ghost" 
                     size="sm"

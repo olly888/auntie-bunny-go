@@ -1,3 +1,4 @@
+
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Order } from './useTaskHallOrders';
@@ -6,6 +7,13 @@ export const useCurrentTask = () => {
   return useQuery({
     queryKey: ['current-task'],
     queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        // 未登录时返回 null
+        return null;
+      }
+
       // Use secure function to get orders
       const { data: allOrders, error } = await supabase
         .rpc('get_filtered_orders');

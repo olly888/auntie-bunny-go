@@ -318,6 +318,10 @@ export type Database = {
         Args: { order_id: string }
         Returns: boolean
       }
+      create_demo_order_for_my_store: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       ensure_referral: {
         Args: { invite_type: string }
         Returns: {

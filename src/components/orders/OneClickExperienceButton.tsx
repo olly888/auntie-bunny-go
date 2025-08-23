@@ -3,15 +3,15 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useDemoLogin } from '@/hooks/useDemoLogin';
-import { useDemoOrder } from '@/hooks/orders/useDemoOrder';
 import { Sparkles, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useQueryClient } from '@tanstack/react-query';
 
 export function OneClickExperienceButton() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { performDemoLogin } = useDemoLogin();
-  const { createDemoOrder } = useDemoOrder();
+  const queryClient = useQueryClient();
 
   const handleOneClickExperience = async () => {
     setIsLoading(true);
@@ -28,18 +28,31 @@ export function OneClickExperienceButton() {
         }
         
         // 等待一会让登录状态更新
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 1500));
       }
 
       // 创建演示订单
-      const success = await createDemoOrder();
+      const { data: orderId, error } = await supabase.rpc('create_demo_order_for_my_store');
       
-      if (success) {
+      if (error) {
+        console.error('Error creating demo order:', error);
         toast({
-          title: "🎉 体验开始！",
-          description: "演示订单已创建，广播弹窗即将出现，您可以在任务大厅抢单体验完整流程"
+          title: "生成失败",
+          description: error.message || "无法生成测试订单",
+          variant: "destructive"
         });
+        return;
       }
+
+      // 刷新相关查询
+      queryClient.invalidateQueries({ queryKey: ['task-hall-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['current-task'] });
+      
+      toast({
+        title: "🎉 体验开始！",
+        description: "演示订单已创建，广播弹窗即将出现，您可以在任务大厅抢单体验完整流程"
+      });
+      
     } catch (error) {
       console.error('One-click experience error:', error);
       toast({
