@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DataCard } from "@/components/ui/data-card";
 import { BottomNav } from "@/components/ui/bottom-nav";
-import { PageHeader } from "@/components/ui/page-header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
@@ -74,35 +73,34 @@ const Income = () => {
     <div className="min-h-screen bg-background pb-20">
       <div className="max-w-md mx-auto p-4 space-y-6">
         
-        <PageHeader 
-          title="我的收入"
-          actions={
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className={cn(
-                    "justify-start text-left font-normal",
-                    !selectedDate && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {selectedDate ? format(selectedDate, "M/d") : "选择日期"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="end">
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={(date) => date && setSelectedDate(date)}
-                  initialFocus
-                  className="pointer-events-auto"
-                />
-              </PopoverContent>
-            </Popover>
-          }
-        />
+        {/* 页面标题与时间筛选 */}
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-foreground">我的收入</h1>
+          
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "justify-start text-left font-normal",
+                  !selectedDate && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {selectedDate ? format(selectedDate, "PPP") : "选择日期"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="end">
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={(date) => date && setSelectedDate(date)}
+                initialFocus
+                className="pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
 
         {/* 时间范围切换 */}
         <Tabs value={timeRange} onValueChange={(value) => setTimeRange(value as "day" | "month" | "year")}>

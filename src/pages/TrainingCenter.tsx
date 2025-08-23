@@ -3,7 +3,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { BottomNav } from "@/components/ui/bottom-nav";
-import { PageHeader } from "@/components/ui/page-header";
 import { cn } from "@/lib/utils";
 import { Clock, BookOpen, Award, Bell, Play, Check } from "lucide-react";
 
@@ -76,11 +75,11 @@ const TrainingCenter = () => {
     <div className="min-h-screen bg-background pb-20">
       <div className="max-w-md mx-auto p-4 space-y-6">
         
-        <PageHeader 
-          title="培训中心"
-          subtitle="提升技能，成为更专业的服务者"
-          className="text-center"
-        />
+        {/* 页面标题 */}
+        <div className="text-center py-4">
+          <h1 className="text-2xl font-bold text-foreground mb-2">培训中心</h1>
+          <p className="text-muted-foreground text-sm">提升技能，成为更专业的服务者</p>
+        </div>
 
         {/* 学习进度总览 */}
         <Card className="p-6 bg-gradient-card border-primary/20">

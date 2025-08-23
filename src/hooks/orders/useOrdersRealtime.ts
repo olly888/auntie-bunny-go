@@ -81,21 +81,6 @@ export const useOrdersRealtime = () => {
           queryClient.invalidateQueries({ queryKey: ['task-hall-orders'] });
         }
       )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public', 
-          table: 'orders',
-          filter: `store_id=eq.${profile.store_id}`
-        },
-        (payload) => {
-          console.log('Order updated:', payload);
-          // Invalidate queries when orders are updated
-          queryClient.invalidateQueries({ queryKey: ['task-hall-orders'] });
-          queryClient.invalidateQueries({ queryKey: ['current-task'] });
-        }
-      )
       .subscribe();
 
     return () => {

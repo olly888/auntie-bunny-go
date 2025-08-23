@@ -94,10 +94,6 @@ export default {
 				'2xs': ['0.625rem', { lineHeight: '0.75rem' }],
 				'display': ['3.5rem', { lineHeight: '1.1', fontWeight: '700' }],
 			},
-			spacing: {
-				'safe-top': 'var(--safe-area-top)',
-				'safe-right': 'var(--safe-area-right)',
-			},
 			keyframes: {
 				'accordion-down': {
 					from: {
