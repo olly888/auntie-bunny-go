@@ -1,8 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, ChevronDown } from "lucide-react";
-import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TimePeriod } from "@/hooks/useIncomeData";
 
@@ -18,17 +17,6 @@ export function TimeFilter({ period, onPeriodChange, selectedDate, onDateChange 
     day: '日',
     month: '月',
     year: '年'
-  };
-
-  const formatDate = (date: Date, period: TimePeriod) => {
-    switch (period) {
-      case 'day':
-        return format(date, 'yyyy年MM月dd日');
-      case 'month':
-        return format(date, 'yyyy年MM月');
-      case 'year':
-        return format(date, 'yyyy年');
-    }
   };
 
   return (
@@ -58,15 +46,10 @@ export function TimeFilter({ period, onPeriodChange, selectedDate, onDateChange 
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className="flex-1 justify-between bg-card border-border"
+            size="sm"
+            className="p-2 bg-card border-border"
           >
-            <span className="text-foreground">
-              {formatDate(selectedDate, period)}
-            </span>
-            <div className="flex items-center gap-1">
-              <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-              <ChevronDown className="h-3 w-3 text-muted-foreground" />
-            </div>
+            <CalendarIcon className="h-4 w-4 text-muted-foreground" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="end">

@@ -1,10 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { DataCard } from "@/components/ui/data-card";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { ChevronRight, CreditCard, TrendingUp, FileText, HelpCircle, AlertCircle } from "lucide-react";
 import { TimeFilter } from "@/components/income/TimeFilter";
-import { IncomeChart } from "@/components/income/IncomeChart";
 import { LoadingSkeleton } from "@/components/income/LoadingSkeleton";
 import { useIncomeData, TimePeriod } from "@/hooks/useIncomeData";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -13,7 +11,7 @@ const Income = () => {
   const [period, setPeriod] = useState<TimePeriod>('month');
   const [selectedDate, setSelectedDate] = useState(new Date());
   
-  const { stats, chartData, isLoading, error } = useIncomeData(period, selectedDate);
+  const { stats, isLoading, error } = useIncomeData(period, selectedDate);
 
   if (isLoading) {
     return <LoadingSkeleton />;
@@ -68,8 +66,8 @@ const Income = () => {
               <div className="text-xs opacity-80">已完成</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold">¥{stats.baseSalary}</div>
-              <div className="text-xs opacity-80">固定底薪</div>
+              <div className="text-2xl font-bold">{stats.averageArrivalMinutes}</div>
+              <div className="text-xs opacity-80">平均到达分钟</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold">{stats.serviceHours}h</div>
@@ -78,43 +76,8 @@ const Income = () => {
           </div>
         </div>
 
-        {/* 收入趋势图 */}
-        <IncomeChart data={chartData} period={period} />
-
-        {/* 业绩概览 */}
-        <div>
-          <h2 className="text-lg font-semibold text-foreground mb-4">
-            {period === 'day' && '今日业绩概览'}
-            {period === 'month' && '本月业绩概览'}  
-            {period === 'year' && '本年业绩概览'}
-          </h2>
-          <div className="grid grid-cols-2 gap-4">
-            <DataCard 
-              title="服务订单" 
-              value={stats.completedOrders} 
-              unit="单"
-            />
-            <DataCard 
-              title="平均评分" 
-              value={stats.averageRating} 
-              unit="分"
-            />
-            <DataCard 
-              title="准时率" 
-              value={stats.onTimeRate} 
-              unit="%"
-            />
-            <DataCard 
-              title="服务小时" 
-              value={stats.serviceHours} 
-              unit="小时"
-            />
-          </div>
-        </div>
-
         {/* 功能入口列表 */}
         <div>
-          <h2 className="text-lg font-semibold text-foreground mb-4">更多功能</h2>
           <div className="space-y-3">
             {menuItems.map((item, index) => (
               <Button
