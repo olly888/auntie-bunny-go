@@ -50,13 +50,6 @@ export type Database = {
             foreignKeyName: "customer_notes_order_id_fkey"
             columns: ["order_id"]
             isOneToOne: false
-            referencedRelation: "abnormal_orders"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "customer_notes_order_id_fkey"
-            columns: ["order_id"]
-            isOneToOne: false
             referencedRelation: "orders"
             referencedColumns: ["id"]
           },
@@ -85,13 +78,6 @@ export type Database = {
           uploaded_by?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "order_photos_order_id_fkey"
-            columns: ["order_id"]
-            isOneToOne: false
-            referencedRelation: "abnormal_orders"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "order_photos_order_id_fkey"
             columns: ["order_id"]
@@ -331,6 +317,8 @@ export type Database = {
           assigned_at: string | null
           assignee_id: string | null
           completed_at: string | null
+          contact_name: string | null
+          contact_phone: string | null
           created_at: string | null
           distance_minutes: number | null
           duration_minutes: number | null
@@ -344,51 +332,7 @@ export type Database = {
           type: string | null
           updated_at: string | null
         }
-        Insert: {
-          address?: string | null
-          assigned_at?: string | null
-          assignee_id?: string | null
-          completed_at?: string | null
-          created_at?: string | null
-          distance_minutes?: number | null
-          duration_minutes?: number | null
-          id?: string | null
-          latitude?: number | null
-          longitude?: number | null
-          payout?: number | null
-          started_at?: string | null
-          status?: string | null
-          store_id?: string | null
-          type?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          address?: string | null
-          assigned_at?: string | null
-          assignee_id?: string | null
-          completed_at?: string | null
-          created_at?: string | null
-          distance_minutes?: number | null
-          duration_minutes?: number | null
-          id?: string | null
-          latitude?: number | null
-          longitude?: number | null
-          payout?: number | null
-          started_at?: string | null
-          status?: string | null
-          store_id?: string | null
-          type?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "orders_store_id_fkey"
-            columns: ["store_id"]
-            isOneToOne: false
-            referencedRelation: "stores"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Functions: {
@@ -409,6 +353,33 @@ export type Database = {
           status: string
           updated_at: string
         }
+      }
+      get_abnormal_orders: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          address: string
+          assigned_at: string
+          assignee_id: string
+          completed_at: string
+          contact_name: string
+          contact_phone: string
+          created_at: string
+          distance_minutes: number
+          duration_minutes: number
+          id: string
+          latitude: number
+          longitude: number
+          payout: number
+          started_at: string
+          status: string
+          store_id: string
+          type: string
+          updated_at: string
+        }[]
+      }
+      get_current_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       update_order_status: {
         Args: { new_status: string; order_id: string }
