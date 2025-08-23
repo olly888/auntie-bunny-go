@@ -174,93 +174,91 @@ const Workbench = () => {
           )}
 
           {/* 任务大厅与管理区 */}
-          <div className="bg-card rounded-lg border border-border overflow-hidden">
-            <Tabs defaultValue={hasCurrentTask ? "progress" : "new"} className="w-full">
-              <div className="border-b border-border">
-                <div className="flex items-center justify-between">
-                  <TabsList className="h-12 bg-transparent justify-start rounded-none border-0">
-                    <TabsTrigger value="new" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none flex items-center gap-2">
-                      任务大厅
-                      {taskHallOrders && taskHallOrders.length > 0 && (
-                        <Badge variant="destructive" className="h-4 w-4 p-0 text-2xs flex items-center justify-center">
-                          {taskHallOrders.length}
-                        </Badge>
-                      )}
-                    </TabsTrigger>
-                    <TabsTrigger value="progress" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
-                      进行中
-                    </TabsTrigger>
-                    <TabsTrigger value="completed" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
-                      已完成
-                    </TabsTrigger>
-                  </TabsList>
-                  <Button
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => refetchTaskHall()}
-                    className="mr-4 p-2"
-                  >
-                    <RefreshCw className="w-4 h-4" />
-                  </Button>
-                </div>
+          <Tabs defaultValue={hasCurrentTask ? "progress" : "new"} className="w-full">
+            <div className="border-b border-border">
+              <div className="flex items-center justify-between">
+                <TabsList className="h-12 bg-transparent justify-start rounded-none border-0">
+                  <TabsTrigger value="new" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none flex items-center gap-2">
+                    任务大厅
+                    {taskHallOrders && taskHallOrders.length > 0 && (
+                      <Badge variant="destructive" className="h-4 w-4 p-0 text-2xs flex items-center justify-center">
+                        {taskHallOrders.length}
+                      </Badge>
+                    )}
+                  </TabsTrigger>
+                  <TabsTrigger value="progress" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
+                    进行中
+                  </TabsTrigger>
+                  <TabsTrigger value="completed" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
+                    已完成
+                  </TabsTrigger>
+                </TabsList>
+                <Button
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => refetchTaskHall()}
+                  className="mr-4 p-2"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                </Button>
               </div>
+            </div>
+            
+            <div className="p-4">
+              <TabsContent value="new" className="mt-0">
+                {!hasCurrentTask ? (
+                  <div className="space-y-4">
+                    <TaskHallList />
+                    {isOnline && (
+                      <div className="p-6 text-center border-2 border-dashed border-primary/30 bg-primary/5 rounded-lg">
+                        <img 
+                          src={rabbitMascot} 
+                          alt="兔到到吉祥物" 
+                          className="w-12 h-12 mx-auto mb-2 opacity-80"
+                        />
+                        <div className="space-y-1">
+                          <p className="text-sm font-medium text-foreground">等待新订单中...</p>
+                          <p className="text-xs text-muted-foreground">
+                            保持在线状态，随时准备接单
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {!isOnline && (
+                      <div className="p-6 text-center text-muted-foreground">
+                        <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-muted flex items-center justify-center">
+                          <span className="text-2xl">😴</span>
+                        </div>
+                        <p className="text-sm font-medium">当前处于下线状态</p>
+                        <p className="text-xs mt-1">开启上线开关开始接单</p>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <p className="text-sm">当前有任务进行中，无法接收新任务</p>
+                  </div>
+                )}
+              </TabsContent>
               
-              <div className="p-4">
-                <TabsContent value="new" className="mt-0">
-                  {!hasCurrentTask ? (
-                    <div className="space-y-4">
-                      <TaskHallList />
-                      {isOnline && (
-                        <div className="p-6 text-center border-2 border-dashed border-primary/30 bg-primary/5 rounded-lg">
-                          <img 
-                            src={rabbitMascot} 
-                            alt="兔到到吉祥物" 
-                            className="w-12 h-12 mx-auto mb-2 opacity-80"
-                          />
-                          <div className="space-y-1">
-                            <p className="text-sm font-medium text-foreground">等待新订单中...</p>
-                            <p className="text-xs text-muted-foreground">
-                              保持在线状态，随时准备接单
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                      
-                      {!isOnline && (
-                        <div className="p-6 text-center text-muted-foreground">
-                          <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-muted flex items-center justify-center">
-                            <span className="text-2xl">😴</span>
-                          </div>
-                          <p className="text-sm font-medium">当前处于下线状态</p>
-                          <p className="text-xs mt-1">开启上线开关开始接单</p>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <p className="text-sm">当前有任务进行中，无法接收新任务</p>
-                    </div>
-                  )}
-                </TabsContent>
-                
-                <TabsContent value="progress" className="mt-0">
-                  {hasCurrentTask ? (
-                    <div className="text-center py-4 text-muted-foreground">
-                      <p className="text-sm">当前任务详情已在上方显示</p>
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <p className="text-sm">暂无进行中的任务</p>
-                    </div>
-                  )}
-                </TabsContent>
-                
-                <TabsContent value="completed" className="mt-0">
-                  <CompletedTodayList />
-                </TabsContent>
-              </div>
-            </Tabs>
-          </div>
+              <TabsContent value="progress" className="mt-0">
+                {hasCurrentTask ? (
+                  <div className="text-center py-4 text-muted-foreground">
+                    <p className="text-sm">当前任务详情已在上方显示</p>
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <p className="text-sm">暂无进行中的任务</p>
+                  </div>
+                )}
+              </TabsContent>
+              
+              <TabsContent value="completed" className="mt-0">
+                <CompletedTodayList />
+              </TabsContent>
+            </div>
+          </Tabs>
         </div>
       </div>
       
