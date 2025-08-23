@@ -14,6 +14,8 @@ export interface Order {
   started_at?: string | null;
   completed_at?: string | null;
   assignee_id?: string | null;
+  contact_phone?: string | null;
+  contact_name?: string | null;
 }
 
 export const useTaskHallOrders = () => {

@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      customer_notes: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string
+          customer_phone: string
+          id: string
+          order_id: string
+          store_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string
+          customer_phone: string
+          id?: string
+          order_id: string
+          store_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string
+          customer_phone?: string
+          id?: string
+          order_id?: string
+          store_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_notes_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "abnormal_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_notes_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_photos: {
         Row: {
           created_at: string
@@ -59,6 +107,8 @@ export type Database = {
           assigned_at: string | null
           assignee_id: string | null
           completed_at: string | null
+          contact_name: string | null
+          contact_phone: string | null
           created_at: string
           distance_minutes: number | null
           duration_minutes: number
@@ -77,6 +127,8 @@ export type Database = {
           assigned_at?: string | null
           assignee_id?: string | null
           completed_at?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
           created_at?: string
           distance_minutes?: number | null
           duration_minutes: number
@@ -95,6 +147,8 @@ export type Database = {
           assigned_at?: string | null
           assignee_id?: string | null
           completed_at?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
           created_at?: string
           distance_minutes?: number | null
           duration_minutes?: number

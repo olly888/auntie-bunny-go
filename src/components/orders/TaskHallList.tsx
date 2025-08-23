@@ -29,7 +29,7 @@ export function TaskHallList() {
         queryClient.invalidateQueries({ queryKey: ['current-task'] });
         
         // Navigate to order service page
-        navigate('/order-service');
+        navigate(`/order-service/${orderId}`);
       } else {
         toast({
           title: "手慢了！",

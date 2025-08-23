@@ -1,38 +1,133 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { BottomNav } from "@/components/ui/bottom-nav";
-import { Phone, Navigation, AlertTriangle, Camera } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { PhotoUploader } from "@/components/orders/PhotoUploader";
+import { CustomerNotes } from "@/components/orders/CustomerNotes";
+import { useCurrentTask, useUpdateOrderStatus } from "@/hooks/orders/useCurrentTask";
+import { useToast } from "@/hooks/use-toast";
+import { ArrowLeft, Phone, Navigation, AlertTriangle, Camera, MapPin } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 type ServiceStatus = "departing" | "enroute" | "arrived" | "verification" | "serving" | "completed";
 
 const OrderService = () => {
-  const [status, setStatus] = useState<ServiceStatus>("departing");
+  const { orderId } = useParams();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const [verificationCode, setVerificationCode] = useState("");
+  const [photoCount, setPhotoCount] = useState(0);
+  const [showNoteDialog, setShowNoteDialog] = useState(false);
+  
+  const { data: order, isLoading } = useCurrentTask();
+  const updateOrderStatus = useUpdateOrderStatus();
 
-  // 订单信息
-  const orderInfo = {
-    address: "深圳市南山区xx小区 A栋 1201",
-    phone: "13812341234",
-    phoneDisplay: "138****1234",
-    notes: ["#家有宠物#", "#厨房油污重#"],
-    serviceItem: "厨房深清",
-    serviceTime: "今天 14:00-16:00",
-    commissionEstimate: 25.0
+  useEffect(() => {
+    if (!orderId || !order) return;
+    
+    // If order ID doesn't match current task, redirect
+    if (order.id !== orderId) {
+      navigate('/workbench');
+    }
+  }, [orderId, order, navigate]);
+
+  if (isLoading || !order) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-muted-foreground">加载订单信息...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const maskPhone = (phone: string) => {
+    if (!phone) return '';
+    return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
   };
 
-  const handleStatusChange = (nextStatus: ServiceStatus) => {
-    if (nextStatus === "verification") {
-      setStatus(nextStatus);
-    } else if (nextStatus === "serving" && verificationCode.length === 4) {
-      setStatus(nextStatus);
-    } else {
-      setStatus(nextStatus);
+  const phoneDisplay = order.contact_phone ? maskPhone(order.contact_phone) : '暂无联系方式';
+  const serviceNotes = ['#厨房油污重#']; // Mock data - could come from order
+
+  const handleStatusChange = async (nextStatus: ServiceStatus) => {
+    try {
+      // Validation for verification step
+      if (nextStatus === "serving" && verificationCode.length !== 4) {
+        toast({
+          title: "验证失败",
+          description: "请输入正确的4位手机尾号",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Validation for completion step
+      if (nextStatus === "completed" && photoCount === 0) {
+        toast({
+          title: "请上传照片",
+          description: "完成服务前至少需要上传一张照片",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Map frontend status to backend status
+      const statusMap: Record<ServiceStatus, string> = {
+        departing: 'assigned',
+        enroute: 'assigned', 
+        arrived: 'assigned',
+        verification: 'assigned',
+        serving: 'in_progress',
+        completed: 'completed'
+      };
+
+      const success = await updateOrderStatus(order.id, statusMap[nextStatus]);
+      
+      if (success) {
+        if (nextStatus === "completed") {
+          setShowNoteDialog(true);
+        }
+        toast({
+          title: "状态更新成功",
+          description: getStatusMessage(nextStatus)
+        });
+      } else {
+        throw new Error("Status update failed");
+      }
+    } catch (error) {
+      console.error('Status update error:', error);
+      toast({
+        title: "更新失败", 
+        description: "请重试",
+        variant: "destructive"
+      });
     }
   };
 
+  const getStatusMessage = (status: ServiceStatus) => {
+    const messages = {
+      departing: "已确认出发",
+      enroute: "正在前往服务地点", 
+      arrived: "已到达服务地点",
+      verification: "开始身份验证",
+      serving: "开始提供服务",
+      completed: "服务已完成"
+    };
+    return messages[status];
+  };
+
+  const getCurrentServiceStatus = (): ServiceStatus => {
+    if (!order.started_at) return "departing";
+    if (!order.completed_at) return "serving"; 
+    return "completed";
+  };
+
   const getStatusButton = () => {
-    switch (status) {
+    const currentStatus = getCurrentServiceStatus();
+    
+    switch (currentStatus) {
       case "departing":
         return (
           <Button 
@@ -48,9 +143,8 @@ const OrderService = () => {
       case "enroute":
         return (
           <Button 
-            variant="warning" 
+            className="w-full bg-amber-500 hover:bg-amber-600 text-white" 
             size="xl" 
-            className="w-full"
             onClick={() => handleStatusChange("arrived")}
           >
             我已到场
@@ -60,7 +154,7 @@ const OrderService = () => {
       case "arrived":
         return (
           <Button 
-            variant="success" 
+            variant="default" 
             size="xl" 
             className="w-full"
             onClick={() => handleStatusChange("verification")}
@@ -76,7 +170,7 @@ const OrderService = () => {
               placeholder="请输入用户手机尾号后4位"
               value={verificationCode}
               onChange={(e) => {
-                const value = e.target.value.replace(/\D/g, ''); // 只允许数字
+                const value = e.target.value.replace(/\D/g, '');
                 setVerificationCode(value);
               }}
               maxLength={4}
@@ -85,7 +179,6 @@ const OrderService = () => {
               className="text-center text-lg"
             />
             <Button 
-              variant="primary" 
               size="xl" 
               className="w-full"
               disabled={verificationCode.length !== 4}
@@ -98,126 +191,169 @@ const OrderService = () => {
       
       case "serving":
         return (
-          <Button 
-            variant="success" 
-            size="xl" 
-            className="w-full"
-            onClick={() => handleStatusChange("completed")}
-          >
-            <Camera className="mr-2" />
-            上传照片并完成服务
-          </Button>
+          <div className="space-y-4">
+            <PhotoUploader orderId={order.id} onPhotosChange={setPhotoCount} />
+            <Button 
+              className="w-full bg-emerald-500 hover:bg-emerald-600 text-white"
+              size="xl" 
+              disabled={photoCount === 0}
+              onClick={() => handleStatusChange("completed")}
+            >
+              <Camera className="mr-2" />
+              完成服务 ({photoCount}张照片)
+            </Button>
+          </div>
         );
       
       case "completed":
         return (
           <div className="text-center py-8">
             <div className="text-6xl mb-4">✅</div>
-            <h2 className="text-2xl font-bold text-success mb-2">服务已完成</h2>
+            <h2 className="text-2xl font-bold text-emerald-600 mb-2">服务已完成</h2>
             <p className="text-muted-foreground">感谢您的辛勤工作！</p>
+            <Button 
+              className="mt-4" 
+              onClick={() => navigate('/workbench')}
+            >
+              返回工作台
+            </Button>
           </div>
         );
     }
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20">
-      
-      {/* 紧急求助按钮 */}
-      <div className="flex justify-end p-4">
-        <Button variant="destructive" size="sm">
-          <AlertTriangle className="w-4 h-4 mr-1" />
-          紧急求助
+    <div className="min-h-screen bg-background">
+      {/* Top Bar */}
+      <header className="sticky top-0 z-10 bg-background border-b px-4 py-3">
+        <div className="flex items-center justify-between">
+          <Button variant="ghost" size="sm" onClick={() => navigate('/workbench')}>
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+          <h1 className="font-semibold">订单详情</h1>
+          <Button variant="destructive" size="sm">
+            <AlertTriangle className="w-4 h-4 mr-1" />
+            求助
+          </Button>
+        </div>
+      </header>
+
+      {/* Map Area */}
+      <div className="h-64 bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center relative">
+        <div className="text-center text-muted-foreground">
+          <MapPin className="w-12 h-12 mx-auto mb-2" />
+          <p className="text-sm">地图导航区域</p>
+          <p className="text-xs">{order.address}</p>
+        </div>
+        
+        {/* Navigation button overlay */}
+        <Button 
+          className="absolute bottom-4 right-4 bg-blue-500 hover:bg-blue-600 text-white"
+          size="sm"
+          onClick={() => window.open(`https://uri.amap.com/navigation?to=${encodeURIComponent(order.address)}`, '_blank')}
+        >
+          <Navigation className="w-4 h-4 mr-1" />
+          导航
         </Button>
       </div>
 
-      <div className="max-w-md mx-auto px-4 pb-6 space-y-6">
-        
-        {/* 订单信息区 */}
-        <div className="bg-card rounded-xl p-6 shadow-card">
-          <h2 className="text-lg font-semibold mb-4">订单信息</h2>
-          
-          <div className="space-y-3">
-            <div>
-              <div className="text-sm text-muted-foreground mb-1">服务地址</div>
-              <div className="font-medium">{orderInfo.address}</div>
-            </div>
-            
-            <div className="flex items-center justify-between">
+      {/* Bottom Sheet */}
+      <Sheet open={true}>
+        <SheetContent 
+          side="bottom" 
+          className="h-[60vh] rounded-t-3xl border-0 p-0"
+        >
+          <div className="p-6 space-y-6 overflow-y-auto h-full">
+            <SheetHeader>
+              <div className="w-12 h-1 bg-muted rounded-full mx-auto" />
+              <SheetTitle className="text-center mt-4">订单信息</SheetTitle>
+            </SheetHeader>
+
+            {/* Order Details */}
+            <div className="space-y-4">
               <div>
-                <div className="text-sm text-muted-foreground mb-1">联系用户</div>
-                <div className="font-medium">{orderInfo.phoneDisplay}</div>
+                <div className="text-sm text-muted-foreground mb-1">服务地址</div>
+                <div className="font-medium">{order.address}</div>
               </div>
-              <a href={`tel:${orderInfo.phone}`}>
-                <Button variant="outline" size="sm">
-                  <Phone className="w-4 h-4" />
-                </Button>
-              </a>
-            </div>
-
-            <div>
-              <div className="text-sm text-muted-foreground mb-1">服务项目</div>
-              <div className="font-medium">{orderInfo.serviceItem}</div>
-            </div>
-
-            <div>
-              <div className="text-sm text-muted-foreground mb-1">服务时间</div>
-              <div className="font-medium">{orderInfo.serviceTime}</div>
-            </div>
-
-            <div>
-              <div className="text-sm text-muted-foreground mb-1">预计提成</div>
-              <div className="font-medium text-success">¥{orderInfo.commissionEstimate}</div>
-            </div>
-            
-            <div>
-              <div className="text-sm text-muted-foreground mb-2">订单备注</div>
-              <div className="flex gap-2">
-                {orderInfo.notes.map((note, index) => (
-                  <span 
-                    key={index}
-                    className="px-3 py-1 bg-accent text-accent-foreground rounded-full text-sm"
-                  >
-                    {note}
-                  </span>
-                ))}
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-sm text-muted-foreground mb-1">联系用户</div>
+                  <div className="font-medium">{phoneDisplay}</div>
+                </div>
+                {order.contact_phone && (
+                  <a href={`tel:${order.contact_phone}`}>
+                    <Button variant="outline" size="sm">
+                      <Phone className="w-4 h-4" />
+                    </Button>
+                  </a>
+                )}
               </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <div className="text-sm text-muted-foreground mb-1">服务项目</div>
+                  <div className="font-medium">{order.type}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-muted-foreground mb-1">服务时长</div>
+                  <div className="font-medium">{order.duration_minutes}分钟</div>
+                </div>
+              </div>
+
+              <div>
+                <div className="text-sm text-muted-foreground mb-1">预计提成</div>
+                <div className="font-medium text-emerald-600">¥{order.payout}</div>
+              </div>
+              
+              {serviceNotes.length > 0 && (
+                <div>
+                  <div className="text-sm text-muted-foreground mb-2">订单备注</div>
+                  <div className="flex gap-2 flex-wrap">
+                    {serviceNotes.map((note, index) => (
+                      <Badge key={index} variant="secondary">
+                        {note}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Customer Notes */}
+              {order.contact_phone && (
+                <CustomerNotes 
+                  customerPhone={order.contact_phone}
+                  orderId={order.id}
+                  showAddNote={getCurrentServiceStatus() === "completed"}
+                />
+              )}
+            </div>
+
+            {/* Action Button */}
+            <div className="pt-4">
+              {getStatusButton()}
             </div>
           </div>
-        </div>
+        </SheetContent>
+      </Sheet>
 
-        {/* 地图导航区 */}
-        <div className="bg-card rounded-xl p-6 shadow-card">
-          <h2 className="text-lg font-semibold mb-4">地图导航</h2>
-          
-          {/* 模拟地图 */}
-          <div className="bg-gradient-to-br from-accent/20 to-accent/40 rounded-lg h-32 flex items-center justify-center mb-4">
-            <div className="text-center text-muted-foreground">
-              <Navigation className="w-8 h-8 mx-auto mb-2" />
-              <div>地图导航区域</div>
+      {/* Add Note Dialog */}
+      {showNoteDialog && order.contact_phone && (
+        <Sheet open={showNoteDialog} onOpenChange={setShowNoteDialog}>
+          <SheetContent side="bottom" className="h-96">
+            <SheetHeader>
+              <SheetTitle>添加服务备注</SheetTitle>
+            </SheetHeader>
+            <div className="mt-6">
+              <CustomerNotes 
+                customerPhone={order.contact_phone}
+                orderId={order.id}
+                showAddNote={true}
+              />
             </div>
-          </div>
-          
-          <a 
-            href="https://uri.amap.com/navigation?to=116.481488,39.990464,深圳市南山区xx小区"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Button variant="outline" className="w-full">
-              <Navigation className="w-4 h-4 mr-2" />
-              使用高德地图导航
-            </Button>
-          </a>
-        </div>
-
-        {/* 状态操作区 */}
-        <div className="bg-card rounded-xl p-6 shadow-card">
-          <h2 className="text-lg font-semibold mb-4">服务状态</h2>
-          {getStatusButton()}
-        </div>
-      </div>
-      
-      <BottomNav />
+          </SheetContent>
+        </Sheet>
+      )}
     </div>
   );
 };

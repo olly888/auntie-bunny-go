@@ -1,6 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Order } from "@/hooks/orders/useTaskHallOrders";
+import { OrderCountdown } from "./OrderCountdown";
+import { formatDistanceToNow } from 'date-fns';
+import { zhCN } from 'date-fns/locale';
 
 interface OrderCardProps {
   order: Order;
@@ -21,6 +24,10 @@ const getOrderIcon = (type: string) => {
 export function OrderCard({ order, onClaim, isLoading }: OrderCardProps) {
   const icon = getOrderIcon(order.type);
   const distanceText = order.distance_minutes ? `距您${order.distance_minutes}分钟` : '位置待定';
+  const createdTime = formatDistanceToNow(new Date(order.created_at), { 
+    locale: zhCN, 
+    addSuffix: true 
+  });
 
   return (
     <Card className="p-4 border border-border bg-card">
@@ -34,8 +41,12 @@ export function OrderCard({ order, onClaim, isLoading }: OrderCardProps) {
               ¥{order.payout.toFixed(1)}
             </span>
           </div>
-          <div className="text-sm text-muted-foreground mb-3">
+          <div className="text-sm text-muted-foreground mb-2">
             📍 {order.address} ({distanceText})
+          </div>
+          <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
+            <span>下单时间: {createdTime}</span>
+            <OrderCountdown createdAt={order.created_at} />
           </div>
         </div>
       </div>

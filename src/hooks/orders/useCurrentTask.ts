@@ -8,7 +8,7 @@ export const useCurrentTask = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('orders')
-        .select('id, type, duration_minutes, address, payout, distance_minutes, status, created_at, assigned_at, started_at, completed_at, assignee_id')
+        .select('id, type, duration_minutes, address, payout, distance_minutes, status, created_at, assigned_at, started_at, completed_at, assignee_id, contact_phone, contact_name')
         .in('status', ['assigned', 'in_progress'])
         .eq('assignee_id', (await supabase.auth.getUser()).data.user?.id!)
         .maybeSingle();

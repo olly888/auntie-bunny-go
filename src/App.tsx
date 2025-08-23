@@ -59,7 +59,7 @@ function App() {
                 <Route path="/help" element={<Help />} />
                 <Route path="/training" element={<TrainingCenter />} />
                 <Route path="/order-grab" element={<OrderGrab />} />
-                <Route path="/order-service" element={<OrderService />} />
+                <Route path="/order-service/:orderId" element={<OrderService />} />
                 <Route path="/legal/service-agreement" element={<LegalServiceAgreement />} />
                 <Route path="/legal/privacy-policy" element={<LegalPrivacyPolicy />} />
                 <Route path="*" element={<NotFound />} />
