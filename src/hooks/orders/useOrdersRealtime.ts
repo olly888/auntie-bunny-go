@@ -20,9 +20,6 @@ export interface Order {
 export const useOrdersRealtime = () => {
   const [newOrder, setNewOrder] = useState<Order | null>(null);
   const queryClient = useQueryClient();
-  
-  // Additional state to track if we should show fallback broadcasts
-  const [lastBroadcastTime, setLastBroadcastTime] = useState<number>(0);
 
   // Get current user's profile to check store_id and role
   const { data: profile } = useQuery({
@@ -73,7 +70,6 @@ export const useOrdersRealtime = () => {
               longitude: null
             };
             setNewOrder(filteredOrder);
-            setLastBroadcastTime(Date.now());
             
             // Auto-hide after 10 seconds
             setTimeout(() => {
@@ -92,51 +88,6 @@ export const useOrdersRealtime = () => {
       supabase.removeChannel(channel);
     };
   }, [profile, queryClient]);
-  
-  // Fallback broadcast every 30 seconds
-  useEffect(() => {
-    if (!profile) return;
-    
-    const fallbackInterval = setInterval(() => {
-      const now = Date.now();
-      const timeSinceLastBroadcast = now - lastBroadcastTime;
-      
-      // Only show fallback if no broadcast in last 30 seconds and no current order showing
-      if (timeSinceLastBroadcast >= 30000 && !newOrder) {
-        // Check if user is online and has no current task
-        const currentTaskData = queryClient.getQueryData(['current-task']);
-        const taskHallData = queryClient.getQueryData(['task-hall-orders']) as Order[];
-        const onlineStatus = queryClient.getQueryData(['online-status']);
-        
-        if (onlineStatus && !currentTaskData && taskHallData && taskHallData.length > 0) {
-          // Pick a random order from first 3 available orders
-          const availableOrders = taskHallData.slice(0, 3);
-          const randomOrder = availableOrders[Math.floor(Math.random() * availableOrders.length)];
-          
-          const filteredOrder = {
-            ...randomOrder,
-            address: '区域订单',
-            contact_phone: null,
-            contact_name: null,
-            latitude: null,
-            longitude: null
-          };
-          
-          setNewOrder(filteredOrder);
-          setLastBroadcastTime(now);
-          
-          // Auto-hide after 10 seconds
-          setTimeout(() => {
-            setNewOrder(null);
-          }, 10000);
-        }
-      }
-    }, 30000);
-    
-    return () => {
-      clearInterval(fallbackInterval);
-    };
-  }, [profile, queryClient, lastBroadcastTime, newOrder]);
 
   const dismissOrder = () => {
     setNewOrder(null);
