@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
@@ -17,6 +17,32 @@ const ServiceMap = ({
   const map = useRef<mapboxgl.Map | null>(null);
   const workerMarker = useRef<mapboxgl.Marker | null>(null);
   const destinationMarker = useRef<mapboxgl.Marker | null>(null);
+  const [currentLocation, setCurrentLocation] = useState(workerLocation);
+
+  // Get user's current location
+  useEffect(() => {
+    if (navigator.geolocation) {
+      const watchId = navigator.geolocation.watchPosition(
+        (position) => {
+          const newLocation = {
+            lng: position.coords.longitude,
+            lat: position.coords.latitude
+          };
+          setCurrentLocation(newLocation);
+        },
+        (error) => {
+          console.warn('Geolocation error:', error);
+        },
+        {
+          enableHighAccuracy: true,
+          maximumAge: 30000,
+          timeout: 27000
+        }
+      );
+
+      return () => navigator.geolocation.clearWatch(watchId);
+    }
+  }, []);
 
   useEffect(() => {
     if (!mapContainer.current) return;
@@ -48,7 +74,7 @@ const ServiceMap = ({
       color: '#3B82F6',
       scale: 0.8 
     })
-      .setLngLat([workerLocation.lng, workerLocation.lat])
+      .setLngLat([currentLocation.lng, currentLocation.lat])
       .setPopup(new mapboxgl.Popup().setHTML('<div class="text-sm font-medium">我的位置</div>'))
       .addTo(map.current);
 
@@ -63,7 +89,7 @@ const ServiceMap = ({
 
     // Fit bounds to show both markers
     const bounds = new mapboxgl.LngLatBounds()
-      .extend([workerLocation.lng, workerLocation.lat])
+      .extend([currentLocation.lng, currentLocation.lat])
       .extend([destination.lng, destination.lat]);
     
     map.current.fitBounds(bounds, { 
@@ -77,7 +103,14 @@ const ServiceMap = ({
       destinationMarker.current?.remove();
       map.current?.remove();
     };
-  }, [workerLocation, destination, destinationAddress]);
+  }, [currentLocation, destination, destinationAddress]);
+
+  // Update worker marker position when currentLocation changes
+  useEffect(() => {
+    if (workerMarker.current && map.current) {
+      workerMarker.current.setLngLat([currentLocation.lng, currentLocation.lat]);
+    }
+  }, [currentLocation]);
 
   const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
@@ -95,7 +128,7 @@ const ServiceMap = ({
   }
 
   return (
-    <div className="relative h-64 rounded-lg overflow-hidden">
+    <div className="relative flex-1 min-h-0">
       <div ref={mapContainer} className="absolute inset-0" />
     </div>
   );

@@ -18,7 +18,7 @@ import {
   AlertDialogFooter,
   AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
-import { Phone, Navigation, AlertTriangle, Camera, ArrowLeft, MapPin, Clock, DollarSign, User, FileText } from "lucide-react";
+import { Lightbulb, AlertCircle, Navigation, Camera, ArrowLeft } from "lucide-react";
 import ServiceMap from "@/components/map/ServiceMap";
 import PhotoUploadDialog from "@/components/order/PhotoUploadDialog";
 import ServiceNotesModal from "@/components/order/ServiceNotesModal";
@@ -31,6 +31,7 @@ interface CustomerNote {
   id: string;
   content: string;
   author_id: string;
+  author_name?: string;
   created_at: string;
 }
 
@@ -202,143 +203,91 @@ const OrderService = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      
-      {/* Top Navigation Bar */}
-      <div className="flex items-center justify-between p-4 border-b">
-        <Button 
-          variant="ghost" 
-          size="sm"
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-1"
-        >
-          <ArrowLeft className="w-4 h-4" />
+    <div className="flex flex-col h-screen bg-background">
+      {/* Top Navigation - Fixed height */}
+      <div className="flex items-center justify-between p-4 border-b bg-background z-10">
+        <Button variant="ghost" size="sm" onClick={() => navigate('/workbench')}>
+          <ArrowLeft className="w-4 h-4 mr-2" />
           返回
         </Button>
         
-        <h1 className="font-semibold">订单详情</h1>
+        <h1 className="font-medium">服务详情</h1>
         
-        {status === "serving" && (
+        {status === 'serving' && (
           <Button 
             variant="destructive" 
             size="sm"
             onClick={() => setShowEmergencyDialog(true)}
           >
-            <AlertTriangle className="w-4 h-4 mr-1" />
+            <AlertCircle className="w-4 h-4 mr-1" />
             紧急求助
           </Button>
         )}
         
-        {status !== "serving" && <div className="w-20" />}
+        {status !== 'serving' && (
+          <div className="w-16" />
+        )}
       </div>
 
-      {/* Real-time Map Area */}
-      <div className="flex-1 p-4">
-        <ServiceMap
-          workerLocation={{ lng: 114.057, lat: 22.543 }} // Mock current location
-          destination={{ lng: orderInfo.longitude, lat: orderInfo.latitude }}
-          destinationAddress={orderInfo.address}
-        />
-      </div>
+      {/* Map Section - Flexible height */}
+      <ServiceMap 
+        workerLocation={{ lng: 114.057, lat: 22.543 }}
+        destination={{ lng: orderInfo.longitude, lat: orderInfo.latitude }}
+        destinationAddress={orderInfo.address}
+      />
 
-      {/* Bottom Sheet - Order Info & Actions */}
-      <Drawer open={bottomSheetOpen} onOpenChange={setBottomSheetOpen}>
-        <DrawerContent className="max-h-[70vh]">
-          <DrawerHeader>
-            <DrawerTitle>订单信息与操作</DrawerTitle>
+      {/* Bottom Drawer - Non-modal overlay */}
+      <Drawer open={true}>
+        <DrawerContent className="max-h-[50vh] border-t-2">
+          <DrawerHeader className="pb-2">
+            <DrawerTitle className="text-base">订单信息</DrawerTitle>
           </DrawerHeader>
           
-          <div className="p-4 space-y-6 overflow-y-auto">
-            
-            {/* Core Order Information */}
-            <Card className="p-4 space-y-3">
-              <h3 className="font-medium mb-3">订单核心信息</h3>
-              
-              <div className="flex items-center gap-3">
-                <MapPin className="w-4 h-4 text-muted-foreground" />
-                <div>
-                  <div className="text-sm text-muted-foreground">服务地址</div>
-                  <div className="font-medium">{orderInfo.address}</div>
-                </div>
+          <div className="px-4 pb-6 space-y-4 overflow-y-auto">
+            {/* Order Details */}
+            <div className="space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">服务类型</span>
+                <span className="font-medium">{orderInfo.serviceItem}</span>
               </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Phone className="w-4 h-4 text-muted-foreground" />
-                  <div>
-                    <div className="text-sm text-muted-foreground">联系用户</div>
-                    <div className="font-medium">{orderInfo.phoneDisplay}</div>
-                  </div>
-                </div>
-                <a href={`tel:${orderInfo.phone}`}>
-                  <Button variant="outline" size="sm">
-                    <Phone className="w-4 h-4" />
-                  </Button>
-                </a>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">服务时长</span>
+                <span className="font-medium">{orderInfo.duration}分钟</span>
               </div>
-
-              <div className="flex items-center gap-3">
-                <User className="w-4 h-4 text-muted-foreground" />
-                <div>
-                  <div className="text-sm text-muted-foreground">服务项目</div>
-                  <div className="font-medium">{orderInfo.serviceItem}</div>
-                </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">服务费用</span>
+                <span className="font-medium text-primary">¥{orderInfo.commissionEstimate}</span>
               </div>
-
-              <div className="flex items-center gap-3">
-                <Clock className="w-4 h-4 text-muted-foreground" />
-                <div>
-                  <div className="text-sm text-muted-foreground">服务时长</div>
-                  <div className="font-medium">{orderInfo.duration} 分钟</div>
-                </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">联系方式</span>
+                <span className="font-medium">{orderInfo.phoneDisplay}</span>
               </div>
-
-              <div className="flex items-center gap-3">
-                <DollarSign className="w-4 h-4 text-muted-foreground" />
-                <div>
-                  <div className="text-sm text-muted-foreground">预计提成</div>
-                  <div className="font-medium text-green-600">¥{orderInfo.commissionEstimate}</div>
-                </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">服务地址</span>
+                <span className="font-medium">{orderInfo.address}</span>
               </div>
+            </div>
 
-              <div className="flex items-start gap-3">
-                <FileText className="w-4 h-4 text-muted-foreground mt-0.5" />
-                <div className="flex-1">
-                  <div className="text-sm text-muted-foreground mb-2">订单备注</div>
-                  <div className="flex gap-2 flex-wrap">
-                    {orderInfo.notes.map((note, index) => (
-                      <span 
-                        key={index}
-                        className="px-3 py-1 bg-accent text-accent-foreground rounded-full text-sm"
-                      >
-                        {note}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </Card>
-
-            {/* Service Experience Knowledge Base */}
+            {/* Customer Notes */}
             {customerNotes.length > 0 && (
-              <Card className="p-4 bg-amber-50 border-amber-200 dark:bg-amber-950 dark:border-amber-800">
-                <h3 className="font-medium mb-3 flex items-center gap-2">
-                  💡 上次服务小贴士 (由同事提供)
+              <div className="space-y-3">
+                <h3 className="font-medium text-sm flex items-center gap-2">
+                  <Lightbulb className="w-4 h-4 text-amber-500" />
+                  服务经验分享
                 </h3>
-                <div className="space-y-2">
-                  {customerNotes.map((note) => (
-                    <div key={note.id} className="text-sm bg-background p-2 rounded border">
-                      "{note.content}"
-                    </div>
-                  ))}
-                </div>
-              </Card>
+                {customerNotes.map((note, index) => (
+                  <div key={index} className="bg-muted/50 rounded-lg p-3 text-sm">
+                    <p className="mb-1">{note.content}</p>
+                    <p className="text-xs text-muted-foreground">
+                      由 {note.author_name || '同事'} 分享
+                    </p>
+                  </div>
+                ))}
+              </div>
             )}
 
-            {/* Status-Driven Action Button */}
-            <div className="pb-4">
-              {getStatusButton()}
-            </div>
+            {/* Status Action Button */}
+            {getStatusButton()}
           </div>
         </DrawerContent>
       </Drawer>
@@ -348,7 +297,7 @@ const OrderService = () => {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-destructive" />
+              <AlertCircle className="w-5 h-5 text-destructive" />
               紧急求助
             </AlertDialogTitle>
             <AlertDialogDescription>

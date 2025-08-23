@@ -29,12 +29,20 @@ const ServiceNotesModal = ({ open, onOpenChange, orderId, customerPhone, onCompl
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error('用户未登录');
 
+      // Get user profile for author name
+      const { data: profile } = await (supabase as any)
+        .from('profiles')
+        .select('full_name')
+        .eq('id', user.user.id)
+        .single();
+
       const { error } = await (supabase as any)
         .from('customer_notes')
         .insert({
           order_id: orderId,
           customer_phone: customerPhone,
           author_id: user.user.id,
+          author_name: profile?.full_name || '同事',
           content: notes.trim()
         });
 

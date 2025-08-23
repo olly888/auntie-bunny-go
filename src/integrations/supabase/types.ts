@@ -17,6 +17,7 @@ export type Database = {
       customer_notes: {
         Row: {
           author_id: string
+          author_name: string | null
           content: string
           created_at: string
           customer_phone: string
@@ -27,6 +28,7 @@ export type Database = {
         }
         Insert: {
           author_id: string
+          author_name?: string | null
           content: string
           created_at?: string
           customer_phone: string
@@ -37,6 +39,7 @@ export type Database = {
         }
         Update: {
           author_id?: string
+          author_name?: string | null
           content?: string
           created_at?: string
           customer_phone?: string
