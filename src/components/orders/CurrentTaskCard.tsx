@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Phone } from "lucide-react";
 import { Order } from "@/hooks/orders/useTaskHallOrders";
 
 interface CurrentTaskCardProps {
@@ -45,14 +46,29 @@ export function CurrentTaskCard({ task, onViewDetails }: CurrentTaskCardProps) {
             <div className="text-sm text-muted-foreground mb-3">
               📍 {task.address}
             </div>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={onViewDetails}
-              className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-            >
-              查看详情
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={onViewDetails}
+                className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+              >
+                查看详情
+              </Button>
+              
+              {/* SOS按钮 - 仅在进行中任务时显示 */}
+              {task.status === 'in_progress' && (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => window.location.href = "tel:400-123-4567"}
+                  className="text-xs px-2"
+                >
+                  <Phone className="w-3 h-3 mr-1" />
+                  SOS
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </Card>

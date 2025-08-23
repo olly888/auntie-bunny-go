@@ -73,10 +73,13 @@ const Income = () => {
     <div className="min-h-screen bg-background pb-20">
       <div className="max-w-md mx-auto p-4 space-y-6">
         
-        {/* 页面标题与时间筛选 */}
-        <div className="flex items-center justify-between">
+        {/* 页面标题 */}
+        <div className="text-center py-2">
           <h1 className="text-2xl font-bold text-foreground">我的收入</h1>
-          
+        </div>
+        
+        {/* 时间筛选 */}
+        <div className="flex justify-center">
           <Popover>
             <PopoverTrigger asChild>
               <Button
@@ -90,7 +93,7 @@ const Income = () => {
                 {selectedDate ? format(selectedDate, "PPP") : "选择日期"}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="end">
+            <PopoverContent className="w-auto p-0" align="center">
               <Calendar
                 mode="single"
                 selected={selectedDate}

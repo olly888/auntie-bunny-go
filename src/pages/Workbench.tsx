@@ -77,7 +77,12 @@ const Workbench = () => {
         <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border">
           <div className="p-4">
             <div className="flex items-center justify-between">
-              {/* 左侧：上线状态 + 问候 */}
+              {/* 左侧：问候语 */}
+              <div className="text-sm text-muted-foreground">
+                早上好，小兔！
+              </div>
+              
+              {/* 中间：上线状态 + 开关 */}
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2">
                   <div className={`w-3 h-3 rounded-full ${isOnline ? 'bg-success animate-pulse' : 'bg-muted-foreground'}`} />
@@ -85,14 +90,7 @@ const Workbench = () => {
                     {isOnline ? "上线中" : "已下线"}
                   </span>
                 </div>
-                <div className="text-sm text-muted-foreground">
-                  早上好，小兔！
-                </div>
-              </div>
-              
-              {/* 右侧：操作按钮 */}
-              <div className="flex items-center gap-2">
-                {/* 上线/下线开关 */}
+                
                 <AlertDialog open={showOfflineDialog} onOpenChange={setShowOfflineDialog}>
                   <Switch
                     checked={isOnline}
@@ -119,47 +117,34 @@ const Workbench = () => {
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
-
-                {/* 通知铃铛 */}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="relative p-2"
-                  onClick={handleNotificationClick}
-                >
-                  <Bell className="w-4 h-4" />
-                  {unreadNotifications > 0 && (
-                    <Badge 
-                      variant="destructive" 
-                      className="absolute -top-1 -right-1 h-4 w-4 p-0 text-2xs flex items-center justify-center"
-                    >
-                      {unreadNotifications}
-                    </Badge>
-                  )}
-                </Button>
-                
-                {/* 紧急求助 - 仅服务中显示 */}
-                {isInProgress && (
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => window.location.href = "tel:400-123-4567"}
-                    className="text-xs px-2"
-                  >
-                    <Phone className="w-3 h-3 mr-1" />
-                    SOS
-                  </Button>
-                )}
               </div>
+              
+              {/* 右侧：为微信胶囊留空 */}
+              <div className="wechat-capsule-safe"></div>
             </div>
             
             {/* 今日简要统计 - 次要信息 */}
             {todayStats && (
-              <div className="mt-2 text-xs text-muted-foreground">
+              <div className="mt-3 text-xs text-muted-foreground text-center">
                 今日: {todayStats.completed}单 · ¥{todayStats.earnings.toFixed(0)} · {todayStats.workHours}h
               </div>
             )}
           </div>
+          
+          {/* 通知按钮 - 移至顶部栏下方 */}
+          {unreadNotifications > 0 && (
+            <div className="px-4 pb-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full text-xs text-muted-foreground hover:text-foreground"
+                onClick={handleNotificationClick}
+              >
+                <Bell className="w-3 h-3 mr-1" />
+                您有 {unreadNotifications} 条新消息
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* 核心工作区域 */}
