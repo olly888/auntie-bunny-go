@@ -67,13 +67,7 @@ const Settings = () => {
       <div className="max-w-md mx-auto p-4 space-y-6">
         {/* Notification Settings */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Bell className="h-5 w-5" />
-              通知偏好
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 pt-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium">新订单通知</p>
@@ -121,13 +115,7 @@ const Settings = () => {
 
         {/* Legal and Terms */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <HelpCircle className="h-5 w-5" />
-              法律与条款
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 pt-6">
             <Button 
               variant="outline" 
               className="w-full justify-start" 
@@ -147,13 +135,7 @@ const Settings = () => {
 
         {/* Log Out */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <LogOut className="h-5 w-5" />
-              账号管理
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="destructive" className="w-full">

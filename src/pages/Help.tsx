@@ -1,25 +1,11 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, HelpCircle, Phone, MessageCircle, GraduationCap, Send, ExternalLink } from "lucide-react";
+import { ArrowLeft, HelpCircle, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Help = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  
-  const [feedbackForm, setFeedbackForm] = useState({
-    category: "",
-    title: "",
-    description: "",
-    contact: ""
-  });
 
   const faqItems = [
     {
@@ -48,36 +34,6 @@ const Help = () => {
     }
   ];
 
-  const handleFeedbackSubmit = () => {
-    if (!feedbackForm.category || !feedbackForm.title || !feedbackForm.description) {
-      toast({
-        variant: "destructive",
-        title: "信息不完整",
-        description: "请填写完整的反馈信息",
-      });
-      return;
-    }
-
-    toast({
-      title: "反馈已提交",
-      description: "感谢您的反馈，我们会在3个工作日内回复",
-    });
-
-    setFeedbackForm({
-      category: "",
-      title: "",
-      description: "",
-      contact: ""
-    });
-  };
-
-  const handleCallService = () => {
-    window.location.href = "tel:400-123-4567";
-  };
-
-  const goToTraining = () => {
-    navigate("/training");
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -96,25 +52,6 @@ const Help = () => {
       </div>
 
       <div className="max-w-md mx-auto p-4 space-y-6">
-        {/* Quick Actions */}
-        <div className="grid grid-cols-2 gap-4">
-          <Button 
-            variant="outline" 
-            className="h-20 flex-col gap-2"
-            onClick={goToTraining}
-          >
-            <GraduationCap className="h-6 w-6" />
-            <span className="text-sm">新手指南</span>
-          </Button>
-          <Button 
-            variant="outline" 
-            className="h-20 flex-col gap-2"
-            onClick={() => navigate(-1)}
-          >
-            <MessageCircle className="h-6 w-6" />
-            <span className="text-sm">联系站长</span>
-          </Button>
-        </div>
 
         {/* FAQ */}
         <Card>
@@ -161,90 +98,6 @@ const Help = () => {
           </CardContent>
         </Card>
 
-        {/* Feedback Form */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Send className="h-5 w-5" />
-              意见反馈
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label>反馈类型</Label>
-              <Select value={feedbackForm.category} onValueChange={(value) => setFeedbackForm({...feedbackForm, category: value})}>
-                <SelectTrigger>
-                  <SelectValue placeholder="请选择反馈类型" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="bug">功能异常</SelectItem>
-                  <SelectItem value="feature">功能建议</SelectItem>
-                  <SelectItem value="service">服务问题</SelectItem>
-                  <SelectItem value="other">其他问题</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label>问题标题</Label>
-              <Input
-                value={feedbackForm.title}
-                onChange={(e) => setFeedbackForm({...feedbackForm, title: e.target.value})}
-                placeholder="简要描述您遇到的问题"
-              />
-            </div>
-
-            <div>
-              <Label>详细描述</Label>
-              <Textarea
-                value={feedbackForm.description}
-                onChange={(e) => setFeedbackForm({...feedbackForm, description: e.target.value})}
-                placeholder="请详细描述问题的具体情况..."
-                rows={4}
-              />
-            </div>
-
-            <div>
-              <Label>联系方式（可选）</Label>
-              <Input
-                value={feedbackForm.contact}
-                onChange={(e) => setFeedbackForm({...feedbackForm, contact: e.target.value})}
-                placeholder="方便我们回复您（手机号或邮箱）"
-              />
-            </div>
-
-            <Button onClick={handleFeedbackSubmit} className="w-full">
-              <Send className="h-4 w-4 mr-2" />
-              提交反馈
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Additional Resources */}
-        <Card>
-          <CardHeader>
-            <CardTitle>更多资源</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Button variant="outline" className="w-full justify-start" onClick={goToTraining}>
-              <GraduationCap className="h-4 w-4 mr-2" />
-              培训课程
-              <ExternalLink className="h-4 w-4 ml-auto" />
-            </Button>
-            
-            <Button variant="outline" className="w-full justify-start" onClick={() => navigate("/legal/service-agreement")}>
-              <HelpCircle className="h-4 w-4 mr-2" />
-              服务协议
-              <ExternalLink className="h-4 w-4 ml-auto" />
-            </Button>
-            
-            <Button variant="outline" className="w-full justify-start" onClick={() => navigate("/legal/privacy")}>
-              <HelpCircle className="h-4 w-4 mr-2" />
-              隐私政策
-              <ExternalLink className="h-4 w-4 ml-auto" />
-            </Button>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

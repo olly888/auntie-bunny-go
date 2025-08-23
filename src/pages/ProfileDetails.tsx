@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Checkbox } from "@/components/ui/checkbox";
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { useOnlineStatus } from "@/hooks/use-online-status";
-import { ArrowLeft, Camera, User, Shield, Clock, MapPin } from "lucide-react";
+import { ArrowLeft, Camera, User, Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const ProfileDetails = () => {
@@ -25,18 +25,8 @@ const ProfileDetails = () => {
     employeeId: "TDD001234",
     gender: "女",
     birthday: "1985-06-15",
-    avatar: "",
-    skills: ["家政清洁", "母婴护理", "老人陪护"],
-    serviceStore: "华润城店",
-    workingHours: "08:00-18:00"
+    avatar: ""
   });
-
-  const [selectedSkills, setSelectedSkills] = useState(profile.skills);
-  
-  const skillOptions = [
-    "家政清洁", "母婴护理", "老人陪护", "烹饪料理", 
-    "宠物照看", "搬家整理", "园艺绿植", "家电维修"
-  ];
 
   const handleSave = () => {
     // Here you would save to backend/localStorage
@@ -46,13 +36,6 @@ const ProfileDetails = () => {
     });
   };
 
-  const handleSkillChange = (skill: string, checked: boolean) => {
-    if (checked) {
-      setSelectedSkills([...selectedSkills, skill]);
-    } else {
-      setSelectedSkills(selectedSkills.filter(s => s !== skill));
-    }
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -127,51 +110,6 @@ const ProfileDetails = () => {
           </CardContent>
         </Card>
 
-        {/* Service Info */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MapPin className="h-5 w-5" />
-              服务信息
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label className="text-sm font-medium mb-2 block">服务技能</Label>
-              <div className="grid grid-cols-2 gap-2">
-                {skillOptions.map((skill) => (
-                  <div key={skill} className="flex items-center space-x-2">
-                    <Checkbox
-                      checked={selectedSkills.includes(skill)}
-                      onCheckedChange={(checked) => handleSkillChange(skill, checked as boolean)}
-                    />
-                    <Label className="text-sm">{skill}</Label>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            <div>
-              <Label>服务所属门店</Label>
-              <Select value={profile.serviceStore} onValueChange={(value) => setProfile({...profile, serviceStore: value})}>
-                <SelectTrigger>
-                  <SelectValue placeholder="请选择所属门店" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="华润城店">兔到到大冲华润城店</SelectItem>
-                  <SelectItem value="海岸城店">兔到到南山海岸城店</SelectItem>
-                  <SelectItem value="万象城店">兔到到罗湖万象城店</SelectItem>
-                  <SelectItem value="福田店">兔到到福田中心区店</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div>
-              <Label>工作时间</Label>
-              <Input value={profile.workingHours} />
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Qualifications */}
         <Card>

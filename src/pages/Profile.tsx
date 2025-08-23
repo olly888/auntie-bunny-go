@@ -30,7 +30,7 @@ const Profile = () => {
             </div>
             <div>
               <h2 className="text-lg font-semibold text-foreground">李阿姨</h2>
-              <p className="text-sm text-muted-foreground">服务员工号：TDD001234</p>
+              <p className="text-sm text-muted-foreground">工号：TDD001234</p>
               <p className="text-sm text-muted-foreground">所属门店：兔到到大冲华润城店</p>
             </div>
           </div>
