@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { BottomNav } from "@/components/ui/bottom-nav";
@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Phone, RefreshCw, Plus } from "lucide-react";
 import { GrabModal, OrderInfo } from "@/components/order/GrabModal";
 import { OrderCard } from "@/components/order/OrderCard";
@@ -21,6 +21,7 @@ const Workbench = () => {
   const [showGrabModal, setShowGrabModal] = useState(false);
   const [broadcastOrder, setBroadcastOrder] = useState<OrderInfo | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
   
   const { 
     pendingOrders, 
@@ -31,6 +32,13 @@ const Workbench = () => {
     claimOrder, 
     completeOrder 
   } = useDemoOrders();
+
+  // Set active tab from navigation state
+  useEffect(() => {
+    if (location.state?.activeTab) {
+      setActiveTab(location.state.activeTab);
+    }
+  }, [location.state]);
 
   const handleToggleOnline = (checked: boolean) => {
     if (checked) {
@@ -220,28 +228,28 @@ const Workbench = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="flex items-center justify-between gap-2">
             <TabsList className="grid flex-1 grid-cols-3">
-              <TabsTrigger value="hall" className="relative">
+              <TabsTrigger value="hall" className="relative pr-6">
                 任务大厅
                 {pendingOrders.length > 0 && (
-                  <span className="pointer-events-none absolute -top-1.5 -right-1.5 min-w-4 h-4 rounded-full bg-primary text-primary-foreground text-[10px] leading-4 text-center px-1 shadow-sm">
+                  <Badge variant="secondary" className="absolute -top-1 -right-1 text-xs px-1.5 py-0.5 min-w-5 h-5 flex items-center justify-center translate-x-1/3 -translate-y-1/3">
                     {pendingOrders.length}
-                  </span>
+                  </Badge>
                 )}
               </TabsTrigger>
-              <TabsTrigger value="inprogress" className="relative">
+              <TabsTrigger value="inprogress" className="relative pr-6">
                 进行中
                 {currentOrder && (
-                  <span className="pointer-events-none absolute -top-1.5 -right-1.5 min-w-4 h-4 rounded-full bg-success text-success-foreground text-[10px] leading-4 text-center px-1 shadow-sm">
+                  <Badge variant="secondary" className="absolute -top-1 -right-1 text-xs px-1.5 py-0.5 min-w-5 h-5 flex items-center justify-center translate-x-1/3 -translate-y-1/3">
                     1
-                  </span>
+                  </Badge>
                 )}
               </TabsTrigger>
-              <TabsTrigger value="done" className="relative">
+              <TabsTrigger value="done" className="relative pr-6">
                 已完成
                 {completedOrders.length > 0 && (
-                  <span className="pointer-events-none absolute -top-1.5 -right-1.5 min-w-4 h-4 rounded-full bg-muted text-foreground/70 text-[10px] leading-4 text-center px-1 shadow-sm">
+                  <Badge variant="secondary" className="absolute -top-1 -right-1 text-xs px-1.5 py-0.5 min-w-5 h-5 flex items-center justify-center translate-x-1/3 -translate-y-1/3">
                     {completedOrders.length}
-                  </span>
+                  </Badge>
                 )}
               </TabsTrigger>
             </TabsList>

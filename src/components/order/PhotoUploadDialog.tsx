@@ -113,7 +113,7 @@ const PhotoUploadDialog = ({ open, onOpenChange, orderId, onUploadComplete }: Ph
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Camera className="w-5 h-5" />
-            上传服务照片
+            上传服务照片 (可选)
           </DialogTitle>
         </DialogHeader>
 
@@ -132,7 +132,7 @@ const PhotoUploadDialog = ({ open, onOpenChange, orderId, onUploadComplete }: Ph
             />
             <label htmlFor="photo-upload" className="cursor-pointer">
               <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-              <p className="text-sm font-medium">点击上传照片</p>
+              <p className="text-sm font-medium">点击上传照片 (可选)</p>
               <p className="text-xs text-muted-foreground mt-1">
                 支持多张照片，建议拍摄服务前后对比
               </p>
@@ -178,6 +178,17 @@ const PhotoUploadDialog = ({ open, onOpenChange, orderId, onUploadComplete }: Ph
               disabled={uploading}
             >
               取消
+            </Button>
+            <Button 
+              variant="secondary"
+              className="flex-1"
+              onClick={() => {
+                onOpenChange(false);
+                onUploadComplete();
+              }}
+              disabled={uploading}
+            >
+              跳过
             </Button>
             {uploadedFiles.length > 0 && (
               <Button 
