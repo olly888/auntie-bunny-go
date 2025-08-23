@@ -231,30 +231,30 @@ const Workbench = () => {
 
         {/* TAB栏 */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="flex items-center justify-between">
-            <TabsList className="grid w-full max-w-sm grid-cols-3">
+          <div className="flex items-center justify-between gap-2">
+            <TabsList className="grid flex-1 grid-cols-3">
               <TabsTrigger value="hall" className="relative">
                 任务大厅
                 {pendingOrders.length > 0 && (
-                  <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 text-xs bg-primary text-primary-foreground">
+                  <span className="pointer-events-none absolute -top-1.5 -right-1.5 min-w-4 h-4 rounded-full bg-primary text-primary-foreground text-[10px] leading-4 text-center px-1 shadow-sm">
                     {pendingOrders.length}
-                  </Badge>
+                  </span>
                 )}
               </TabsTrigger>
               <TabsTrigger value="inprogress" className="relative">
                 进行中
                 {currentOrder && (
-                  <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 text-xs bg-success text-success-foreground">
+                  <span className="pointer-events-none absolute -top-1.5 -right-1.5 min-w-4 h-4 rounded-full bg-success text-success-foreground text-[10px] leading-4 text-center px-1 shadow-sm">
                     1
-                  </Badge>
+                  </span>
                 )}
               </TabsTrigger>
               <TabsTrigger value="done" className="relative">
                 已完成
                 {completedOrders.length > 0 && (
-                  <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 text-xs bg-muted text-muted-foreground">
+                  <span className="pointer-events-none absolute -top-1.5 -right-1.5 min-w-4 h-4 rounded-full bg-muted text-foreground/70 text-[10px] leading-4 text-center px-1 shadow-sm">
                     {completedOrders.length}
-                  </Badge>
+                  </span>
                 )}
               </TabsTrigger>
             </TabsList>
@@ -271,14 +271,6 @@ const Workbench = () => {
           <TabsContent value="hall" className="mt-4">
             {pendingOrders.length > 0 ? (
               <div className="space-y-3">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm text-muted-foreground">
-                    {pendingOrders.length} 个待抢订单
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    {isOnline ? "实时更新中" : "离线状态"}
-                  </span>
-                </div>
                 {pendingOrders.map((order) => (
                   <OrderCard
                     key={order.id}

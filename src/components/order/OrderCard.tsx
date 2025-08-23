@@ -13,33 +13,33 @@ export const OrderCard = ({ order, onClaim, variant = 'default' }: OrderCardProp
   if (variant === 'compact') {
     return (
       <Card className="p-4 bg-gradient-card">
-        <div className="flex items-center justify-between">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="font-semibold text-card-foreground">{order.type}</span>
-              <span className="text-sm text-muted-foreground">|</span>
-              <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                <Clock className="w-3 h-3" />
-                <span>{order.duration}</span>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="font-semibold text-card-foreground">{order.type}</span>
+                <span className="text-sm text-muted-foreground">|</span>
+                <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                  <Clock className="w-3 h-3" />
+                  <span>{order.duration}</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-1 text-sm text-muted-foreground truncate">
+                <MapPin className="w-3 h-3" />
+                <span className="truncate">{order.address}</span>
+                <span>({order.distance})</span>
               </div>
             </div>
-            <div className="flex items-center gap-1 text-sm text-muted-foreground">
-              <MapPin className="w-3 h-3" />
-              <span>{order.address}</span>
-              <span>({order.distance})</span>
+            <div className="text-right ml-2">
+              <div className="text-lg font-bold text-primary">¥{order.payout}</div>
             </div>
           </div>
-          <div className="text-right">
-            <div className="text-lg font-bold text-primary mb-1">¥{order.payout}</div>
-            <Button 
-              size="sm" 
-              variant="default"
-              className="bg-gradient-primary hover:opacity-90 text-primary-foreground"
-              onClick={() => onClaim(order.id)}
-            >
-              抢单
-            </Button>
-          </div>
+          <Button 
+            className="w-full bg-gradient-primary hover:opacity-90 text-primary-foreground shadow-button"
+            onClick={() => onClaim(order.id)}
+          >
+            抢单
+          </Button>
         </div>
       </Card>
     );
