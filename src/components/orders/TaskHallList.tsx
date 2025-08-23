@@ -70,7 +70,7 @@ export function TaskHallList() {
 
   return (
     <div className="space-y-4">
-      {orders.map((order) => (
+      {orders.slice(0, 3).map((order) => (
         <OrderCard
           key={order.id}
           order={order}

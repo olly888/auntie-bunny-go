@@ -76,70 +76,71 @@ const Workbench = () => {
         {/* 顶部状态栏 - 最重要信息 */}
         <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border">
           <div className="p-4">
+            {/* 第一行：问候语（左）+ 上线状态+开关（中）+ 胶囊位（右） */}
             <div className="flex items-center justify-between">
               {/* 左侧：问候语 */}
-              <div className="text-sm text-muted-foreground">
+              <div className="text-sm text-primary font-medium">
                 早上好，小兔！
               </div>
               
-              {/* 中间：消息通知 */}
-              <div className="flex items-center justify-center">
-                {unreadNotifications > 0 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="relative p-2"
-                    onClick={handleNotificationClick}
-                  >
-                    <Bell className="w-4 h-4" />
-                    <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 text-2xs flex items-center justify-center">
-                      {unreadNotifications}
-                    </Badge>
-                  </Button>
-                )}
+              {/* 中间：上线接单状态 + 开关 */}
+              <div className="flex items-center gap-3">
+                <div className="text-center">
+                  <div className="text-sm font-medium text-foreground">
+                    {isOnline ? "上线接单中" : "已下线"}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {isOnline ? "保持在线以接收新订单" : "点击开关上线开始接单"}
+                  </div>
+                </div>
+                
+                <AlertDialog open={showOfflineDialog} onOpenChange={setShowOfflineDialog}>
+                  <Switch
+                    checked={isOnline}
+                    onCheckedChange={handleToggleOnline}
+                    className="data-[state=checked]:bg-success"
+                  />
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>确认下线</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        {hasCurrentTask 
+                          ? "您当前有进行中的任务，下线将自动完成当前任务。确定要下线吗？"
+                          : "确定要下线休息吗？下线后将无法接收新订单。"
+                        }
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel onClick={() => setShowOfflineDialog(false)}>
+                        取消
+                      </AlertDialogCancel>
+                      <AlertDialogAction onClick={confirmGoOffline}>
+                        确认下线
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
               
               {/* 右侧：为微信胶囊留空 */}
               <div className="wechat-capsule-safe"></div>
             </div>
             
-            {/* 上线接单状态行 */}
-            <div className="mt-3 flex items-center justify-between">
-              <div className="flex-1">
-                <div className="text-sm font-medium text-foreground">
-                  {isOnline ? "上线接单中" : "已下线"}
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {isOnline ? "保持在线以接收新订单" : "点击开关上线开始接单"}
-                </div>
-              </div>
-              
-              <AlertDialog open={showOfflineDialog} onOpenChange={setShowOfflineDialog}>
-                <Switch
-                  checked={isOnline}
-                  onCheckedChange={handleToggleOnline}
-                  className="data-[state=checked]:bg-success"
-                />
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>确认下线</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      {hasCurrentTask 
-                        ? "您当前有进行中的任务，下线将自动完成当前任务。确定要下线吗？"
-                        : "确定要下线休息吗？下线后将无法接收新订单。"
-                      }
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel onClick={() => setShowOfflineDialog(false)}>
-                      取消
-                    </AlertDialogCancel>
-                    <AlertDialogAction onClick={confirmGoOffline}>
-                      确认下线
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+            {/* 第二行：消息通知 */}
+            <div className="mt-3 flex items-center">
+              {unreadNotifications > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="relative p-2"
+                  onClick={handleNotificationClick}
+                >
+                  <Bell className="w-4 h-4" />
+                  <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 text-2xs flex items-center justify-center">
+                    {unreadNotifications}
+                  </Badge>
+                </Button>
+              )}
             </div>
             
             {/* 今日简要统计 - 次要信息 */}
@@ -174,93 +175,91 @@ const Workbench = () => {
           )}
 
           {/* 任务大厅与管理区 */}
-          <div className="bg-card rounded-lg border border-border overflow-hidden">
-            <Tabs defaultValue={hasCurrentTask ? "progress" : "new"} className="w-full">
-              <div className="border-b border-border">
-                <div className="flex items-center justify-between">
-                  <TabsList className="h-12 bg-transparent justify-start rounded-none border-0">
-                    <TabsTrigger value="new" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none flex items-center gap-2">
-                      任务大厅
-                      {taskHallOrders && taskHallOrders.length > 0 && (
-                        <Badge variant="destructive" className="h-4 w-4 p-0 text-2xs flex items-center justify-center">
-                          {taskHallOrders.length}
-                        </Badge>
-                      )}
-                    </TabsTrigger>
-                    <TabsTrigger value="progress" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
-                      进行中
-                    </TabsTrigger>
-                    <TabsTrigger value="completed" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
-                      已完成
-                    </TabsTrigger>
-                  </TabsList>
-                  <Button
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => refetchTaskHall()}
-                    className="mr-4 p-2"
-                  >
-                    <RefreshCw className="w-4 h-4" />
-                  </Button>
-                </div>
+          <Tabs defaultValue={hasCurrentTask ? "progress" : "new"} className="w-full">
+            <div className="border-b border-border">
+              <div className="flex items-center justify-between">
+                <TabsList className="h-12 bg-transparent justify-start rounded-none border-0">
+                  <TabsTrigger value="new" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none flex items-center gap-2">
+                    任务大厅
+                    {taskHallOrders && taskHallOrders.length > 0 && (
+                      <Badge variant="destructive" className="h-4 w-4 p-0 text-2xs flex items-center justify-center">
+                        {taskHallOrders.length}
+                      </Badge>
+                    )}
+                  </TabsTrigger>
+                  <TabsTrigger value="progress" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
+                    进行中
+                  </TabsTrigger>
+                  <TabsTrigger value="completed" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
+                    已完成
+                  </TabsTrigger>
+                </TabsList>
+                <Button
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => refetchTaskHall()}
+                  className="mr-4 p-2"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                </Button>
               </div>
+            </div>
+            
+            <div className="p-4">
+              <TabsContent value="new" className="mt-0">
+                {!hasCurrentTask ? (
+                  <div className="space-y-4">
+                    <TaskHallList />
+                    {isOnline && (
+                      <div className="p-6 text-center border-2 border-dashed border-primary/30 bg-primary/5 rounded-lg">
+                        <img 
+                          src={rabbitMascot} 
+                          alt="兔到到吉祥物" 
+                          className="w-12 h-12 mx-auto mb-2 opacity-80"
+                        />
+                        <div className="space-y-1">
+                          <p className="text-sm font-medium text-foreground">等待新订单中...</p>
+                          <p className="text-xs text-muted-foreground">
+                            保持在线状态，随时准备接单
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {!isOnline && (
+                      <div className="p-6 text-center text-muted-foreground">
+                        <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-muted flex items-center justify-center">
+                          <span className="text-2xl">😴</span>
+                        </div>
+                        <p className="text-sm font-medium">当前处于下线状态</p>
+                        <p className="text-xs mt-1">开启上线开关开始接单</p>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <p className="text-sm">当前有任务进行中，无法接收新任务</p>
+                  </div>
+                )}
+              </TabsContent>
               
-              <div className="p-4">
-                <TabsContent value="new" className="mt-0">
-                  {!hasCurrentTask ? (
-                    <div className="space-y-4">
-                      <TaskHallList />
-                      {isOnline && (
-                        <div className="p-6 text-center border-2 border-dashed border-primary/30 bg-primary/5 rounded-lg">
-                          <img 
-                            src={rabbitMascot} 
-                            alt="兔到到吉祥物" 
-                            className="w-12 h-12 mx-auto mb-2 opacity-80"
-                          />
-                          <div className="space-y-1">
-                            <p className="text-sm font-medium text-foreground">等待新订单中...</p>
-                            <p className="text-xs text-muted-foreground">
-                              保持在线状态，随时准备接单
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                      
-                      {!isOnline && (
-                        <div className="p-6 text-center text-muted-foreground">
-                          <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-muted flex items-center justify-center">
-                            <span className="text-2xl">😴</span>
-                          </div>
-                          <p className="text-sm font-medium">当前处于下线状态</p>
-                          <p className="text-xs mt-1">开启上线开关开始接单</p>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <p className="text-sm">当前有任务进行中，无法接收新任务</p>
-                    </div>
-                  )}
-                </TabsContent>
-                
-                <TabsContent value="progress" className="mt-0">
-                  {hasCurrentTask ? (
-                    <div className="text-center py-4 text-muted-foreground">
-                      <p className="text-sm">当前任务详情已在上方显示</p>
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <p className="text-sm">暂无进行中的任务</p>
-                    </div>
-                  )}
-                </TabsContent>
-                
-                <TabsContent value="completed" className="mt-0">
-                  <CompletedTodayList />
-                </TabsContent>
-              </div>
-            </Tabs>
-          </div>
+              <TabsContent value="progress" className="mt-0">
+                {hasCurrentTask ? (
+                  <div className="text-center py-4 text-muted-foreground">
+                    <p className="text-sm">当前任务详情已在上方显示</p>
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <p className="text-sm">暂无进行中的任务</p>
+                  </div>
+                )}
+              </TabsContent>
+              
+              <TabsContent value="completed" className="mt-0">
+                <CompletedTodayList />
+              </TabsContent>
+            </div>
+          </Tabs>
         </div>
       </div>
       
