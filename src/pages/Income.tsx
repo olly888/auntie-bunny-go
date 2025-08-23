@@ -2,23 +2,20 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { BottomNav } from "@/components/ui/bottom-nav";
-import { ChevronRight, CreditCard, TrendingUp, FileText, HelpCircle, AlertCircle } from "lucide-react";
-import { TimeFilter } from "@/components/income/TimeFilter";
-import { LoadingSkeleton } from "@/components/income/LoadingSkeleton";
-import { useIncomeData, TimePeriod } from "@/hooks/useIncomeData";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ChevronRight, CreditCard, TrendingUp, FileText, HelpCircle, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Income = () => {
   const navigate = useNavigate();
-  const [period, setPeriod] = useState<TimePeriod>('month');
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [period, setPeriod] = useState<'month'>('month');
   
-  const { stats, isLoading, error } = useIncomeData(period, selectedDate);
-
-  if (isLoading) {
-    return <LoadingSkeleton />;
-  }
+  // Static demo data for MVP
+  const stats = {
+    totalCommission: 2456.80,
+    completedOrders: 23,
+    averageArrivalMinutes: 9,
+    serviceHours: 45
+  };
 
   const menuItems = [
     { 
@@ -56,28 +53,17 @@ const Income = () => {
           <h1 className="text-2xl font-bold text-foreground">我的收入</h1>
         </div>
 
-        {/* 时间筛选器 */}
-        <TimeFilter
-          period={period}
-          onPeriodChange={setPeriod}
-          selectedDate={selectedDate}
-          onDateChange={setSelectedDate}
-        />
-
-        {/* 错误提示 */}
-        {error && (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
         {/* 核心数据看板 */}
         <div className="bg-gradient-primary rounded-2xl p-6 text-center text-primary-foreground shadow-lg">
-          <div className="text-sm opacity-90 mb-2">
-            {period === 'day' && '当日订单提成 (元)'}
-            {period === 'month' && '本月订单提成 (元)'}
-            {period === 'year' && '本年订单提成 (元)'}
+          <div className="flex items-center justify-between mb-4">
+            <div className="text-sm opacity-90">本月订单提成 (元)</div>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-white/10 p-1"
+            >
+              <Calendar className="w-4 h-4" />
+            </Button>
           </div>
           <div className="text-4xl font-bold mb-4">
             {stats.totalCommission.toFixed(2)}
