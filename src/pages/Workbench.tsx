@@ -214,19 +214,6 @@ const Workbench = () => {
           <div className="text-xs text-muted-foreground mt-2">
             今日：{todayStats.completed} 单 · ¥{todayStats.earnings} · {workHours} 小时
           </div>
-          
-          {/* 演示功能按钮 */}
-          {isOnline && !currentOrder && (
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="mt-3 w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-              onClick={simulateBroadcast}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              模拟广播弹窗
-            </Button>
-          )}
         </Card>
 
         {/* TAB栏 */}
@@ -292,9 +279,6 @@ const Workbench = () => {
                   <p className="text-sm text-muted-foreground">
                     {isOnline ? "保持在线状态，随时准备接单" : "请先上线后等待订单"}
                   </p>
-                  <p className="text-xs text-muted-foreground mt-3">
-                    点击下方按钮体验订单推送
-                  </p>
                 </div>
               </Card>
             )}
@@ -337,11 +321,24 @@ const Workbench = () => {
               </div>
             ) : (
               <Card className="p-8 text-center border-2 border-dashed border-muted-foreground/30">
-                <div className="space-y-2">
-                  <p className="font-medium text-foreground">暂无进行中的任务</p>
-                  <p className="text-sm text-muted-foreground">
-                    请到任务大厅接单开始工作
-                  </p>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <p className="font-medium text-foreground">暂无进行中的任务</p>
+                    <p className="text-sm text-muted-foreground">
+                      请到任务大厅接单开始工作
+                    </p>
+                  </div>
+                  {isOnline && (
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                      onClick={simulateBroadcast}
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      模拟广播弹窗
+                    </Button>
+                  )}
                 </div>
               </Card>
             )}
