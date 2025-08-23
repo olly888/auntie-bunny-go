@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { useNavigate } from "react-router-dom";
-import { User, CreditCard, Settings, Bell, Shield, HelpCircle, Star } from "lucide-react";
+import { User, Settings, Shield, HelpCircle, Star, Share2 } from "lucide-react";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -11,7 +11,7 @@ const Profile = () => {
 
   const menuItems = [
     { icon: User, label: "个人资料", path: "/profile/details" },
-    { icon: CreditCard, label: "收入明细", path: "/income" },
+    { icon: Share2, label: "我的邀请", path: "/invitations" },
     { icon: Star, label: "我的评价", path: "/reviews" },
     { icon: Shield, label: "我的保险", path: "/insurance" },
     { icon: Settings, label: "系统设置", path: "/settings" },

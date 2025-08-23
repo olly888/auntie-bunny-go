@@ -18,6 +18,7 @@ import Settings from "./pages/Settings";
 import Help from "./pages/Help";
 import Reviews from "./pages/Reviews";
 import Insurance from "./pages/Insurance";
+import Invitations from "./pages/Invitations";
 import LegalServiceAgreement from "./pages/LegalServiceAgreement";
 import LegalPrivacyPolicy from "./pages/LegalPrivacyPolicy";
 import NotFound from "./pages/NotFound";
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/training" element={<TrainingCenter />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/profile/details" element={<ProfileDetails />} />
+            <Route path="/invitations" element={<Invitations />} />
             <Route path="/reviews" element={<Reviews />} />
             <Route path="/insurance" element={<Insurance />} />
         <Route path="/notifications" element={<Notifications />} />
