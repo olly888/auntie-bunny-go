@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { BottomNav } from "@/components/ui/bottom-nav";
@@ -65,7 +64,7 @@ const MyBankCards = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background pb-32">
       <div className="max-w-md mx-auto p-4 space-y-6">
         
         {/* 页面标题 */}
@@ -167,20 +166,50 @@ const MyBankCards = () => {
           )}
         </div>
 
-        {/* 提示信息 */}
-        <div className="bg-muted/50 rounded-xl p-4">
+        {/* 安全提示 */}
+        <div className="bg-gradient-to-r from-success/5 to-success/10 border border-success/20 rounded-xl p-4">
+          <div className="flex items-start gap-3">
+            <div className="p-2 bg-success/10 rounded-lg">
+              <CreditCard className="w-5 h-5 text-success" />
+            </div>
+            <div className="flex-1">
+              <div className="font-medium text-foreground mb-2">💳 资金安全保障</div>
+              <div className="text-sm text-muted-foreground space-y-1">
+                <div>• 银行卡仅可绑定本人实名账户</div>
+                <div>• 卡号信息加密存储，仅保存后四位</div>
+                <div>• 如需更换卡号请联系客服 ☎️</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 提现规则 */}
+        <div className="bg-muted/30 rounded-xl p-4">
           <div className="text-sm text-muted-foreground">
-            <div className="font-medium mb-2">提现说明：</div>
-            <ul className="space-y-1 list-disc list-inside">
-              <li>提现申请将在1-3个工作日内处理</li>
-              <li>单次提现最低金额为50元</li>
-              <li>银行卡信息仅保存后四位数字，确保安全</li>
-              <li>如需修改银行卡号，请删除后重新添加</li>
-            </ul>
+            <div className="font-medium mb-2 text-foreground">提现说明</div>
+            <div className="space-y-1">
+              <div>• 提现申请1-3个工作日处理</div>
+              <div>• 单次提现最低金额¥50</div>
+              <div>• 手续费：单笔¥2（50元以上免费）</div>
+            </div>
           </div>
         </div>
       </div>
       
+      {/* 固定底部操作区 */}
+      <div className="fixed bottom-20 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border/50 p-4">
+        <div className="max-w-md mx-auto">
+          <Button 
+            onClick={() => setShowForm(true)}
+            className="w-full gap-2 shadow-button"
+            size="lg"
+          >
+            <Plus className="w-5 h-5" />
+            添加新银行卡
+          </Button>
+        </div>
+      </div>
+
       <BottomNav />
 
       {/* 添加/编辑表单 */}
