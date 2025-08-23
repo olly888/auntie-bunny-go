@@ -302,44 +302,36 @@ const Workbench = () => {
 
           <TabsContent value="inprogress" className="mt-4">
             {currentOrder ? (
-              <div className="bg-gradient-card border-2 border-success rounded-xl p-6 shadow-card">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="text-2xl">{currentOrder.type.split(' ')[0]}</div>
-                  <div className="flex-1">
-                    <div className="font-semibold text-foreground mb-1">
-                      {currentOrder.type}
-                    </div>
-                    <div className="text-sm text-muted-foreground mb-2">
-                      📍 {currentOrder.address} ({currentOrder.distance})
-                    </div>
-                    <div className="text-sm font-medium text-success">
-                      预计提成：¥{currentOrder.payout}
+              <div className="bg-gradient-card border-2 border-success rounded-xl p-6 shadow-card relative">
+                <div className="flex items-start justify-between gap-4 mb-4">
+                  <div className="flex items-center gap-4 flex-1">
+                    <div className="text-2xl">{currentOrder.type.split(' ')[0]}</div>
+                    <div className="flex-1">
+                      <div className="font-semibold text-foreground mb-1">
+                        {currentOrder.type}
+                      </div>
+                      <div className="text-sm text-muted-foreground mb-2">
+                        📍 {currentOrder.address} ({currentOrder.distance})
+                      </div>
+                      <div className="text-sm font-medium text-success">
+                        预计提成：¥{currentOrder.payout}
+                      </div>
                     </div>
                   </div>
+                  <div className="flex flex-col items-end gap-2">
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400">
+                      服务中
+                    </span>
+                  </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex justify-center">
                   <Button 
                     variant="outline" 
                     size="sm" 
                     onClick={() => navigate("/order-service")}
+                    className="px-6"
                   >
                     查看详情
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => window.location.href = "tel:400-123-4567"}
-                  >
-                    <Phone className="w-4 h-4 mr-1" />
-                    紧急求助
-                  </Button>
-                  <Button
-                    variant="default"
-                    size="sm"
-                    className="bg-success hover:bg-success/90 text-success-foreground ml-auto"
-                    onClick={handleCompleteOrder}
-                  >
-                    完成订单
                   </Button>
                 </div>
               </div>
