@@ -18,7 +18,7 @@ import {
   AlertDialogFooter,
   AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
-import { Lightbulb, AlertCircle, Navigation, Camera, ArrowLeft } from "lucide-react";
+import { Lightbulb, AlertCircle, Navigation, Camera, ArrowLeft, Phone } from "lucide-react";
 import ServiceMap from "@/components/map/ServiceMap";
 import PhotoUploadDialog from "@/components/order/PhotoUploadDialog";
 import ServiceNotesModal from "@/components/order/ServiceNotesModal";
@@ -234,7 +234,7 @@ const OrderService = () => {
     <div className="flex flex-col h-screen bg-background">
       {/* Top Navigation - Fixed height */}
       <div className="flex items-center justify-between p-4 border-b bg-background z-10">
-        <Button variant="ghost" size="sm" onClick={() => navigate('/', { state: { activeTab: 'inprogress' } })}>
+        <Button variant="ghost" size="sm" onClick={() => navigate('/workbench')}>
           <ArrowLeft className="w-4 h-4 mr-2" />
           返回
         </Button>
@@ -293,9 +293,19 @@ const OrderService = () => {
                 <span className="text-muted-foreground">服务费用</span>
                 <span className="font-medium text-primary">¥{orderInfo.commissionEstimate}</span>
               </div>
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between items-center text-sm">
                 <span className="text-muted-foreground">联系方式</span>
-                <span className="font-medium">{orderInfo.phoneDisplay}</span>
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">{orderInfo.phoneDisplay}</span>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-8 w-8 p-0"
+                    onClick={() => window.open(`tel:${orderInfo.phone}`, '_self')}
+                  >
+                    <Phone className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">服务地址</span>
