@@ -359,6 +359,29 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_filtered_orders: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          address: string
+          assigned_at: string
+          assignee_id: string
+          completed_at: string
+          contact_name: string
+          contact_phone: string
+          created_at: string
+          distance_minutes: number
+          duration_minutes: number
+          id: string
+          latitude: number
+          longitude: number
+          payout: number
+          started_at: string
+          status: string
+          store_id: string
+          type: string
+          updated_at: string
+        }[]
+      }
       update_order_status: {
         Args: { new_status: string; order_id: string }
         Returns: boolean

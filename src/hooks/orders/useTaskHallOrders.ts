@@ -36,17 +36,20 @@ export const useTaskHallOrders = () => {
 
       if (!profile?.store_id) return [];
 
-      // Get orders that are pending, in the same store, and have been around for >10 seconds
+      // Get filtered orders using secure RPC function
       const { data, error } = await supabase
-        .from('orders')
-        .select('id, type, duration_minutes, address, payout, distance_minutes, status, created_at, store_id')
-        .eq('status', 'pending')
-        .eq('store_id', profile.store_id)
-        .lt('created_at', new Date(Date.now() - 10000).toISOString()) // older than 10 seconds
-        .order('created_at', { ascending: false });
+        .rpc('get_filtered_orders');
 
       if (error) throw error;
-      return data as Order[];
+      
+      // Filter to only include pending orders older than 10 seconds for task hall
+      const taskHallOrders = (data || []).filter(order => 
+        order.status === 'pending' && 
+        order.store_id === profile.store_id &&
+        new Date(order.created_at).getTime() < Date.now() - 10000
+      ).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      
+      return taskHallOrders as Order[];
     },
     refetchInterval: 10000, // Refetch every 10 seconds
     staleTime: 5000, // Consider data stale after 5 seconds

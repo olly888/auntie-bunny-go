@@ -6,15 +6,18 @@ export const useCurrentTask = () => {
   return useQuery({
     queryKey: ['current-task'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('orders')
-        .select('id, type, duration_minutes, address, payout, distance_minutes, status, created_at, assigned_at, started_at, completed_at, assignee_id, contact_phone, contact_name')
-        .in('status', ['assigned', 'in_progress'])
-        .eq('assignee_id', (await supabase.auth.getUser()).data.user?.id!)
-        .maybeSingle();
-
+      // Use secure function to get orders
+      const { data: allOrders, error } = await supabase
+        .rpc('get_filtered_orders');
+        
       if (error) throw error;
-      return data as Order | null;
+      
+      // Find current task (assigned or in progress)
+      const currentTask = (allOrders || []).find(order => 
+        ['assigned', 'in_progress'].includes(order.status)
+      ) || null;
+
+      return currentTask as Order | null;
     },
     refetchInterval: 5000, // Check for current task every 5 seconds
   });

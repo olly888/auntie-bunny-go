@@ -59,8 +59,17 @@ export const useOrdersRealtime = () => {
           const order = payload.new as Order;
           
           // Only show broadcast for pending orders in the same store
+          // Filter out sensitive customer data for broadcast
           if (order.status === 'pending' && order.store_id === profile.store_id) {
-            setNewOrder(order);
+            const filteredOrder = {
+              ...order,
+              address: '区域订单', // Hide specific address
+              contact_phone: null, // Hide customer phone
+              contact_name: null,  // Hide customer name
+              latitude: null,      // Hide precise location
+              longitude: null
+            };
+            setNewOrder(filteredOrder);
             
             // Auto-hide after 10 seconds
             setTimeout(() => {
