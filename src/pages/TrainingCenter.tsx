@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,62 +10,60 @@ import { useNavigate } from "react-router-dom";
 
 const TrainingCenter = () => {
   const navigate = useNavigate();
+  const [courseProgresses, setCourseProgresses] = useState<Record<number, number>>({});
   
-  // 模拟数据
-  const learningProgress = {
-    completed: 15,
-    total: 15,
-    percentage: 100,
-    nextDeadline: "2024-01-15"
-  };
-
   const courses = [
     {
       id: 1,
       title: "服务礼仪与沟通技巧",
       type: "required",
       duration: "45分钟",
-      completed: true,
-      description: "学习专业的服务礼仪，提升与客户的沟通效果",
-      progress: 100
+      description: "学习专业的服务礼仪，提升与客户的沟通效果"
     },
     {
       id: 2,
       title: "家庭清洁标准流程",
       type: "required", 
       duration: "60分钟",
-      completed: true,
-      description: "掌握标准清洁流程，确保服务质量达标",
-      progress: 100
+      description: "掌握标准清洁流程，确保服务质量达标"
     },
     {
       id: 3,
       title: "安全作业规范",
       type: "required",
       duration: "30分钟", 
-      completed: true,
-      description: "了解作业安全要求，保护自身和客户安全",
-      progress: 100
+      description: "了解作业安全要求，保护自身和客户安全"
     },
     {
       id: 4,
       title: "高效时间管理",
       type: "optional",
       duration: "25分钟",
-      completed: true,
-      description: "提升工作效率，合理安排服务时间",
-      progress: 100
+      description: "提升工作效率，合理安排服务时间"
     },
     {
       id: 5,
       title: "客户投诉处理技巧", 
       type: "optional",
       duration: "35分钟",
-      completed: true,
-      description: "学会妥善处理客户投诉，化解矛盾冲突",
-      progress: 100
+      description: "学会妥善处理客户投诉，化解矛盾冲突"
     }
   ];
+
+  // Load course progress from localStorage
+  useEffect(() => {
+    const progresses: Record<number, number> = {};
+    courses.forEach(course => {
+      const saved = localStorage.getItem(`course_${course.id}_progress`);
+      progresses[course.id] = saved ? parseInt(saved) : 0;
+    });
+    setCourseProgresses(progresses);
+  }, []);
+
+  // Calculate learning progress
+  const completedCourses = Object.values(courseProgresses).filter(progress => progress === 100).length;
+  const totalCourses = courses.length;
+  const overallPercentage = totalCourses > 0 ? Math.round((completedCourses / totalCourses) * 100) : 0;
 
   const getTypeColor = (type: string) => {
     return type === 'required' ? 'destructive' : 'secondary';
@@ -78,14 +77,21 @@ const TrainingCenter = () => {
     navigate(`/training/course/${courseId}`);
   };
 
-  const allCoursesCompleted = courses.every(course => course.completed);
+  const allCoursesCompleted = courses.every(course => (courseProgresses[course.id] || 0) === 100);
+
+  const getButtonText = (courseId: number) => {
+    const progress = courseProgresses[courseId] || 0;
+    if (progress === 0) return "开始";
+    if (progress === 100) return "复习";
+    return "继续";
+  };
 
   return (
     <div className="min-h-screen bg-background pb-20">
       <div className="max-w-md mx-auto p-4 space-y-6">
         
         {/* 页面标题 */}
-        <div>
+        <div className="text-center">
           <h1 className="text-2xl font-bold text-foreground">培训中心</h1>
         </div>
 
@@ -98,7 +104,7 @@ const TrainingCenter = () => {
             <div>
               <h2 className="font-semibold text-foreground">学习进度</h2>
               <p className="text-sm text-muted-foreground">
-                已完成 {learningProgress.completed}/{learningProgress.total} 门课程
+                已完成 {completedCourses}/{totalCourses} 门课程
               </p>
             </div>
           </div>
@@ -106,14 +112,16 @@ const TrainingCenter = () => {
           <div className="space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">总体进度</span>
-              <span className="font-semibold text-primary">{learningProgress.percentage}%</span>
+              <span className="font-semibold text-primary">{overallPercentage}%</span>
             </div>
-            <Progress value={learningProgress.percentage} className="h-2" />
+            <Progress value={overallPercentage} className="h-2" />
             
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Award className="w-4 h-4" />
-              <span>继续努力，距离认证还差 {learningProgress.total - learningProgress.completed} 门课程</span>
-            </div>
+            {!allCoursesCompleted && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Award className="w-4 h-4" />
+                <span>继续努力，距离认证还差 {totalCourses - completedCourses} 门课程</span>
+              </div>
+            )}
           </div>
         </Card>
 
@@ -122,69 +130,74 @@ const TrainingCenter = () => {
           <h2 className="text-lg font-semibold text-foreground mb-4">课程列表</h2>
           
           <div className="space-y-4">
-            {courses.map((course) => (
-              <Card key={course.id} className="p-4 bg-gradient-card">
-                <div className="flex items-start gap-3">
-                  <div className={cn(
-                    "w-10 h-10 rounded-full flex items-center justify-center mt-1",
-                    course.completed 
-                      ? "bg-success/10 text-success" 
-                      : "bg-muted text-muted-foreground"
-                  )}>
-                    {course.completed ? (
-                      <Check className="w-5 h-5" />
-                    ) : (
-                      <Play className="w-5 h-5" />
-                    )}
-                  </div>
-                  
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="font-medium text-foreground">{course.title}</h3>
-                      <Badge 
-                        variant={getTypeColor(course.type)} 
-                        className="text-xs px-2 py-0"
-                      >
-                        {getTypeText(course.type)}
-                      </Badge>
+            {courses.map((course) => {
+              const progress = courseProgresses[course.id] || 0;
+              const isCompleted = progress === 100;
+              
+              return (
+                <Card key={course.id} className="p-4 bg-gradient-card">
+                  <div className="flex items-start gap-3">
+                    <div className={cn(
+                      "w-10 h-10 rounded-full flex items-center justify-center mt-1",
+                      isCompleted 
+                        ? "bg-success/10 text-success" 
+                        : "bg-muted text-muted-foreground"
+                    )}>
+                      {isCompleted ? (
+                        <Check className="w-5 h-5" />
+                      ) : (
+                        <Play className="w-5 h-5" />
+                      )}
                     </div>
                     
-                    <p className="text-sm text-muted-foreground mb-3 leading-relaxed">
-                      {course.description}
-                    </p>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Clock className="w-3 h-3" />
-                        <span>{course.duration}</span>
-                        {course.progress > 0 && course.progress < 100 && (
-                          <>
-                            <span>•</span>
-                            <span>已学习 {course.progress}%</span>
-                          </>
-                        )}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <h3 className="font-medium text-foreground">{course.title}</h3>
+                        <Badge 
+                          variant={getTypeColor(course.type)} 
+                          className="text-xs px-2 py-0"
+                        >
+                          {getTypeText(course.type)}
+                        </Badge>
                       </div>
                       
-                      <Button 
-                        size="sm" 
-                        variant={course.completed ? "secondary" : "primary"}
-                        className="text-xs px-3 py-1"
-                        onClick={() => handleCourseAction(course.id)}
-                      >
-                        {course.completed ? "复习" : course.progress > 0 ? "继续" : "开始"}
-                      </Button>
-                    </div>
-                    
-                    {/* 课程进度条 */}
-                    {course.progress > 0 && course.progress < 100 && (
-                      <div className="mt-3">
-                        <Progress value={course.progress} className="h-1" />
+                      <p className="text-sm text-muted-foreground mb-3 leading-relaxed">
+                        {course.description}
+                      </p>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Clock className="w-3 h-3" />
+                          <span>{course.duration}</span>
+                          {progress > 0 && progress < 100 && (
+                            <>
+                              <span>•</span>
+                              <span>已学习 {progress}%</span>
+                            </>
+                          )}
+                        </div>
+                        
+                        <Button 
+                          size="sm" 
+                          variant={isCompleted ? "secondary" : "primary"}
+                          className="text-xs px-3 py-1"
+                          onClick={() => handleCourseAction(course.id)}
+                        >
+                          {getButtonText(course.id)}
+                        </Button>
                       </div>
-                    )}
+                      
+                      {/* 课程进度条 */}
+                      {progress > 0 && progress < 100 && (
+                        <div className="mt-3">
+                          <Progress value={progress} className="h-1" />
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </Card>
-            ))}
+                </Card>
+              );
+            })}
           </div>
         </div>
 

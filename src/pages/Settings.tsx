@@ -126,7 +126,7 @@ const Settings = () => {
             <Button 
               variant="outline" 
               className="w-full justify-start" 
-              onClick={() => navigate("/legal/privacy")}
+              onClick={() => navigate("/legal/privacy-policy")}
             >
               隐私政策
             </Button>
