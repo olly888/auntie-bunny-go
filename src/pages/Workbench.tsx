@@ -82,45 +82,64 @@ const Workbench = () => {
                 早上好，小兔！
               </div>
               
-              {/* 中间：上线状态 + 开关 */}
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2">
-                  <div className={`w-3 h-3 rounded-full ${isOnline ? 'bg-success animate-pulse' : 'bg-muted-foreground'}`} />
-                  <span className={`text-sm font-medium ${isOnline ? 'text-success' : 'text-muted-foreground'}`}>
-                    {isOnline ? "上线中" : "已下线"}
-                  </span>
-                </div>
-                
-                <AlertDialog open={showOfflineDialog} onOpenChange={setShowOfflineDialog}>
-                  <Switch
-                    checked={isOnline}
-                    onCheckedChange={handleToggleOnline}
-                    className="data-[state=checked]:bg-success"
-                  />
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>确认下线</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        {hasCurrentTask 
-                          ? "您当前有进行中的任务，下线将自动完成当前任务。确定要下线吗？"
-                          : "确定要下线休息吗？下线后将无法接收新订单。"
-                        }
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel onClick={() => setShowOfflineDialog(false)}>
-                        取消
-                      </AlertDialogCancel>
-                      <AlertDialogAction onClick={confirmGoOffline}>
-                        确认下线
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+              {/* 中间：消息通知 */}
+              <div className="flex items-center justify-center">
+                {unreadNotifications > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="relative p-2"
+                    onClick={handleNotificationClick}
+                  >
+                    <Bell className="w-4 h-4" />
+                    <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 text-2xs flex items-center justify-center">
+                      {unreadNotifications}
+                    </Badge>
+                  </Button>
+                )}
               </div>
               
               {/* 右侧：为微信胶囊留空 */}
               <div className="wechat-capsule-safe"></div>
+            </div>
+            
+            {/* 上线接单状态行 */}
+            <div className="mt-3 flex items-center justify-between">
+              <div className="flex-1">
+                <div className="text-sm font-medium text-foreground">
+                  {isOnline ? "上线接单中" : "已下线"}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {isOnline ? "保持在线以接收新订单" : "点击开关上线开始接单"}
+                </div>
+              </div>
+              
+              <AlertDialog open={showOfflineDialog} onOpenChange={setShowOfflineDialog}>
+                <Switch
+                  checked={isOnline}
+                  onCheckedChange={handleToggleOnline}
+                  className="data-[state=checked]:bg-success"
+                />
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>确认下线</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      {hasCurrentTask 
+                        ? "您当前有进行中的任务，下线将自动完成当前任务。确定要下线吗？"
+                        : "确定要下线休息吗？下线后将无法接收新订单。"
+                      }
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel onClick={() => setShowOfflineDialog(false)}>
+                      取消
+                    </AlertDialogCancel>
+                    <AlertDialogAction onClick={confirmGoOffline}>
+                      确认下线
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
             
             {/* 今日简要统计 - 次要信息 */}
@@ -131,20 +150,6 @@ const Workbench = () => {
             )}
           </div>
           
-          {/* 通知按钮 - 移至顶部栏下方 */}
-          {unreadNotifications > 0 && (
-            <div className="px-4 pb-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full text-xs text-muted-foreground hover:text-foreground"
-                onClick={handleNotificationClick}
-              >
-                <Bell className="w-3 h-3 mr-1" />
-                您有 {unreadNotifications} 条新消息
-              </Button>
-            </div>
-          )}
         </div>
 
         {/* 核心工作区域 */}
@@ -169,7 +174,7 @@ const Workbench = () => {
           )}
 
           {/* 任务大厅与管理区 */}
-          <Card className="overflow-hidden">
+          <div className="bg-card rounded-lg border border-border overflow-hidden">
             <Tabs defaultValue={hasCurrentTask ? "progress" : "new"} className="w-full">
               <div className="border-b border-border">
                 <div className="flex items-center justify-between">
@@ -255,7 +260,7 @@ const Workbench = () => {
                 </TabsContent>
               </div>
             </Tabs>
-          </Card>
+          </div>
         </div>
       </div>
       
