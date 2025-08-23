@@ -47,6 +47,8 @@ const OrderService = () => {
   const [bottomSheetOpen, setBottomSheetOpen] = useState(true);
   const [customerNotes, setCustomerNotes] = useState<CustomerNote[]>([]);
   const [loadingNotes, setLoadingNotes] = useState(false);
+  const [serviceStartAt, setServiceStartAt] = useState<number | null>(null);
+  const [remainingSeconds, setRemainingSeconds] = useState(0);
 
   // Mock order data - in real app, fetch from Supabase based on orderId
   const orderInfo = {
@@ -63,10 +65,28 @@ const OrderService = () => {
     longitude: 114.0579
   };
 
+  // Initialize remaining seconds based on order duration
+  useEffect(() => {
+    setRemainingSeconds(orderInfo.duration * 60);
+  }, [orderInfo.duration]);
+
   // Load customer notes when component mounts
   useEffect(() => {
     loadCustomerNotes();
   }, []);
+
+  // Countdown timer effect
+  useEffect(() => {
+    if (status !== 'serving' || serviceStartAt === null) return;
+    
+    const interval = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - serviceStartAt) / 1000);
+      const remaining = Math.max(orderInfo.duration * 60 - elapsed, 0);
+      setRemainingSeconds(remaining);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [status, serviceStartAt, orderInfo.duration]);
 
   const loadCustomerNotes = async () => {
     setLoadingNotes(true);
@@ -91,6 +111,8 @@ const OrderService = () => {
     if (nextStatus === "verification") {
       setStatus(nextStatus);
     } else if (nextStatus === "serving" && verificationCode.length === 4) {
+      setServiceStartAt(Date.now());
+      setRemainingSeconds(orderInfo.duration * 60);
       setStatus(nextStatus);
       toast({
         title: "验证成功",
@@ -122,6 +144,12 @@ const OrderService = () => {
       description: "感谢您的辛勤工作！",
     });
     navigate('/workbench');
+  };
+
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   };
 
   const getStatusButton = () => {
@@ -213,20 +241,7 @@ const OrderService = () => {
         
         <h1 className="font-medium">服务详情</h1>
         
-        {status === 'serving' && (
-          <Button 
-            variant="destructive" 
-            size="sm"
-            onClick={() => setShowEmergencyDialog(true)}
-          >
-            <AlertCircle className="w-4 h-4 mr-1" />
-            紧急求助
-          </Button>
-        )}
-        
-        {status !== 'serving' && (
-          <div className="w-16" />
-        )}
+        <div className="w-16" />
       </div>
 
       {/* Map Section - Flexible height */}
@@ -238,9 +253,29 @@ const OrderService = () => {
 
       {/* Bottom Drawer - Non-modal overlay */}
       <Drawer open={true}>
-        <DrawerContent className="max-h-[50vh] border-t-2">
+        <DrawerContent className="max-h-[65vh] border-t-2">
           <DrawerHeader className="pb-2">
-            <DrawerTitle className="text-base">订单信息</DrawerTitle>
+            <div className="flex items-center justify-between">
+              {status === 'serving' && (
+                <Button 
+                  variant="destructive" 
+                  size="sm"
+                  onClick={() => setShowEmergencyDialog(true)}
+                >
+                  <AlertCircle className="w-4 h-4 mr-1" />
+                  紧急求助
+                </Button>
+              )}
+              
+              {status !== 'serving' && <div />}
+              
+              {status === 'serving' && (
+                <div className="text-sm font-medium text-orange-600">
+                  倒计时 {formatTime(remainingSeconds)}
+                </div>
+              )}
+            </div>
+            <DrawerTitle className="text-base mt-2">订单信息</DrawerTitle>
           </DrawerHeader>
           
           <div className="px-4 pb-6 space-y-4 overflow-y-auto">
@@ -267,6 +302,23 @@ const OrderService = () => {
                 <span className="font-medium">{orderInfo.address}</span>
               </div>
             </div>
+
+            {/* User Order Notes */}
+            {orderInfo.notes && orderInfo.notes.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-sm text-muted-foreground">用户订单备注</h3>
+                <div className="flex flex-wrap gap-2">
+                  {orderInfo.notes.map((tag, index) => (
+                    <span 
+                      key={index} 
+                      className="px-2 py-1 text-xs rounded bg-amber-100 text-amber-800"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Customer Notes */}
             {customerNotes.length > 0 && (
