@@ -94,7 +94,8 @@ export const useIncomeSeries = (period: TimePeriod, selectedDate: Date) => {
 
         return {
           date: format(interval, formatPattern),
-          commission
+          commission,
+          orders: ordersInInterval.length
         };
       });
 
