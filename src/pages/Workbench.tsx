@@ -20,6 +20,18 @@ const Workbench = () => {
   const [activeTab, setActiveTab] = useState("inprogress");
   const [showGrabModal, setShowGrabModal] = useState(false);
   const [broadcastOrder, setBroadcastOrder] = useState<OrderInfo | null>(null);
+  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+
+  // 轮播文案数组
+  const rotatingMessages = [
+    "今天又是充满活力的一天 🌟",
+    "🐰小兔已就绪，准备开启服务的一天～",
+    "☀️ 每一次上门，都是一次温柔的专业传递",
+    "🏠 轻松赚钱，照顾家庭两不误",
+    "✨ 阿姨不是家政，是社区专业家务搭子",
+    "🎀 服务开始前，形象与礼仪也准备好了",
+    "💖 你不是一个人在等待，是兔到到和你一起"
+  ];
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -43,6 +55,17 @@ const Workbench = () => {
       }
     }
   }, [location.state]);
+
+  // 文案轮播效果
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentMessageIndex((prev) => 
+        (prev + 1) % rotatingMessages.length
+      );
+    }, 30000); // 30秒轮播
+
+    return () => clearInterval(interval);
+  }, [rotatingMessages.length]);
 
   const handleToggleOnline = (checked: boolean) => {
     if (checked) {
@@ -181,7 +204,7 @@ const Workbench = () => {
           <div>
             <h1 className="text-lg font-semibold mb-1">早上好，小兔！</h1>
             <p className="text-sm text-primary-foreground/80">
-              今天又是充满活力的一天 🌟
+              {rotatingMessages[currentMessageIndex]}
             </p>
           </div>
         </Card>
