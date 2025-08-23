@@ -1,18 +1,19 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { DataCard } from "@/components/ui/data-card";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { Card } from "@/components/ui/card";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useNavigate } from "react-router-dom";
-import { Phone } from "lucide-react";
+import { Phone, RefreshCw } from "lucide-react";
 import rabbitMascot from "@/assets/rabbit-mascot.png";
 
 const Workbench = () => {
   const [isOnline, setIsOnline] = useState(true);
   const [hasCurrentTask, setHasCurrentTask] = useState(false);
   const [showOfflineDialog, setShowOfflineDialog] = useState(false);
+  const [activeTab, setActiveTab] = useState("inprogress");
   const navigate = useNavigate();
 
   const handleToggleOnline = (checked: boolean) => {
@@ -52,22 +53,11 @@ const Workbench = () => {
         
         {/* 顶部问候卡片 */}
         <Card className="p-6 bg-gradient-primary text-primary-foreground">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-lg font-semibold mb-1">早上好，小兔！</h1>
-              <p className="text-sm text-primary-foreground/80">
-                今天又是充满活力的一天 🌟
-              </p>
-            </div>
-            <Button
-              variant="secondary"
-              size="sm"
-              className="bg-primary-foreground/10 text-primary-foreground border-primary-foreground/20 hover:bg-primary-foreground/20"
-              onClick={() => window.location.href = "tel:400-123-4567"}
-            >
-              <Phone className="w-4 h-4 mr-1" />
-              紧急求助
-            </Button>
+          <div>
+            <h1 className="text-lg font-semibold mb-1">早上好，小兔！</h1>
+            <p className="text-sm text-primary-foreground/80">
+              今天又是充满活力的一天 🌟
+            </p>
           </div>
         </Card>
 
@@ -107,64 +97,107 @@ const Workbench = () => {
               </AlertDialogContent>
             </AlertDialog>
           </div>
+          {/* 内嵌统计信息 */}
+          <div className="text-xs text-muted-foreground mt-2">
+            今日：{todayStats.completed} 单 · ¥{todayStats.earnings} · 5 小时
+          </div>
         </Card>
 
-        {/* 今日核心数据 */}
-        <div className="grid grid-cols-3 gap-4">
-          <DataCard title="今日完成" value={todayStats.completed} unit="单" />
-          <DataCard title="今日收入" value={`¥${todayStats.earnings}`} />
-          <DataCard title="今日工作" value={5} unit="小时" />
-        </div>
+        {/* TAB栏 */}
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <div className="flex items-center justify-between">
+            <TabsList className="grid w-full max-w-sm grid-cols-3">
+              <TabsTrigger value="hall">任务大厅</TabsTrigger>
+              <TabsTrigger value="inprogress">进行中</TabsTrigger>
+              <TabsTrigger value="done">已完成</TabsTrigger>
+            </TabsList>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => console.log('refresh')}
+            >
+              <RefreshCw className="w-4 h-4" />
+            </Button>
+          </div>
 
-
-        {/* 当前任务区域 */}
-        <div>
-          
-          {currentTask ? (
-            <div className="bg-gradient-card border-2 border-primary rounded-xl p-6 shadow-card">
-              <div className="flex items-center gap-4">
-                <div className="text-2xl">🐰</div>
-                <div className="flex-1">
-                  <div className="font-semibold text-foreground mb-1">
-                    {currentTask.type} | 剩余约 {currentTask.timeLeft} 分钟
-                  </div>
-                  <div className="text-sm text-muted-foreground mb-3">
-                    📍 {currentTask.address}
-                  </div>
-                  <Button variant="outline" size="sm" onClick={() => navigate("/order-service")}>
-                    查看详情
-                  </Button>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <Card className="p-8 text-center border-2 border-dashed border-primary/30 bg-primary/5">
-              <img 
-                src={rabbitMascot} 
-                alt="兔到到吉祥物" 
-                className="w-20 h-20 mx-auto mb-4 opacity-80"
-              />
+          <TabsContent value="hall" className="mt-4">
+            <Card className="p-8 text-center border-2 border-dashed border-muted-foreground/30">
               <div className="space-y-2">
-                <p className="font-medium text-foreground">等待新订单中...</p>
+                <p className="font-medium text-foreground">暂无可抢订单</p>
                 <p className="text-sm text-muted-foreground">
-                  {isOnline ? "保持在线状态，随时准备接单" : "请先上线后等待订单"}
+                  请稍后刷新或保持在线等待新订单
                 </p>
               </div>
             </Card>
-          )}
-        </div>
+          </TabsContent>
 
-        {/* 演示按钮：模拟接到任务 */}
-        {isOnline && !currentTask && (
-          <Button 
-            variant="outline" 
-            size="lg" 
-            className="w-full"
-            onClick={() => setHasCurrentTask(true)}
-          >
-            模拟接到任务
-          </Button>
-        )}
+          <TabsContent value="inprogress" className="mt-4">
+            {currentTask ? (
+              <div className="bg-gradient-card border-2 border-primary rounded-xl p-6 shadow-card">
+                <div className="flex items-center gap-4">
+                  <div className="text-2xl">🐰</div>
+                  <div className="flex-1">
+                    <div className="font-semibold text-foreground mb-1">
+                      {currentTask.type} | 剩余约 {currentTask.timeLeft} 分钟
+                    </div>
+                    <div className="text-sm text-muted-foreground mb-3">
+                      📍 {currentTask.address}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={() => navigate("/order-service")}>
+                        查看详情
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => window.location.href = "tel:400-123-4567"}
+                      >
+                        <Phone className="w-4 h-4 mr-1" />
+                        紧急求助
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <Card className="p-8 text-center border-2 border-dashed border-primary/30 bg-primary/5">
+                <img 
+                  src={rabbitMascot} 
+                  alt="兔到到吉祥物" 
+                  className="w-20 h-20 mx-auto mb-4 opacity-80"
+                />
+                <div className="space-y-2">
+                  <p className="font-medium text-foreground">等待新订单中...</p>
+                  <p className="text-sm text-muted-foreground">
+                    {isOnline ? "保持在线状态，随时准备接单" : "请先上线后等待订单"}
+                  </p>
+                </div>
+                {/* 演示按钮：模拟接到任务 */}
+                {isOnline && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="mt-4"
+                    onClick={() => setHasCurrentTask(true)}
+                  >
+                    模拟接到任务
+                  </Button>
+                )}
+              </Card>
+            )}
+          </TabsContent>
+
+          <TabsContent value="done" className="mt-4">
+            <Card className="p-8 text-center border-2 border-dashed border-muted-foreground/30">
+              <div className="space-y-2">
+                <p className="font-medium text-foreground">暂无已完成订单</p>
+                <p className="text-sm text-muted-foreground">
+                  完成任务后将在这里显示历史记录
+                </p>
+              </div>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
       
       <BottomNav />
