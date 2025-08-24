@@ -29,7 +29,9 @@ const Profile = () => {
               <User className="w-8 h-8 text-primary-foreground" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-foreground">李阿姨 (工号: TDD001234)</h2>
+              <h2 className="text-lg font-semibold text-foreground">
+                李阿姨 <span className="text-sm font-normal text-muted-foreground">(工号: TDD001234)</span>
+              </h2>
               <p className="text-sm text-muted-foreground">所属门店：兔到到·大冲华润城店</p>
             </div>
           </div>
