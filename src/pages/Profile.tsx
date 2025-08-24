@@ -29,9 +29,8 @@ const Profile = () => {
               <User className="w-8 h-8 text-primary-foreground" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-foreground">李阿姨</h2>
-              <p className="text-sm text-muted-foreground">工号：TDD001234</p>
-              <p className="text-sm text-muted-foreground">所属门店：兔到到大冲华润城店</p>
+              <h2 className="text-lg font-semibold text-foreground">李阿姨 (工号: TDD001234)</h2>
+              <p className="text-sm text-muted-foreground">所属门店：兔到到·大冲华润城店</p>
             </div>
           </div>
           
@@ -58,7 +57,7 @@ const Profile = () => {
           </div>
           <div className="bg-card rounded-lg p-4 text-center shadow-card">
             <div className="text-lg font-bold text-foreground">5</div>
-            <div className="text-xs text-muted-foreground">服务时长</div>
+            <div className="text-xs text-muted-foreground">总服务小时</div>
           </div>
         </div>
 

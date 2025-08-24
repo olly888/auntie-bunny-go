@@ -17,7 +17,7 @@ import rabbitMascot from "@/assets/rabbit-mascot.png";
 const Workbench = () => {
   const [isOnline, setIsOnline] = useState(true);
   const [showOfflineDialog, setShowOfflineDialog] = useState(false);
-  const [activeTab, setActiveTab] = useState("inprogress");
+  const [activeTab, setActiveTab] = useState("hall");
   const [showGrabModal, setShowGrabModal] = useState(false);
   const [broadcastOrder, setBroadcastOrder] = useState<OrderInfo | null>(null);
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
