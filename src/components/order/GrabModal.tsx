@@ -24,14 +24,29 @@ export const GrabModal = ({
   isVisible, 
   onGrab, 
   onTimeout, 
-  countdown: initialCountdown = 10 
+  countdown: initialCountdown = 60 
 }: GrabModalProps) => {
   const [countdown, setCountdown] = useState(initialCountdown);
 
-  // 重置倒计时当模态框变为可见时
+  // 重置倒计时当模态框变为可见时 + 添加振动和响铃
   useEffect(() => {
     if (isVisible) {
       setCountdown(initialCountdown);
+      
+      // 持续振动
+      if (navigator.vibrate) {
+        navigator.vibrate([200, 100, 200, 100, 200]);
+      }
+      
+      // 播放提示音（持续响铃）
+      const audio = new Audio('/notification.mp3');
+      audio.loop = true;
+      audio.play().catch(err => console.log('Audio play failed:', err));
+      
+      return () => {
+        audio.pause();
+        audio.currentTime = 0;
+      };
     }
   }, [isVisible, initialCountdown]);
 
@@ -48,7 +63,7 @@ export const GrabModal = ({
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 z-50">
       <div className="bg-card rounded-2xl p-8 max-w-sm w-full shadow-card animate-in fade-in-0 zoom-in-95 duration-300">
         
         {/* 响铃图标 */}

@@ -110,7 +110,7 @@ const Workbench = () => {
     
     toast({
       title: "新订单推送！",
-      description: "10秒倒计时开始，请及时抢单",
+      description: "60秒倒计时开始，请及时抢单",
     });
   };
 

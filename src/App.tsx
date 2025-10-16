@@ -17,6 +17,10 @@ import MyBankCards from "./pages/MyBankCards";
 import SalaryExplanation from "./pages/SalaryExplanation";
 import Withdraw from "./pages/Withdraw";
 import WithdrawHistory from "./pages/WithdrawHistory";
+import MyWallet from "./pages/MyWallet";
+import SkillCertification from "./pages/SkillCertification";
+import ContactSupport from "./pages/ContactSupport";
+import SettlementRules from "./pages/SettlementRules";
 import Profile from "./pages/Profile";
 import ProfileDetails from "./pages/ProfileDetails";
 import Settings from "./pages/Settings";
@@ -49,11 +53,13 @@ function App() {
           <Route path="/workbench" element={<Workbench />} />
           <Route path="/income" element={<Income />} />
           <Route path="/income/details" element={<IncomeDetails />} />
-          <Route path="/income/performance" element={<MyPerformance />} />
           <Route path="/income/salary" element={<SalaryExplanation />} />
+          <Route path="/income/settlement-rules" element={<SettlementRules />} />
           <Route path="/withdraw" element={<Withdraw />} />
           <Route path="/withdraw/history" element={<WithdrawHistory />} />
-          <Route path="/wallet/cards" element={<MyBankCards />} />
+          <Route path="/wallet" element={<MyWallet />} />
+          <Route path="/skills" element={<SkillCertification />} />
+          <Route path="/contact" element={<ContactSupport />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/profile/details" element={<ProfileDetails />} />
           <Route path="/settings" element={<Settings />} />
@@ -61,12 +67,17 @@ function App() {
           <Route path="/training" element={<TrainingCenter />} />
           <Route path="/training/course/:courseId" element={<CoursePlayer />} />
           <Route path="/reviews" element={<Reviews />} />
-          <Route path="/invitations" element={<Invitations />} />
-          <Route path="/insurance" element={<Insurance />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/security" element={<Security />} />
           <Route path="/legal/service-agreement" element={<LegalServiceAgreement />} />
           <Route path="/legal/privacy-policy" element={<LegalPrivacyPolicy />} />
+          
+          {/* MVP范围外 - 保留路由但已从菜单移除 */}
+          <Route path="/income/performance" element={<MyPerformance />} />
+          <Route path="/wallet/cards" element={<MyBankCards />} />
+          <Route path="/invitations" element={<Invitations />} />
+          <Route path="/insurance" element={<Insurance />} />
+          
           <Route path="*" element={<NotFound />} />
         </Routes>
       </TooltipProvider>

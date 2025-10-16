@@ -3,19 +3,20 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { useNavigate } from "react-router-dom";
-import { User, Settings, Shield, HelpCircle, Star, Share2 } from "lucide-react";
+import { User, Wallet, Star, GraduationCap, Settings, ChevronRight, MessageCircle, HelpCircle, Award } from "lucide-react";
 
 const Profile = () => {
   const navigate = useNavigate();
   const { isOnline, setIsOnline } = useOnlineStatus();
 
   const menuItems = [
-    { icon: User, label: "个人资料", path: "/profile/details" },
-    { icon: Share2, label: "我的邀请", path: "/invitations" },
-    { icon: Star, label: "我的评价", path: "/reviews" },
-    // { icon: Shield, label: "我的保险", path: "/insurance" }, // 隐藏保险功能，下一阶段开发
-    { icon: Settings, label: "系统设置", path: "/settings" },
-    { icon: HelpCircle, label: "帮助中心", path: "/help" },
+    { icon: Wallet, label: "我的钱包", description: "查看收入流水，了解结算规则", path: "/wallet" },
+    { icon: Star, label: "我的评价", description: "查看用户给出的所有历史评价", path: "/reviews" },
+    { icon: GraduationCap, label: "服务培训", description: "进入培训中心，复习SOP或学习新技能", path: "/training" },
+    { icon: Award, label: "技能认证", description: "查看自己已掌握的服务技能标签", path: "/skills" },
+    { icon: HelpCircle, label: "帮助中心", description: "查看平台规则和常见问题解答", path: "/help" },
+    { icon: MessageCircle, label: "联系平台/申诉", description: "提供平台客服电话或申诉表单入口", path: "/contact" },
+    { icon: Settings, label: "系统设置", description: "退出登录等", path: "/settings" },
   ];
 
   return (
@@ -64,27 +65,26 @@ const Profile = () => {
         </div>
 
         {/* 功能菜单 */}
-        <div className="bg-card rounded-xl shadow-card">
-          {menuItems.map((item, index) => {
-            const Icon = item.icon;
-            return (
-              <div key={index}>
-                <button
-                  onClick={() => navigate(item.path)}
-                  className="w-full flex items-center justify-between p-4 text-left hover:bg-accent/50 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon className="w-5 h-5 text-muted-foreground" />
-                    <span className="font-medium">{item.label}</span>
+        <div className="bg-card rounded-xl shadow-card overflow-hidden">
+          <div className="space-y-0">
+            {menuItems.map((item, index) => (
+              <Button
+                key={index}
+                variant="ghost"
+                className="w-full justify-between h-auto py-4 px-4 rounded-none hover:bg-accent"
+                onClick={() => navigate(item.path)}
+              >
+                <div className="flex items-center gap-3">
+                  <item.icon className="w-5 h-5 text-primary" />
+                  <div className="text-left">
+                    <div className="text-base text-foreground">{item.label}</div>
+                    <div className="text-xs text-muted-foreground">{item.description}</div>
                   </div>
-                  <span className="text-muted-foreground">›</span>
-                </button>
-                {index < menuItems.length - 1 && (
-                  <div className="h-px bg-border mx-4" />
-                )}
-              </div>
-            );
-          })}
+                </div>
+                <ChevronRight className="w-5 h-5 text-muted-foreground" />
+              </Button>
+            ))}
+          </div>
         </div>
         
       </div>

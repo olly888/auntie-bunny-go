@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 interface WithdrawRecord {
   id: string;
   amount: number;
-  status: "处理中" | "已到账" | "已取消";
+  status: "审核中" | "已批准" | "已到账" | "已驳回";
   submitTime: string;
   expectedArrival?: string;
   actualArrival?: string;
@@ -49,12 +49,14 @@ const WithdrawHistory = () => {
 
   const getStatusColor = (status: WithdrawRecord["status"]) => {
     switch (status) {
-      case "处理中":
-        return "bg-warning text-warning-foreground";
+      case "审核中":
+        return "bg-warning/20 text-warning-foreground border-warning";
+      case "已批准":
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400 border-blue-300";
       case "已到账":
-        return "bg-success text-success-foreground";
-      case "已取消":
-        return "bg-destructive text-destructive-foreground";
+        return "bg-success/20 text-success-foreground border-success";
+      case "已驳回":
+        return "bg-destructive/20 text-destructive-foreground border-destructive";
       default:
         return "bg-secondary text-secondary-foreground";
     }
@@ -144,7 +146,7 @@ const WithdrawHistory = () => {
                         </div>
                       </div>
 
-                      {record.status === "处理中" && record.expectedArrival && (
+                      {(record.status === "审核中" || record.status === "已批准") && record.expectedArrival && (
                         <div className="flex items-center justify-between">
                           <span className="text-muted-foreground">预计到账</span>
                           <span className="text-foreground">{record.expectedArrival}</span>

@@ -24,18 +24,6 @@ const Income = () => {
       title: "收入明细", 
       description: "查看详细收入记录",
       path: "/income/details"
-    },
-    { 
-      icon: TrendingUp, 
-      title: "我的业绩", 
-      description: "查看服务统计",
-      path: "/income/performance"
-    },
-    { 
-      icon: CreditCard, 
-      title: "我的银行卡", 
-      description: "管理提现账户",
-      path: "/wallet/cards"
     }
   ];
 

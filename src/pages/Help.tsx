@@ -57,6 +57,45 @@ const Help = () => {
 
       <div className="max-w-md mx-auto p-4 space-y-6">
 
+        {/* 平台规则 */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <HelpCircle className="h-5 w-5" />
+              平台规则
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 text-sm">
+            <div>
+              <h3 className="font-medium text-foreground mb-2">服务标准</h3>
+              <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                <li>服务前需完成实名认证和技能培训</li>
+                <li>服务过程中需佩戴工作证，着装整洁</li>
+                <li>严格按照SOP操作流程完成服务</li>
+                <li>服务完成后需拍照上传，记录服务质量</li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-medium text-foreground mb-2">结算规则</h3>
+              <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                <li>订单完成后，提成即时到账可提现余额</li>
+                <li>每周可申请提现1次，最低提现金额¥10</li>
+                <li>提现申请将在1个工作日内审核，2个工作日到账</li>
+                <li>直营员工薪资由平台统一发放</li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-medium text-foreground mb-2">接单规则</h3>
+              <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                <li>上线后可接收广播订单推送（60秒倒计时）</li>
+                <li>也可在任务大厅主动选择订单</li>
+                <li>接单后需在约定时间内到达服务地点</li>
+                <li>频繁取消订单将影响接单优先级</li>
+              </ul>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* FAQ */}
         <Card>
           <CardHeader>

@@ -25,8 +25,9 @@ const Withdraw = () => {
 
   const withdrawalRules = {
     minAmount: 10,
-    maxDailyCount: 1,
-    processingDays: "1-3个工作日",
+    maxWeeklyCount: 1,
+    auditDays: "1个工作日",
+    paymentDays: "2个工作日",
     fee: 0
   };
 
@@ -47,7 +48,7 @@ const Withdraw = () => {
     return userInfo.isRealNameVerified && 
            userInfo.hasLinkedWallet && 
            !userInfo.isDirectEmployee &&
-           userInfo.todayWithdrawCount < withdrawalRules.maxDailyCount &&
+           userInfo.todayWithdrawCount < withdrawalRules.maxWeeklyCount &&
            isValidAmount();
   };
 
@@ -64,9 +65,9 @@ const Withdraw = () => {
       const withdrawRecord = {
         id: Date.now().toString(),
         amount: parseFloat(withdrawAmount),
-        status: "处理中",
+        status: "审核中",
         submitTime: new Date().toISOString(),
-        expectedArrival: "1-3个工作日",
+        expectedArrival: "1个工作日审核，预计2个工作日到账",
         method: userInfo.walletType
       };
       
@@ -76,7 +77,7 @@ const Withdraw = () => {
       
       toast({
         title: "提现申请已提交",
-        description: `¥${withdrawAmount} 将在1-3个工作日内到账`,
+        description: `¥${withdrawAmount} 将在1个工作日内审核，预计2个工作日到账`,
       });
       
       navigate("/withdraw/history");
@@ -178,11 +179,15 @@ const Withdraw = () => {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">提现频率限制</span>
-                <span className="text-foreground">每日限{withdrawalRules.maxDailyCount}次</span>
+                <span className="text-foreground">每周限{withdrawalRules.maxWeeklyCount}次</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">审核时间</span>
+                <span className="text-foreground">{withdrawalRules.auditDays}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">到账时间</span>
-                <span className="text-foreground">{withdrawalRules.processingDays}到账</span>
+                <span className="text-foreground">审核通过后{withdrawalRules.paymentDays}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">提现手续费</span>
