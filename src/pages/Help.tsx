@@ -8,7 +8,19 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useMockAuth } from "@/hooks/useMockAuth";
+import { z } from "zod";
 import ownerQr from "@/assets/owner-wechat-qr.png";
+
+// Validation schema for appeal submissions
+const appealSchema = z.object({
+  appealType: z.enum(['订单争议', '收入问题', '技术故障', '账号问题', '其他'], {
+    required_error: "请选择申诉类型"
+  }),
+  appealContent: z.string()
+    .trim()
+    .min(10, "申诉内容至少需要10个字")
+    .max(1000, "申诉内容不能超过1000个字")
+});
 
 const Help = () => {
   const navigate = useNavigate();
@@ -22,25 +34,21 @@ const Help = () => {
   };
 
   const handleSubmitAppeal = async () => {
-    if (!appealType) {
-      toast.error("请选择申诉类型");
-      return;
-    }
-    
-    if (!appealContent.trim()) {
-      toast.error("请输入申诉内容");
-      return;
-    }
-
-    // 检查是否为演示用户
-    if (mockState.user && mockState.user.id.startsWith('user_')) {
-      toast.info("演示账户无法提交真实申诉，请联系站长");
-      return;
-    }
-
-    setIsSubmitting(true);
-
     try {
+      // Validate input using Zod schema
+      const validated = appealSchema.parse({
+        appealType,
+        appealContent
+      });
+
+      // 检查是否为演示用户
+      if (mockState.user && mockState.user.id.startsWith('user_')) {
+        toast.info("演示账户无法提交真实申诉，请联系站长");
+        return;
+      }
+
+      setIsSubmitting(true);
+
       // 生成工单号
       const ticketNumber = `APP${Date.now()}`;
       
@@ -57,8 +65,11 @@ const Help = () => {
         navigate("/appeal-progress");
       }, 3000);
     } catch (error) {
-      toast.error("提交失败，请稍后重试");
-      console.error(error);
+      if (error instanceof z.ZodError) {
+        toast.error(error.errors[0].message);
+      } else {
+        toast.error("提交失败，请稍后重试");
+      }
     } finally {
       setIsSubmitting(false);
     }

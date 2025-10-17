@@ -841,6 +841,30 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       onboarding_funnel: {
@@ -926,6 +950,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_current_user_role_secure: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_filtered_orders: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -962,6 +990,13 @@ export type Database = {
           type: string
         }[]
       }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       mark_all_notifications_read: {
         Args: Record<PropertyKey, never>
         Returns: boolean
@@ -976,6 +1011,7 @@ export type Database = {
       }
     }
     Enums: {
+      app_role: "admin" | "manager" | "worker"
       prejob_training_status: "not_started" | "in_progress" | "completed"
       provider_cert_status: "pending" | "verified" | "rejected"
       referral_event_type: "scan" | "register" | "qualify" | "reward"
@@ -1107,6 +1143,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["admin", "manager", "worker"],
       prejob_training_status: ["not_started", "in_progress", "completed"],
       provider_cert_status: ["pending", "verified", "rejected"],
       referral_event_type: ["scan", "register", "qualify", "reward"],

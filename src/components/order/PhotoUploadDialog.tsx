@@ -4,6 +4,21 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Camera, Upload, X, CheckCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { z } from "zod";
+
+// Validation for file uploads
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+
+const fileSchema = z.object({
+  file: z
+    .instanceof(File)
+    .refine((file) => file.size <= MAX_FILE_SIZE, "文件大小不能超过5MB")
+    .refine(
+      (file) => ACCEPTED_IMAGE_TYPES.includes(file.type),
+      "只支持 JPG, PNG 和 WEBP 格式的图片"
+    )
+});
 
 interface PhotoUploadDialogProps {
   open: boolean;
@@ -26,6 +41,21 @@ const PhotoUploadDialog = ({ open, onOpenChange, orderId, onUploadComplete }: Ph
     try {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
+        
+        // Validate file using Zod schema
+        try {
+          fileSchema.parse({ file });
+        } catch (validationError) {
+          if (validationError instanceof z.ZodError) {
+            toast({
+              title: "文件验证失败",
+              description: `${file.name}: ${validationError.errors[0].message}`,
+              variant: "destructive",
+            });
+            continue; // Skip this file
+          }
+        }
+        
         const fileExt = file.name.split('.').pop();
         const fileName = `${orderId}/${Date.now()}-${i}.${fileExt}`;
         
@@ -112,7 +142,7 @@ const PhotoUploadDialog = ({ open, onOpenChange, orderId, onUploadComplete }: Ph
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Camera className="w-5 h-5" />
+            <Camera className="w-5 w-5" />
             上传服务照片 (可选)
           </DialogTitle>
         </DialogHeader>

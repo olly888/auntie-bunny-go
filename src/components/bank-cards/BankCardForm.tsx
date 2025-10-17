@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,6 +5,23 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useAddBankAccount, useUpdateBankAccount, BankAccount } from "@/hooks/useBankAccounts";
+import { toast } from "sonner";
+import { z } from "zod";
+
+// Validation schema for bank card details
+const bankCardSchema = z.object({
+  bank_name: z.string()
+    .trim()
+    .min(2, "银行名称至少需要2个字")
+    .max(50, "银行名称不能超过50个字"),
+  account_holder: z.string()
+    .trim()
+    .min(2, "持卡人姓名至少需要2个字")
+    .max(30, "持卡人姓名不能超过30个字")
+    .regex(/^[\u4e00-\u9fa5a-zA-Z\s]+$/, "姓名只能包含中英文和空格"),
+  account_number: z.string()
+    .regex(/^\d{16,19}$/, "请输入16-19位银行卡号")
+});
 
 interface BankCardFormProps {
   isOpen: boolean;
@@ -27,27 +43,26 @@ export const BankCardForm = ({ isOpen, onClose, editingCard }: BankCardFormProps
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.bank_name || !formData.account_holder || !formData.account_number) {
-      return;
-    }
-
     try {
+      // Validate form data using Zod schema
+      const validated = bankCardSchema.parse(formData);
+
       if (editingCard) {
         // For editing, only update name, holder, and default status
         await updateMutation.mutateAsync({
           id: editingCard.id,
           updates: {
-            bank_name: formData.bank_name,
-            account_holder: formData.account_holder,
+            bank_name: validated.bank_name,
+            account_holder: validated.account_holder,
             is_default: formData.is_default,
           }
         });
       } else {
         // For new cards, include full account number
         await addMutation.mutateAsync({
-          bank_name: formData.bank_name,
-          account_holder: formData.account_holder,
-          account_number: formData.account_number,
+          bank_name: validated.bank_name,
+          account_holder: validated.account_holder,
+          account_number: validated.account_number,
           is_default: formData.is_default,
         });
       }
@@ -60,7 +75,12 @@ export const BankCardForm = ({ isOpen, onClose, editingCard }: BankCardFormProps
         is_default: false,
       });
     } catch (error) {
-      console.error('Failed to save bank card:', error);
+      if (error instanceof z.ZodError) {
+        toast.error(error.errors[0].message);
+      } else {
+        console.error('Failed to save bank card:', error);
+        toast.error("保存失败，请重试");
+      }
     }
   };
 

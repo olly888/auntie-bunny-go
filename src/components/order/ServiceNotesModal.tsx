@@ -5,6 +5,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Lightbulb } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { z } from "zod";
+
+// Validation schema for service notes
+const notesSchema = z.object({
+  content: z.string()
+    .trim()
+    .max(500, "备注内容不能超过500个字")
+});
 
 interface ServiceNotesModalProps {
   open: boolean;
@@ -19,13 +27,18 @@ const ServiceNotesModal = ({ open, onOpenChange, orderId, customerPhone, onCompl
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async () => {
+    // If notes are empty, just skip
     if (!notes.trim()) {
       handleSkip();
       return;
     }
 
-    setSubmitting(true);
     try {
+      // Validate notes using Zod schema
+      const validated = notesSchema.parse({ content: notes });
+
+      setSubmitting(true);
+      
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error('用户未登录');
 
@@ -43,7 +56,7 @@ const ServiceNotesModal = ({ open, onOpenChange, orderId, customerPhone, onCompl
           customer_phone: customerPhone,
           author_id: user.user.id,
           author_name: profile?.full_name || '同事',
-          content: notes.trim()
+          content: validated.content
         });
 
       if (error) throw error;
@@ -57,12 +70,20 @@ const ServiceNotesModal = ({ open, onOpenChange, orderId, customerPhone, onCompl
       onComplete();
 
     } catch (error) {
-      console.error('Submit notes error:', error);
-      toast({
-        title: "保存失败",
-        description: "请稍后重试",
-        variant: "destructive",
-      });
+      if (error instanceof z.ZodError) {
+        toast({
+          title: "验证失败",
+          description: error.errors[0].message,
+          variant: "destructive",
+        });
+      } else {
+        console.error('Submit notes error:', error);
+        toast({
+          title: "保存失败",
+          description: "请稍后重试",
+          variant: "destructive",
+        });
+      }
     } finally {
       setSubmitting(false);
     }
