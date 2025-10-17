@@ -1,11 +1,70 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BottomNav } from "@/components/ui/bottom-nav";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useNavigate } from "react-router-dom";
 import { User, Star, GraduationCap, Settings, ChevronRight, MessageCircle, HelpCircle, FileText, Gift } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useMockAuth } from "@/hooks/useMockAuth";
+import { DemoOrder } from "@/hooks/useDemoOrders";
 
 const Profile = () => {
   const navigate = useNavigate();
+  const { state: mockState } = useMockAuth();
+  const [stats, setStats] = useState({
+    monthlyIncome: 0,
+    rating: 4.9,
+    monthlyServices: 0
+  });
+  const [avatarUrl, setAvatarUrl] = useState<string>("");
+  const [userName, setUserName] = useState("李阿姨");
+
+  // 从 localStorage 加载真实数据
+  useEffect(() => {
+    try {
+      // 加载个人信息
+      const savedProfile = localStorage.getItem("userProfile");
+      if (savedProfile) {
+        const profile = JSON.parse(savedProfile);
+        if (profile.name) setUserName(profile.name);
+        if (profile.avatarUrl) setAvatarUrl(profile.avatarUrl);
+      }
+
+      // 加载订单数据并计算统计
+      const completedOrdersStr = localStorage.getItem("completedOrders");
+      if (completedOrdersStr) {
+        const completedOrders: DemoOrder[] = JSON.parse(completedOrdersStr).map((order: any) => ({
+          ...order,
+          createdAt: new Date(order.createdAt)
+        }));
+
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+
+        // 计算本月订单
+        const monthlyOrders = completedOrders.filter(order => {
+          const orderDate = new Date(order.createdAt);
+          return orderDate.getMonth() === currentMonth && 
+                 orderDate.getFullYear() === currentYear;
+        });
+
+        // 计算本月收入
+        const monthlyIncome = monthlyOrders.reduce((sum, order) => sum + order.payout, 0);
+        
+        // 计算服务次数
+        const monthlyServices = monthlyOrders.length;
+
+        setStats({
+          monthlyIncome,
+          rating: 4.9, // 评分暂时固定
+          monthlyServices
+        });
+      }
+    } catch (error) {
+      console.error("加载数据失败:", error);
+    }
+  }, []);
 
   const menuItems = [
     { icon: User, label: "个人信息", path: "/profile/details" },
@@ -21,32 +80,39 @@ const Profile = () => {
     <div className="min-h-screen bg-background pb-20">
       <div className="max-w-md mx-auto p-4 space-y-6">
         
-        {/* 个人信息区 */}
-        <div className="bg-gradient-card rounded-xl p-6 shadow-card">
+        {/* 个人信息区 - 可点击进入编辑 */}
+        <div 
+          className="bg-gradient-card rounded-xl p-6 shadow-card cursor-pointer hover:bg-accent/50 transition-colors"
+          onClick={() => navigate("/profile/details")}
+        >
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center">
-              <User className="w-8 h-8 text-primary-foreground" />
-            </div>
-            <div>
+            <Avatar className="w-16 h-16">
+              <AvatarImage src={avatarUrl} alt={userName} />
+              <AvatarFallback className="bg-gradient-primary text-primary-foreground text-xl">
+                {userName.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
               <h2 className="text-lg font-semibold text-foreground">
-                李阿姨 <span className="text-sm font-normal text-muted-foreground">(工号: TDD001234)</span>
+                {userName} <span className="text-sm font-normal text-muted-foreground">(工号: TDD001234)</span>
               </h2>
             </div>
+            <ChevronRight className="w-5 h-5 text-muted-foreground" />
           </div>
         </div>
 
-        {/* 快速数据 */}
+        {/* 快速数据 - 从真实数据源计算 */}
         <div className="grid grid-cols-3 gap-4">
           <div className="bg-card rounded-lg p-4 text-center shadow-card">
-            <div className="text-lg font-bold text-green-600 dark:text-green-400">¥2,450</div>
+            <div className="text-lg font-bold text-green-600 dark:text-green-400">¥{stats.monthlyIncome}</div>
             <div className="text-xs text-muted-foreground">本月收入</div>
           </div>
           <div className="bg-card rounded-lg p-4 text-center shadow-card">
-            <div className="text-lg font-bold text-foreground">4.9 ⭐</div>
+            <div className="text-lg font-bold text-foreground">{stats.rating} ⭐</div>
             <div className="text-xs text-muted-foreground">服务评分</div>
           </div>
           <div className="bg-card rounded-lg p-4 text-center shadow-card">
-            <div className="text-lg font-bold text-foreground">28</div>
+            <div className="text-lg font-bold text-foreground">{stats.monthlyServices}</div>
             <div className="text-xs text-muted-foreground">本月服务</div>
           </div>
         </div>
