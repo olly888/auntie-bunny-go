@@ -4,14 +4,15 @@ import { Switch } from "@/components/ui/switch";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Phone, RefreshCw, Plus } from "lucide-react";
 import { GrabModal, OrderInfo } from "@/components/order/GrabModal";
 import { OrderCard } from "@/components/order/OrderCard";
+import { OfflineReasonDialog } from "@/components/order/OfflineReasonDialog";
 import { useDemoOrders } from "@/hooks/useDemoOrders";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import rabbitMascot from "@/assets/rabbit-mascot.png";
 
 const Workbench = () => {
@@ -70,18 +71,45 @@ const Workbench = () => {
   const handleToggleOnline = (checked: boolean) => {
     if (checked) {
       setIsOnline(true);
+      toast({
+        title: "已上线",
+        description: "现在可以接单了！"
+      });
     } else {
-      if (currentOrder) {
-        setShowOfflineDialog(true);
-      } else {
-        setIsOnline(false);
-      }
+      setShowOfflineDialog(true);
     }
   };
 
-  const confirmGoOffline = () => {
-    setIsOnline(false);
-    setShowOfflineDialog(false);
+  const confirmGoOffline = async (reason: string) => {
+    try {
+      // 记录下线原因到数据库
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error } = await supabase.from('offline_logs').insert({
+          user_id: user.id,
+          reason: reason,
+          offline_at: new Date().toISOString()
+        });
+
+        if (error) {
+          console.error('Failed to log offline reason:', error);
+        }
+      }
+
+      setIsOnline(false);
+      setShowOfflineDialog(false);
+      toast({
+        title: "已下线",
+        description: `下线原因：${reason}`
+      });
+    } catch (error) {
+      console.error('Error going offline:', error);
+      toast({
+        title: "下线失败",
+        description: "请重试",
+        variant: "destructive"
+      });
+    }
   };
 
   // 模拟广播弹窗
@@ -147,7 +175,7 @@ const Workbench = () => {
     if (!isOnline) {
       toast({
         title: "请先上线",
-        description: "需要先上线才能抢单",
+        description: "需要先打开上线接单开关才能抢单",
         variant: "destructive"
       });
       return;
@@ -218,32 +246,11 @@ const Workbench = () => {
                 {isOnline ? "上线接单" : "下线休息"}
               </span>
             </div>
-            <AlertDialog open={showOfflineDialog} onOpenChange={setShowOfflineDialog}>
-              <Switch
-                checked={isOnline}
-                onCheckedChange={handleToggleOnline}
-                className="data-[state=checked]:bg-green-500"
-              />
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>确认下线</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    {currentOrder 
-                      ? "您当前有进行中的任务，下线将自动完成当前任务。确定要下线吗？"
-                      : "确定要下线休息吗？下线后将无法接收新订单。"
-                    }
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel onClick={() => setShowOfflineDialog(false)}>
-                    取消
-                  </AlertDialogCancel>
-                  <AlertDialogAction onClick={confirmGoOffline}>
-                    确认下线
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <Switch
+              checked={isOnline}
+              onCheckedChange={handleToggleOnline}
+              className="data-[state=checked]:bg-green-500"
+            />
           </div>
           {/* 内嵌统计信息 */}
           <div className="text-xs text-muted-foreground mt-2">
@@ -434,6 +441,13 @@ const Workbench = () => {
           onTimeout={handleTimeout}
         />
       )}
+      
+      {/* 下线原因弹窗 */}
+      <OfflineReasonDialog
+        open={showOfflineDialog}
+        onOpenChange={setShowOfflineDialog}
+        onConfirm={confirmGoOffline}
+      />
       
       <BottomNav />
     </div>

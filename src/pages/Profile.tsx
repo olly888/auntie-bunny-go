@@ -1,16 +1,13 @@
-import { useOnlineStatus } from "@/hooks/use-online-status";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { useNavigate } from "react-router-dom";
-import { User, Wallet, Star, GraduationCap, Settings, ChevronRight, MessageCircle, HelpCircle } from "lucide-react";
+import { User, Star, GraduationCap, Settings, ChevronRight, MessageCircle, HelpCircle } from "lucide-react";
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { isOnline, setIsOnline } = useOnlineStatus();
 
   const menuItems = [
-    { icon: Wallet, label: "我的钱包", description: "查看余额、申请提现、收入明细", path: "/wallet" },
+    { icon: User, label: "个人信息", description: "管理头像、姓名、证件等个人资料", path: "/profile/details" },
     { icon: Star, label: "我的评价", description: "查看用户给出的所有历史评价", path: "/reviews" },
     { icon: GraduationCap, label: "技能培训", description: "课程学习、技能认证、测试考核", path: "/skills-training" },
     { icon: HelpCircle, label: "帮助中心", description: "查看平台规则和常见问题解答", path: "/help" },
@@ -24,7 +21,7 @@ const Profile = () => {
         
         {/* 个人信息区 */}
         <div className="bg-gradient-card rounded-xl p-6 shadow-card">
-          <div className="flex items-center gap-4 mb-4">
+          <div className="flex items-center gap-4">
             <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center">
               <User className="w-8 h-8 text-primary-foreground" />
             </div>
@@ -33,16 +30,6 @@ const Profile = () => {
                 李阿姨 <span className="text-sm font-normal text-muted-foreground">(工号: TDD001234)</span>
               </h2>
               <p className="text-sm text-muted-foreground">所属门店：兔到到·大冲华润城店</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">在线状态</span>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">
-                {isOnline ? "在线接单" : "已下线"}
-              </span>
-              <Switch checked={isOnline} onCheckedChange={setIsOnline} />
             </div>
           </div>
         </div>

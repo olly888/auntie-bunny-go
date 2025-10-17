@@ -51,7 +51,8 @@ function App() {
           <Route path="/service/:orderId" element={<OrderService />} />
           <Route path="/workbench" element={<Workbench />} />
           
-          <Route path="/profile" element={<Profile />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/profile/details" element={<ProfileDetails />} />
           <Route path="/profile/details" element={<ProfileDetails />} />
           
           {/* Wallet & Income Routes */}

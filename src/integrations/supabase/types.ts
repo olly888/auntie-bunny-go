@@ -99,6 +99,102 @@ export type Database = {
           },
         ]
       }
+      notification_receipts: {
+        Row: {
+          created_at: string
+          id: string
+          notification_id: string
+          read_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notification_id: string
+          read_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notification_id?: string
+          read_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          audience_type: string
+          audience_value: string | null
+          content: string
+          created_at: string
+          created_by: string | null
+          id: string
+          route: string | null
+          route_params: Json | null
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          audience_type?: string
+          audience_value?: string | null
+          content: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          route?: string | null
+          route_params?: Json | null
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          audience_type?: string
+          audience_value?: string | null
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          route?: string | null
+          route_params?: Json | null
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      offline_logs: {
+        Row: {
+          created_at: string
+          duration_minutes: number | null
+          id: string
+          offline_at: string
+          online_at: string | null
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          offline_at?: string
+          online_at?: string | null
+          reason: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          offline_at?: string
+          online_at?: string | null
+          reason?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       order_photos: {
         Row: {
           created_at: string
@@ -139,16 +235,26 @@ export type Database = {
           completed_at: string | null
           contact_name: string | null
           contact_phone: string | null
+          coupon_discount: number
           created_at: string
           distance_minutes: number | null
           duration_minutes: number
           id: string
           latitude: number | null
           longitude: number | null
+          paid_amount: number
+          payment_method: string | null
+          payment_status: string
           payout: number
+          platform_revenue: number | null
+          refund_amount: number
+          settled: boolean
+          settled_at: string | null
+          settled_month: string | null
           started_at: string | null
           status: string
           store_id: string | null
+          total_amount: number
           type: string
           updated_at: string
         }
@@ -159,16 +265,26 @@ export type Database = {
           completed_at?: string | null
           contact_name?: string | null
           contact_phone?: string | null
+          coupon_discount?: number
           created_at?: string
           distance_minutes?: number | null
           duration_minutes: number
           id?: string
           latitude?: number | null
           longitude?: number | null
+          paid_amount?: number
+          payment_method?: string | null
+          payment_status?: string
           payout: number
+          platform_revenue?: number | null
+          refund_amount?: number
+          settled?: boolean
+          settled_at?: string | null
+          settled_month?: string | null
           started_at?: string | null
           status?: string
           store_id?: string | null
+          total_amount?: number
           type: string
           updated_at?: string
         }
@@ -179,16 +295,26 @@ export type Database = {
           completed_at?: string | null
           contact_name?: string | null
           contact_phone?: string | null
+          coupon_discount?: number
           created_at?: string
           distance_minutes?: number | null
           duration_minutes?: number
           id?: string
           latitude?: number | null
           longitude?: number | null
+          paid_amount?: number
+          payment_method?: string | null
+          payment_status?: string
           payout?: number
+          platform_revenue?: number | null
+          refund_amount?: number
+          settled?: boolean
+          settled_at?: string | null
+          settled_month?: string | null
           started_at?: string | null
           status?: string
           store_id?: string | null
+          total_amount?: number
           type?: string
           updated_at?: string
         }
@@ -202,34 +328,115 @@ export type Database = {
           },
         ]
       }
+      payroll_adjustments: {
+        Row: {
+          adjustment_month: string
+          bonus_amount: number
+          created_at: string
+          created_by: string
+          id: string
+          notes: string | null
+          penalty_amount: number
+          performance_level: string | null
+          updated_at: string
+          worker_id: string
+        }
+        Insert: {
+          adjustment_month: string
+          bonus_amount?: number
+          created_at?: string
+          created_by: string
+          id?: string
+          notes?: string | null
+          penalty_amount?: number
+          performance_level?: string | null
+          updated_at?: string
+          worker_id: string
+        }
+        Update: {
+          adjustment_month?: string
+          bonus_amount?: number
+          created_at?: string
+          created_by?: string
+          id?: string
+          notes?: string | null
+          penalty_amount?: number
+          performance_level?: string | null
+          updated_at?: string
+          worker_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
+          avatar_url: string | null
           created_at: string
+          emergency_contact: string | null
+          emergency_phone: string | null
+          employee_id: string | null
+          employment_type: string | null
+          first_login_at: string | null
           full_name: string | null
+          gender: string | null
           id: string
+          id_card_number: string | null
+          last_password_change_at: string | null
           phone: string | null
+          prejob_training: Database["public"]["Enums"]["prejob_training_status"]
+          prejob_training_completed_at: string | null
+          require_password_change: boolean
           role: string
+          skill_level: Database["public"]["Enums"]["skill_level"]
           store_id: string | null
+          training_notes: string | null
           updated_at: string
           wecom_qr_url: string | null
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string
+          emergency_contact?: string | null
+          emergency_phone?: string | null
+          employee_id?: string | null
+          employment_type?: string | null
+          first_login_at?: string | null
           full_name?: string | null
+          gender?: string | null
           id: string
+          id_card_number?: string | null
+          last_password_change_at?: string | null
           phone?: string | null
+          prejob_training?: Database["public"]["Enums"]["prejob_training_status"]
+          prejob_training_completed_at?: string | null
+          require_password_change?: boolean
           role?: string
+          skill_level?: Database["public"]["Enums"]["skill_level"]
           store_id?: string | null
+          training_notes?: string | null
           updated_at?: string
           wecom_qr_url?: string | null
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string
+          emergency_contact?: string | null
+          emergency_phone?: string | null
+          employee_id?: string | null
+          employment_type?: string | null
+          first_login_at?: string | null
           full_name?: string | null
+          gender?: string | null
           id?: string
+          id_card_number?: string | null
+          last_password_change_at?: string | null
           phone?: string | null
+          prejob_training?: Database["public"]["Enums"]["prejob_training_status"]
+          prejob_training_completed_at?: string | null
+          require_password_change?: boolean
           role?: string
+          skill_level?: Database["public"]["Enums"]["skill_level"]
           store_id?: string | null
+          training_notes?: string | null
           updated_at?: string
           wecom_qr_url?: string | null
         }
@@ -242,6 +449,126 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      provider_certifications: {
+        Row: {
+          auto_verified: boolean
+          created_at: string
+          health_cert_expires_at: string | null
+          health_cert_no: string | null
+          health_cert_url: string | null
+          id: string
+          id_card_back_url: string | null
+          id_card_front_url: string | null
+          id_card_number: string | null
+          notes: string | null
+          provider_id: string
+          status: Database["public"]["Enums"]["provider_cert_status"]
+          updated_at: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          auto_verified?: boolean
+          created_at?: string
+          health_cert_expires_at?: string | null
+          health_cert_no?: string | null
+          health_cert_url?: string | null
+          id?: string
+          id_card_back_url?: string | null
+          id_card_front_url?: string | null
+          id_card_number?: string | null
+          notes?: string | null
+          provider_id: string
+          status?: Database["public"]["Enums"]["provider_cert_status"]
+          updated_at?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          auto_verified?: boolean
+          created_at?: string
+          health_cert_expires_at?: string | null
+          health_cert_no?: string | null
+          health_cert_url?: string | null
+          id?: string
+          id_card_back_url?: string | null
+          id_card_front_url?: string | null
+          id_card_number?: string | null
+          notes?: string | null
+          provider_id?: string
+          status?: Database["public"]["Enums"]["provider_cert_status"]
+          updated_at?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_certifications_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_certifications_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recruit_applications: {
+        Row: {
+          age: number | null
+          available_time: string | null
+          created_at: string
+          experience_years: number | null
+          gender: string | null
+          id: string
+          motivation: string | null
+          name: string
+          notes: string | null
+          phone: string
+          referrer_code: string | null
+          status: string
+          updated_at: string
+          work_area: string | null
+        }
+        Insert: {
+          age?: number | null
+          available_time?: string | null
+          created_at?: string
+          experience_years?: number | null
+          gender?: string | null
+          id?: string
+          motivation?: string | null
+          name: string
+          notes?: string | null
+          phone: string
+          referrer_code?: string | null
+          status?: string
+          updated_at?: string
+          work_area?: string | null
+        }
+        Update: {
+          age?: number | null
+          available_time?: string | null
+          created_at?: string
+          experience_years?: number | null
+          gender?: string | null
+          id?: string
+          motivation?: string | null
+          name?: string
+          notes?: string | null
+          phone?: string
+          referrer_code?: string | null
+          status?: string
+          updated_at?: string
+          work_area?: string | null
+        }
+        Relationships: []
       }
       referral_events: {
         Row: {
@@ -332,6 +659,51 @@ export type Database = {
           },
         ]
       }
+      settlement_configs: {
+        Row: {
+          created_at: string
+          created_by: string
+          duration_minutes: number
+          effective_from: string
+          id: string
+          is_active: boolean
+          service_item: string
+          service_type: string
+          settle_price_per_minute: number
+          updated_at: string
+          updated_by: string | null
+          user_price_per_minute: number
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          duration_minutes: number
+          effective_from?: string
+          id?: string
+          is_active?: boolean
+          service_item: string
+          service_type: string
+          settle_price_per_minute: number
+          updated_at?: string
+          updated_by?: string | null
+          user_price_per_minute: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          duration_minutes?: number
+          effective_from?: string
+          id?: string
+          is_active?: boolean
+          service_item?: string
+          service_type?: string
+          settle_price_per_minute?: number
+          updated_at?: string
+          updated_by?: string | null
+          user_price_per_minute?: number
+        }
+        Relationships: []
+      }
       stores: {
         Row: {
           address: string | null
@@ -353,11 +725,66 @@ export type Database = {
         }
         Relationships: []
       }
+      ui_permissions: {
+        Row: {
+          action: string
+          allowed: boolean
+          created_at: string
+          id: string
+          module: string
+          role: string
+          updated_at: string
+          updated_by: string
+        }
+        Insert: {
+          action: string
+          allowed?: boolean
+          created_at?: string
+          id?: string
+          module: string
+          role: string
+          updated_at?: string
+          updated_by: string
+        }
+        Update: {
+          action?: string
+          allowed?: boolean
+          created_at?: string
+          id?: string
+          module?: string
+          role?: string
+          updated_at?: string
+          updated_by?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      admin_search_profiles: {
+        Args: { search_term: string }
+        Returns: {
+          created_at: string
+          full_name: string
+          id: string
+          phone: string
+          role: string
+          store_id: string
+          store_name: string
+          updated_at: string
+        }[]
+      }
+      bootstrap_admin_account: {
+        Args: {
+          p_email: string
+          p_password: string
+          p_phone: string
+          p_token: string
+        }
+        Returns: Json
+      }
       claim_order: {
         Args: { order_id: string }
         Returns: boolean
@@ -430,13 +857,37 @@ export type Database = {
           updated_at: string
         }[]
       }
+      get_user_notifications: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          content: string
+          created_at: string
+          id: string
+          is_read: boolean
+          route: string
+          route_params: Json
+          title: string
+          type: string
+        }[]
+      }
+      mark_all_notifications_read: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      mark_notification_read: {
+        Args: { notification_id: string }
+        Returns: boolean
+      }
       update_order_status: {
         Args: { new_status: string; order_id: string }
         Returns: boolean
       }
     }
     Enums: {
+      prejob_training_status: "not_started" | "in_progress" | "completed"
+      provider_cert_status: "pending" | "verified" | "rejected"
       referral_event_type: "scan" | "register" | "qualify" | "reward"
+      skill_level: "junior" | "mid" | "senior" | "expert"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -564,7 +1015,10 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      prejob_training_status: ["not_started", "in_progress", "completed"],
+      provider_cert_status: ["pending", "verified", "rejected"],
       referral_event_type: ["scan", "register", "qualify", "reward"],
+      skill_level: ["junior", "mid", "senior", "expert"],
     },
   },
 } as const
