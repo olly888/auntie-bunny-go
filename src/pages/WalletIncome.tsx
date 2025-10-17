@@ -6,50 +6,28 @@ import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { zhCN } from "date-fns/locale";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const WalletIncome = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('all');
   
-  // Mock static data for demo purposes
-  const mockOrders = [
-    {
-      id: "order_001",
-      type: "cleaning",
-      payout: 85.50,
-      address: "华润城润府",
-      duration_minutes: 120,
-      completed_at: new Date("2024-01-15T10:30:00"),
-      settled: true
+  // 从数据库获取真实订单数据
+  const { data: orders = [], isLoading } = useQuery({
+    queryKey: ['income-orders'],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('get_filtered_orders');
+      
+      if (error) throw error;
+      
+      // 只返回已完成的订单
+      return (data || []).filter((order: any) => 
+        order.status === 'completed' && order.completed_at
+      );
     },
-    {
-      id: "order_002", 
-      type: "maintenance",
-      payout: 120.00,
-      address: "万科云城",
-      duration_minutes: 90,
-      completed_at: new Date("2024-01-14T14:20:00"),
-      settled: true
-    },
-    {
-      id: "order_003",
-      type: "delivery", 
-      payout: 45.00,
-      address: "海岸城",
-      duration_minutes: 60,
-      completed_at: new Date("2024-01-13T16:45:00"),
-      settled: false
-    },
-    {
-      id: "order_004",
-      type: "cleaning",
-      payout: 95.00,
-      address: "深业上城",
-      duration_minutes: 150,
-      completed_at: new Date("2024-01-12T09:15:00"),
-      settled: false
-    }
-  ];
+  });
 
   const getOrderTypeLabel = (type: string) => {
     const typeMap: { [key: string]: string } = {
@@ -72,10 +50,10 @@ const WalletIncome = () => {
   };
 
   // Filter orders based on active tab
-  const filteredOrders = mockOrders.filter(order => {
+  const filteredOrders = orders.filter((order: any) => {
     if (activeTab === 'all') return true;
-    if (activeTab === 'settled') return order.settled;
-    if (activeTab === 'pending') return !order.settled;
+    if (activeTab === 'settled') return order.settled === true;
+    if (activeTab === 'pending') return order.settled !== true;
     return true;
   });
 
@@ -106,10 +84,22 @@ const WalletIncome = () => {
           
           <TabsContent value={activeTab} className="mt-4">
             <div className="space-y-3">
-              {filteredOrders.length === 0 ? (
+              {isLoading ? (
+                <div className="space-y-3">
+                  {[1, 2, 3].map((i) => (
+                    <Skeleton key={i} className="h-32 w-full" />
+                  ))}
+                </div>
+              ) : filteredOrders.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <div className="text-lg mb-2">暂无收入记录</div>
-                  <div className="text-sm">该分类下没有订单记录</div>
+                  <div className="text-sm">
+                    {activeTab === 'all' 
+                      ? '还没有完成的订单记录' 
+                      : activeTab === 'settled'
+                      ? '暂无已结算的订单'
+                      : '暂无待结算的订单'}
+                  </div>
                 </div>
               ) : (
                 filteredOrders.map((order: any) => (
