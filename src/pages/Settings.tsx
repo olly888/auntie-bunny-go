@@ -1,53 +1,13 @@
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { Card, CardContent } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Bell, HelpCircle, LogOut } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Settings = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  
-  const [settings, setSettings] = useState({
-    notifications: {
-      newOrders: true,
-      systemMessages: true,
-      trainingReminders: false
-    }
-  });
-
-  // Load settings from localStorage on mount
-  useEffect(() => {
-    const saved = localStorage.getItem("user-settings");
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        setSettings(prev => ({ ...prev, ...parsed }));
-      } catch (error) {
-        console.error("Failed to parse saved settings:", error);
-      }
-    }
-  }, []);
-
-  // Save settings to localStorage whenever settings change
-  useEffect(() => {
-    localStorage.setItem("user-settings", JSON.stringify(settings));
-  }, [settings]);
-
-  const updateNestedSetting = (category: keyof typeof settings, key: string, value: any) => {
-    setSettings(prev => ({
-      ...prev,
-      [category]: {
-        ...(prev[category] as any),
-        [key]: value
-      }
-    }));
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -66,54 +26,6 @@ const Settings = () => {
       </div>
 
       <div className="max-w-md mx-auto p-4 space-y-6">
-        {/* Notification Settings */}
-        <Card>
-          <CardContent className="space-y-4 pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium">新订单通知</p>
-                <p className="text-xs text-muted-foreground">
-                  收到新订单时推送通知
-                </p>
-              </div>
-              <Switch
-                checked={settings.notifications.newOrders}
-                onCheckedChange={(checked) => updateNestedSetting("notifications", "newOrders", checked)}
-              />
-            </div>
-
-            <Separator />
-
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium">系统消息</p>
-                <p className="text-xs text-muted-foreground">
-                  接收系统更新和维护通知
-                </p>
-              </div>
-              <Switch
-                checked={settings.notifications.systemMessages}
-                onCheckedChange={(checked) => updateNestedSetting("notifications", "systemMessages", checked)}
-              />
-            </div>
-
-            <Separator />
-
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium">培训提醒</p>
-                <p className="text-xs text-muted-foreground">
-                  培训课程和考试提醒
-                </p>
-              </div>
-              <Switch
-                checked={settings.notifications.trainingReminders}
-                onCheckedChange={(checked) => updateNestedSetting("notifications", "trainingReminders", checked)}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Legal and Terms */}
         <Card>
           <CardContent className="space-y-4 pt-6">

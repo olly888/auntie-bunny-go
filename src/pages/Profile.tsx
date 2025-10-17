@@ -7,13 +7,13 @@ const Profile = () => {
   const navigate = useNavigate();
 
   const menuItems = [
-    { icon: User, label: "个人信息", description: "管理头像、姓名、证件等个人资料", path: "/profile/details" },
-    { icon: FileText, label: "电子合同", description: "查看已签署的协议", path: "/profile/agreements" },
-    { icon: Star, label: "我的评价", description: "查看用户给出的所有历史评价", path: "/reviews" },
-    { icon: GraduationCap, label: "技能培训", description: "课程学习、技能认证、测试考核", path: "/skills-training" },
-    { icon: HelpCircle, label: "帮助中心", description: "查看平台规则和常见问题解答", path: "/help" },
-    { icon: MessageCircle, label: "联系平台/申诉", description: "提供平台客服电话或申诉表单入口", path: "/contact" },
-    { icon: Settings, label: "系统设置", description: "退出登录等", path: "/settings" },
+    { icon: User, label: "个人信息", path: "/profile/details" },
+    { icon: FileText, label: "电子合同", path: "/profile/agreements" },
+    { icon: Star, label: "我的评价", path: "/reviews" },
+    { icon: GraduationCap, label: "技能培训", path: "/skills-training" },
+    { icon: HelpCircle, label: "帮助中心", path: "/help" },
+    { icon: MessageCircle, label: "联系平台/申诉", path: "/contact" },
+    { icon: Settings, label: "系统设置", path: "/settings" },
   ];
 
   return (
@@ -30,7 +30,6 @@ const Profile = () => {
               <h2 className="text-lg font-semibold text-foreground">
                 李阿姨 <span className="text-sm font-normal text-muted-foreground">(工号: TDD001234)</span>
               </h2>
-              <p className="text-sm text-muted-foreground">所属门店：兔到到·大冲华润城店</p>
             </div>
           </div>
         </div>
@@ -63,10 +62,7 @@ const Profile = () => {
               >
                 <div className="flex items-center gap-3">
                   <item.icon className="w-5 h-5 text-primary" />
-                  <div className="text-left">
-                    <div className="text-base text-foreground">{item.label}</div>
-                    <div className="text-xs text-muted-foreground">{item.description}</div>
-                  </div>
+                  <div className="text-base text-foreground">{item.label}</div>
                 </div>
                 <ChevronRight className="w-5 h-5 text-muted-foreground" />
               </Button>

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Rabbit } from "lucide-react";
+import brandLogo from "@/assets/brand_logo.png";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -93,32 +93,29 @@ const Auth = () => {
   return (
     <>
       <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12 bg-gradient-to-b from-primary/5 via-background to-background">
-        {/* Logo */}
-        <div className="w-32 h-32 bg-white rounded-3xl shadow-xl flex items-center justify-center mb-8 animate-in fade-in zoom-in duration-500">
-          <Rabbit className="w-20 h-20 text-primary" />
+        {/* Logo - 直接与背景融合 */}
+        <img 
+          src={brandLogo} 
+          alt="兔到到" 
+          className="h-28 w-auto mb-6 animate-in fade-in zoom-in duration-500"
+        />
+
+        {/* 产品定位徽章 */}
+        <div className="inline-flex items-center px-6 py-2.5 bg-primary/10 rounded-full mb-12 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
+          <span className="text-lg font-medium text-primary">兔管家端</span>
         </div>
 
-        {/* Brand Name */}
-        <h1 className="text-5xl font-bold text-foreground mb-3 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
-          兔到到
-        </h1>
-
-        {/* Badge */}
-        <div className="inline-flex items-center px-5 py-2 bg-primary/10 rounded-full mb-4 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
-          <span className="text-base font-medium text-primary">兔管家端</span>
-        </div>
-
-        {/* Value Proposition */}
-        <h2 className="text-3xl font-semibold text-foreground mb-3 text-center animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
+        {/* 价值主张 */}
+        <h2 className="text-3xl font-semibold text-foreground mb-3 text-center animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
           自由接单 随时赚钱
         </h2>
-        <p className="text-base text-muted-foreground mb-12 text-center max-w-xs animate-in fade-in slide-in-from-bottom-4 duration-500 delay-400">
+        <p className="text-base text-muted-foreground mb-16 text-center max-w-xs animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
           灵活工作 收入丰厚<br />月入过万不是梦
         </p>
 
-        {/* Main CTA - One Click Login */}
+        {/* 主要操作按钮 */}
         <Button
-          className="w-full max-w-sm h-20 text-xl font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-2xl rounded-2xl mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-500"
+          className="w-full max-w-sm h-14 text-lg font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-2xl rounded-2xl mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-400"
           onClick={handleOneClickLogin}
           disabled={loading || !agreedToTerms}
         >
@@ -128,12 +125,12 @@ const Auth = () => {
               登录中...
             </span>
           ) : (
-            "📱 本机号码一键登录"
+            "本机号码一键登录"
           )}
         </Button>
 
-        {/* Terms Checkbox */}
-        <div className="flex items-start gap-2 max-w-sm animate-in fade-in duration-500 delay-600">
+        {/* 协议勾选 */}
+        <div className="flex items-start gap-2 max-w-sm animate-in fade-in duration-500 delay-500">
           <Checkbox
             id="terms"
             checked={agreedToTerms}
@@ -155,8 +152,8 @@ const Auth = () => {
           </Label>
         </div>
 
-        {/* Footer */}
-        <div className="mt-16 text-center text-sm text-muted-foreground animate-in fade-in duration-500 delay-700">
+        {/* 页脚 */}
+        <div className="mt-16 text-center text-sm text-muted-foreground animate-in fade-in duration-500 delay-600">
           <p>技术支持：兔到到科技</p>
         </div>
       </div>
