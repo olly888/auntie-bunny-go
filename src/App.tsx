@@ -9,32 +9,31 @@ import Auth from "./pages/Auth";
 import TaskHall from "./pages/TaskHall";
 import OrderGrab from "./pages/OrderGrab";
 import OrderService from "./pages/OrderService";
-import Workbench from "./pages/Workbench";
-import Income from "./pages/Income";
-import IncomeDetails from "./pages/IncomeDetails";
-import MyPerformance from "./pages/MyPerformance";
-import MyBankCards from "./pages/MyBankCards";
-import SalaryExplanation from "./pages/SalaryExplanation";
-import Withdraw from "./pages/Withdraw";
-import WithdrawHistory from "./pages/WithdrawHistory";
-import MyWallet from "./pages/MyWallet";
-import SkillCertification from "./pages/SkillCertification";
-import ContactSupport from "./pages/ContactSupport";
-import SettlementRules from "./pages/SettlementRules";
 import Profile from "./pages/Profile";
 import ProfileDetails from "./pages/ProfileDetails";
-import Settings from "./pages/Settings";
-import Help from "./pages/Help";
-import TrainingCenter from "./pages/TrainingCenter";
-import CoursePlayer from "./pages/CoursePlayer";
-import Reviews from "./pages/Reviews";
+import MyPerformance from "./pages/MyPerformance";
+import Withdraw from "./pages/Withdraw";
+import WithdrawHistory from "./pages/WithdrawHistory";
+import MyBankCards from "./pages/MyBankCards";
 import Invitations from "./pages/Invitations";
 import Insurance from "./pages/Insurance";
-import Notifications from "./pages/Notifications";
 import Security from "./pages/Security";
-import LegalServiceAgreement from "./pages/LegalServiceAgreement";
+import Settings from "./pages/Settings";
+import Help from "./pages/Help";
+import ContactSupport from "./pages/ContactSupport";
+import SalaryExplanation from "./pages/SalaryExplanation";
+import CoursePlayer from "./pages/CoursePlayer";
+import Reviews from "./pages/Reviews";
+import Notifications from "./pages/Notifications";
 import LegalPrivacyPolicy from "./pages/LegalPrivacyPolicy";
+import LegalServiceAgreement from "./pages/LegalServiceAgreement";
+import Workbench from "./pages/Workbench";
 import NotFound from "./pages/NotFound";
+import MyWallet from "./pages/MyWallet";
+import SettlementRules from "./pages/SettlementRules";
+import WalletIncome from "./pages/WalletIncome";
+import SkillsTraining from "./pages/SkillsTraining";
+import CertificationTest from "./pages/CertificationTest";
 
 const queryClient = new QueryClient();
 
@@ -51,28 +50,36 @@ function App() {
           <Route path="/grab/:orderId" element={<OrderGrab />} />
           <Route path="/service/:orderId" element={<OrderService />} />
           <Route path="/workbench" element={<Workbench />} />
-          <Route path="/income" element={<Income />} />
-          <Route path="/income/details" element={<IncomeDetails />} />
-          <Route path="/income/salary" element={<SalaryExplanation />} />
-          <Route path="/income/settlement-rules" element={<SettlementRules />} />
-          <Route path="/withdraw" element={<Withdraw />} />
-          <Route path="/withdraw/history" element={<WithdrawHistory />} />
-          <Route path="/wallet" element={<MyWallet />} />
-          <Route path="/skills" element={<SkillCertification />} />
-          <Route path="/contact" element={<ContactSupport />} />
+          
           <Route path="/profile" element={<Profile />} />
           <Route path="/profile/details" element={<ProfileDetails />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/help" element={<Help />} />
-          <Route path="/training" element={<TrainingCenter />} />
-          <Route path="/training/course/:courseId" element={<CoursePlayer />} />
+          
+          {/* Wallet & Income Routes */}
+          <Route path="/wallet" element={<MyWallet />} />
+          <Route path="/wallet/income" element={<WalletIncome />} />
+          <Route path="/withdraw" element={<Withdraw />} />
+          <Route path="/withdraw/history" element={<WithdrawHistory />} />
+          <Route path="/income/settlement-rules" element={<SettlementRules />} />
+          
+          {/* Skills Training Routes */}
+          <Route path="/skills-training" element={<SkillsTraining />} />
+          <Route path="/skills-training/course/:courseId" element={<CoursePlayer />} />
+          <Route path="/skills-training/test/:skillId" element={<CertificationTest />} />
+          
+          {/* Other Profile Routes */}
           <Route path="/reviews" element={<Reviews />} />
-          <Route path="/notifications" element={<Notifications />} />
+          <Route path="/help" element={<Help />} />
+          <Route path="/contact" element={<ContactSupport />} />
           <Route path="/security" element={<Security />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/notifications" element={<Notifications />} />
+          <Route path="/income/salary" element={<SalaryExplanation />} />
+          
+          {/* Legal Routes */}
           <Route path="/legal/service-agreement" element={<LegalServiceAgreement />} />
           <Route path="/legal/privacy-policy" element={<LegalPrivacyPolicy />} />
           
-          {/* MVP范围外 - 保留路由但已从菜单移除 */}
+          {/* MVP Out-of-Scope Routes (kept for V1.1) */}
           <Route path="/income/performance" element={<MyPerformance />} />
           <Route path="/wallet/cards" element={<MyBankCards />} />
           <Route path="/invitations" element={<Invitations />} />

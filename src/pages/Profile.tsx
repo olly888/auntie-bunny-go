@@ -3,17 +3,16 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { useNavigate } from "react-router-dom";
-import { User, Wallet, Star, GraduationCap, Settings, ChevronRight, MessageCircle, HelpCircle, Award } from "lucide-react";
+import { User, Wallet, Star, GraduationCap, Settings, ChevronRight, MessageCircle, HelpCircle } from "lucide-react";
 
 const Profile = () => {
   const navigate = useNavigate();
   const { isOnline, setIsOnline } = useOnlineStatus();
 
   const menuItems = [
-    { icon: Wallet, label: "我的钱包", description: "查看收入流水，了解结算规则", path: "/wallet" },
+    { icon: Wallet, label: "我的钱包", description: "查看余额、申请提现、收入明细", path: "/wallet" },
     { icon: Star, label: "我的评价", description: "查看用户给出的所有历史评价", path: "/reviews" },
-    { icon: GraduationCap, label: "服务培训", description: "进入培训中心，复习SOP或学习新技能", path: "/training" },
-    { icon: Award, label: "技能认证", description: "查看自己已掌握的服务技能标签", path: "/skills" },
+    { icon: GraduationCap, label: "技能培训", description: "课程学习、技能认证、测试考核", path: "/skills-training" },
     { icon: HelpCircle, label: "帮助中心", description: "查看平台规则和常见问题解答", path: "/help" },
     { icon: MessageCircle, label: "联系平台/申诉", description: "提供平台客服电话或申诉表单入口", path: "/contact" },
     { icon: Settings, label: "系统设置", description: "退出登录等", path: "/settings" },

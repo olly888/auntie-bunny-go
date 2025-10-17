@@ -1,105 +1,119 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Wallet, ChevronRight, TrendingUp } from "lucide-react";
+import { BottomNav } from "@/components/ui/bottom-nav";
+import { ArrowLeft, Wallet, ChevronRight, TrendingUp, Clock, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const MyWallet = () => {
   const navigate = useNavigate();
 
-  // 模拟数据 - 实际项目中从API获取
-  const walletData = {
-    withdrawableBalance: 128.00,
-    pendingAmount: 50.00,
-    totalEarnings: 2580.50
-  };
+  // Mock data - replace with actual API call
+  const withdrawableBalance = 1285.50;
+  const pendingAmount = 342.00;
+  const totalIncome = 8756.30;
+  
+  // Calculate current month income (mock)
+  const currentMonthIncome = 1627.50;
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-md mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-border">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={() => navigate(-1)}
-            className="p-2"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <h1 className="text-lg font-semibold text-foreground">我的钱包</h1>
-          <div className="w-9" />
+    <div className="min-h-screen bg-background pb-20">
+      <div className="max-w-md mx-auto p-4 space-y-6">
+        
+        {/* 页面标题 */}
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-foreground">我的钱包</h1>
         </div>
 
-        <div className="p-4 space-y-6">
-          {/* 核心数据卡片 */}
-          <Card className="bg-gradient-primary text-primary-foreground shadow-card">
-            <CardContent className="p-6">
-              <div className="space-y-6">
-                {/* 可提现余额 */}
-                <div className="text-center">
-                  <div className="text-sm opacity-90 mb-2">可提现余额</div>
-                  <div className="text-4xl font-bold mb-1">¥{walletData.withdrawableBalance.toFixed(2)}</div>
-                </div>
+        {/* 核心数据卡片 */}
+        <div className="bg-gradient-card rounded-xl p-6 shadow-card border border-primary/20">
+          <div className="space-y-6">
+            {/* 可提现余额 */}
+            <div className="text-center">
+              <div className="text-sm text-muted-foreground mb-2">可提现余额</div>
+              <div className="text-4xl font-bold text-foreground mb-1">¥{withdrawableBalance.toFixed(2)}</div>
+            </div>
 
-                {/* 其他数据 */}
-                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-primary-foreground/20">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold">¥{walletData.pendingAmount.toFixed(2)}</div>
-                    <div className="text-xs opacity-80 mt-1">审核中金额</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold">¥{walletData.totalEarnings.toFixed(2)}</div>
-                    <div className="text-xs opacity-80 mt-1">累计总收入</div>
-                  </div>
-                </div>
+            {/* 其他数据 */}
+            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-foreground">¥{pendingAmount.toFixed(2)}</div>
+                <div className="text-xs text-muted-foreground mt-1">审核中金额</div>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* 核心按钮 - 申请提现 */}
-          <Button 
-            variant="default" 
-            size="lg" 
-            className="w-full bg-gradient-primary hover:opacity-90 text-primary-foreground shadow-button"
-            onClick={() => navigate('/withdraw')}
-          >
-            <Wallet className="w-5 h-5 mr-2" />
-            申请提现
-          </Button>
-
-          {/* 附属入口 */}
-          <Card className="shadow-card">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base text-foreground">更多服务</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Button
-                variant="ghost"
-                className="w-full justify-between h-auto p-4 hover:bg-accent"
-                onClick={() => navigate("/withdraw/history")}
-              >
-                <div className="flex items-center gap-3">
-                  <TrendingUp className="w-5 h-5 text-primary" />
-                  <span className="text-foreground">提现记录</span>
-                </div>
-                <ChevronRight className="w-5 h-5 text-muted-foreground" />
-              </Button>
-
-              <Button
-                variant="ghost"
-                className="w-full justify-between h-auto p-4 hover:bg-accent"
-                onClick={() => navigate("/income/settlement-rules")}
-              >
-                <div className="flex items-center gap-3">
-                  <Wallet className="w-5 h-5 text-primary" />
-                  <span className="text-foreground">结算规则说明</span>
-                </div>
-                <ChevronRight className="w-5 h-5 text-muted-foreground" />
-              </Button>
-            </CardContent>
-          </Card>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-foreground">¥{totalIncome.toFixed(2)}</div>
+                <div className="text-xs text-muted-foreground mt-1">累计总收入</div>
+              </div>
+            </div>
+          </div>
         </div>
+
+        {/* 核心按钮 - 申请提现 */}
+        <Button 
+          variant="default" 
+          size="lg" 
+          className="w-full h-14 text-lg bg-gradient-primary hover:opacity-90 text-primary-foreground shadow-button"
+          onClick={() => navigate('/withdraw')}
+        >
+          <Wallet className="w-6 h-6 mr-2" />
+          申请提现
+        </Button>
+
+        {/* 附属入口 */}
+        <div className="bg-card rounded-xl shadow-card overflow-hidden">
+          <Button
+            variant="ghost"
+            className="w-full justify-between h-auto p-4 hover:bg-accent rounded-none"
+            onClick={() => navigate('/wallet/income')}
+          >
+            <div className="flex items-center gap-4">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <TrendingUp className="w-5 h-5 text-primary" />
+              </div>
+              <div className="text-left">
+                <div className="font-medium text-foreground">我的收入</div>
+                <div className="text-sm text-muted-foreground">查看详细收入记录</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="text-right mr-2">
+                <div className="text-lg font-bold text-foreground">¥{currentMonthIncome.toFixed(2)}</div>
+                <div className="text-xs text-muted-foreground">本月</div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-muted-foreground" />
+            </div>
+          </Button>
+          
+          <div className="h-px bg-border" />
+          
+          <Button
+            variant="ghost"
+            className="w-full justify-between h-auto py-3 px-4 hover:bg-accent rounded-none"
+            onClick={() => navigate('/withdraw/history')}
+          >
+            <div className="flex items-center gap-3">
+              <Clock className="w-5 h-5 text-primary" />
+              <span className="text-base text-foreground">提现记录</span>
+            </div>
+            <ChevronRight className="w-5 h-5 text-muted-foreground" />
+          </Button>
+          
+          <div className="h-px bg-border" />
+          
+          <Button
+            variant="ghost"
+            className="w-full justify-between h-auto py-3 px-4 hover:bg-accent rounded-none"
+            onClick={() => navigate('/income/settlement-rules')}
+          >
+            <div className="flex items-center gap-3">
+              <FileText className="w-5 h-5 text-primary" />
+              <span className="text-base text-foreground">结算规则说明</span>
+            </div>
+            <ChevronRight className="w-5 h-5 text-muted-foreground" />
+          </Button>
+        </div>
+        
       </div>
+      
+      <BottomNav />
     </div>
   );
 };
