@@ -30,8 +30,8 @@ const getOnboardingTasks = (profile: any): OnboardingTask[] => {
       payout: '0',
       isOnboardingTask: true,
       completed: profile?.is_id_verified || false,
-      route: '/profile/details',
-      description: '上传身份证并完成实名认证'
+      route: '/certification',
+      description: '完成身份证扫描和人脸识别认证'
     },
     {
       id: 'onboarding-training',
@@ -66,16 +66,15 @@ const Workbench = () => {
         const parsedProfile = JSON.parse(storedProfile);
         setProfile(parsedProfile);
         
-        // 检查是否完成所有新手任务
+        // 检查是否完成所有新手任务并自动激活
         if (parsedProfile.is_id_verified && parsedProfile.is_training_completed) {
           if (parsedProfile.onboarding_status !== 'activated') {
-            // 自动激活账户
             parsedProfile.onboarding_status = 'activated';
             localStorage.setItem("mock_user_profile", JSON.stringify(parsedProfile));
             
             toast({
               title: "🎉 账户已激活！",
-              description: "恭喜您完成所有新手任务，现在可以上线接单了！",
+              description: "恭喜您完成所有新手任务，现在可以开始接单赚钱了！",
               duration: 5000
             });
           }
@@ -85,10 +84,9 @@ const Workbench = () => {
     
     loadProfile();
     
-    // 监听 storage 事件（跨页面同步）
     window.addEventListener('storage', loadProfile);
     return () => window.removeEventListener('storage', loadProfile);
-  }, []);
+  }, [toast]);
 
   // 刷新 profile
   const refreshProfile = () => {

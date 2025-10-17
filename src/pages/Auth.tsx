@@ -1,290 +1,185 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { toast } from "@/hooks/use-toast";
-import { Phone, Rabbit } from "lucide-react";
-import { useMockAuth } from "@/hooks/useMockAuth";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { Rabbit } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
-export default function Auth() {
+const Auth = () => {
   const navigate = useNavigate();
-  const { loginWithWeChat, sendOtp, loginWithPhone } = useMockAuth();
-  const [showPhoneLogin, setShowPhoneLogin] = useState(false);
-  const [phone, setPhone] = useState('');
-  const [code, setCode] = useState('');
-  const [countdown, setCountdown] = useState(0);
+  const { toast } = useToast();
+  const [agreedToTerms, setAgreedToTerms] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState("");
 
-  // 检查是否已登录
   useEffect(() => {
-    const storedUser = localStorage.getItem("mock_user");
-    if (storedUser) {
-      const profile = localStorage.getItem("mock_user_profile");
-      if (profile) {
-        navigate('/workbench');
-      } else {
-        navigate('/register');
-      }
+    const mockUser = localStorage.getItem("mock_user");
+    const mockProfile = localStorage.getItem("mock_user_profile");
+    
+    if (mockUser && mockProfile) {
+      navigate("/workbench", { replace: true });
     }
   }, [navigate]);
 
-  // 倒计时效果
-  useEffect(() => {
-    if (countdown > 0) {
-      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [countdown]);
-
-  // 微信一键登录
-  const handleWeChatLogin = async () => {
+  const handleOneClickLogin = async () => {
     if (!agreedToTerms) {
       toast({
         title: "请先同意协议",
-        description: "请勾选同意《服务协议》与《隐私政策》",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    setLoading(true);
-    try {
-      await loginWithWeChat();
-      const profile = localStorage.getItem("mock_user_profile");
-      if (profile) {
-        navigate('/workbench');
-      } else {
-        navigate('/register');
-      }
-    } catch (error) {
-      console.error('WeChat login failed:', error);
-    }
-    setLoading(false);
-  };
-
-  // 发送验证码
-  const handleSendOtp = async () => {
-    if (!phone || phone.length !== 11) {
-      toast({
-        title: "手机号格式错误",
-        description: "请输入11位手机号",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const result = await sendOtp(phone);
-    if (result.success) {
-      setCountdown(result.countdown);
-    }
-  };
-
-  // 手机验证码登录
-  const handlePhoneLogin = async () => {
-    if (!agreedToTerms) {
-      toast({
-        title: "请先同意协议",
-        description: "请勾选同意《服务协议》与《隐私政策》",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!phone || !code) {
-      toast({
-        title: "请填写完整",
-        description: "请输入手机号和验证码",
+        description: "请阅读并同意《服务协议》和《隐私政策》",
         variant: "destructive",
       });
       return;
     }
 
     setLoading(true);
-    const result = await loginWithPhone({ phone, code });
-    
-    if (result.success) {
-      const profile = localStorage.getItem("mock_user_profile");
-      if (profile) {
-        navigate('/workbench');
+
+    // 模拟获取手机号
+    const mockPhone = "138****8888";
+    setPhoneNumber(mockPhone);
+
+    setTimeout(() => {
+      setLoading(false);
+      
+      // 检查是否已有用户
+      const existingUser = localStorage.getItem("mock_user");
+      const existingProfile = localStorage.getItem("mock_user_profile");
+
+      if (existingUser && existingProfile) {
+        // 老用户：直接登录
+        toast({
+          title: "欢迎回来！",
+          description: "正在进入工作台...",
+        });
+        setTimeout(() => navigate("/workbench"), 1000);
       } else {
-        navigate('/register');
+        // 新用户：弹窗确认
+        setShowConfirmDialog(true);
       }
-    } else {
-      toast({
-        title: "登录失败",
-        description: result.error,
-        variant: "destructive",
-      });
-    }
-    setLoading(false);
+    }, 1000);
+  };
+
+  const confirmRegister = () => {
+    setShowConfirmDialog(false);
+    
+    // 创建基础用户账户
+    const newUser = {
+      id: `user_${Date.now()}`,
+      phone: phoneNumber,
+      created_at: new Date().toISOString(),
+    };
+    
+    localStorage.setItem("mock_user", JSON.stringify(newUser));
+    
+    toast({
+      title: "开始注册",
+      description: "请选择您的服务意向区域",
+    });
+    
+    setTimeout(() => navigate("/register/location"), 1000);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-primary/5 flex flex-col">
-      {/* 顶部品牌区 */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 pt-12">
-        {/* Logo 区域 - 更大更突出 */}
-        <div className="w-24 h-24 bg-white rounded-3xl shadow-lg flex items-center justify-center mb-6">
-          <Rabbit className="w-14 h-14 text-primary" />
+    <>
+      <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12 bg-gradient-to-b from-primary/5 via-background to-background">
+        {/* Logo */}
+        <div className="w-32 h-32 bg-white rounded-3xl shadow-xl flex items-center justify-center mb-8 animate-in fade-in zoom-in duration-500">
+          <Rabbit className="w-20 h-20 text-primary" />
         </div>
-        
-        {/* 品牌名称 */}
-        <h1 className="text-4xl font-bold text-foreground mb-2">
+
+        {/* Brand Name */}
+        <h1 className="text-5xl font-bold text-foreground mb-3 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
           兔到到
         </h1>
-        
-        {/* 身份标识 */}
-        <div className="inline-flex items-center px-4 py-1.5 bg-primary/10 rounded-full mb-4">
-          <span className="text-sm font-medium text-primary">兔管家端</span>
+
+        {/* Badge */}
+        <div className="inline-flex items-center px-5 py-2 bg-primary/10 rounded-full mb-4 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
+          <span className="text-base font-medium text-primary">兔管家端</span>
         </div>
-        
-        {/* Slogan - 更有吸引力 */}
-        <h2 className="text-2xl font-semibold text-foreground mb-2">
-          加入我们，灵活赚高薪
+
+        {/* Value Proposition */}
+        <h2 className="text-3xl font-semibold text-foreground mb-3 text-center animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
+          自由接单 随时赚钱
         </h2>
-        <p className="text-sm text-muted-foreground mb-8">
-          让每一份付出都有回报
+        <p className="text-base text-muted-foreground mb-12 text-center max-w-xs animate-in fade-in slide-in-from-bottom-4 duration-500 delay-400">
+          灵活工作 收入丰厚<br />月入过万不是梦
         </p>
-        
-        {/* 提示文案 */}
-        <p className="text-sm text-center text-muted-foreground mb-4">
-          还没有账号？登录后将引导您快速注册
-        </p>
-        
-        {/* 主登录区域 */}
-        <div className="w-full max-w-sm space-y-4">
-          {/* 微信一键登录 - 巨大按钮 */}
-          <Button
-            className="w-full h-16 text-lg font-semibold bg-[#07C160] hover:bg-[#06AD56] text-white shadow-lg disabled:opacity-50"
-            onClick={handleWeChatLogin}
-            disabled={loading || !agreedToTerms}
-          >
-            <span className="mr-3 text-xl">🔑</span>
-            微信一键登录/注册
-          </Button>
-          
-          {/* 或 分隔线 */}
-          <div className="relative py-4">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-border"></div>
-            </div>
-            <div className="relative flex justify-center">
-              <button
-                onClick={() => setShowPhoneLogin(!showPhoneLogin)}
-                className="px-4 py-1 bg-background text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                或 使用手机号登录/注册
-              </button>
-            </div>
-          </div>
-          
-          {/* 手机号登录表单 - 折叠显示 */}
-          {showPhoneLogin && (
-            <Card className="border-2 animate-in slide-in-from-top-2">
-              <CardContent className="pt-6 space-y-4">
-                {/* 手机号输入 */}
-                <div className="space-y-2">
-                  <Label htmlFor="phone">手机号</Label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      id="phone"
-                      type="tel"
-                      placeholder="请输入手机号"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      maxLength={11}
-                      className="pl-10 h-12 text-base"
-                    />
-                  </div>
-                </div>
-                
-                {/* 验证码输入 */}
-                <div className="space-y-2">
-                  <Label htmlFor="code">验证码</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="code"
-                      type="text"
-                      placeholder="请输入验证码"
-                      value={code}
-                      onChange={(e) => setCode(e.target.value)}
-                      maxLength={6}
-                      className="h-12 text-base"
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={handleSendOtp}
-                      disabled={countdown > 0 || !phone}
-                      className="h-12 whitespace-nowrap px-6"
-                    >
-                      {countdown > 0 ? `${countdown}秒` : "获取验证码"}
-                    </Button>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    演示环境验证码：123456
-                  </p>
-                </div>
-                
-                {/* 登录按钮 */}
-                <Button 
-                  className="w-full h-12 text-base"
-                  onClick={handlePhoneLogin}
-                  disabled={loading || !phone || !code || !agreedToTerms}
-                >
-                  {loading ? "登录中..." : "登录/注册"}
-                </Button>
-              </CardContent>
-            </Card>
+
+        {/* Main CTA - One Click Login */}
+        <Button
+          className="w-full max-w-sm h-20 text-xl font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-2xl rounded-2xl mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-500"
+          onClick={handleOneClickLogin}
+          disabled={loading || !agreedToTerms}
+        >
+          {loading ? (
+            <span className="flex items-center gap-2">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-foreground"></div>
+              登录中...
+            </span>
+          ) : (
+            "📱 本机号码一键登录"
           )}
-        </div>
-      </div>
-      
-      {/* 底部协议区 - 更清晰的复选框 */}
-      <div className="px-6 pb-8 space-y-4">
-        <div className="flex items-start gap-3 justify-center max-w-sm mx-auto">
-          <Checkbox 
+        </Button>
+
+        {/* Terms Checkbox */}
+        <div className="flex items-start gap-2 max-w-sm animate-in fade-in duration-500 delay-600">
+          <Checkbox
             id="terms"
             checked={agreedToTerms}
             onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
             className="mt-0.5"
           />
-          <Label 
-            htmlFor="terms" 
-            className="text-sm leading-relaxed cursor-pointer"
+          <Label
+            htmlFor="terms"
+            className="text-sm text-muted-foreground leading-relaxed cursor-pointer"
           >
-            我已阅读并同意
-            <button 
-              className="text-primary font-medium mx-1" 
-              onClick={(e) => {
-                e.preventDefault();
-                navigate('/legal/service-agreement');
-              }}
-            >
+            已阅读并同意{" "}
+            <Link to="/legal/service-agreement" className="text-primary hover:underline">
               《服务协议》
-            </button>
-            与
-            <button 
-              className="text-primary font-medium mx-1"
-              onClick={(e) => {
-                e.preventDefault();
-                navigate('/legal/privacy-policy');
-              }}
-            >
+            </Link>{" "}
+            和{" "}
+            <Link to="/legal/privacy-policy" className="text-primary hover:underline">
               《隐私政策》
-            </button>
+            </Link>
           </Label>
         </div>
-        
-        <p className="text-xs text-muted-foreground text-center">
-          深圳十五分钟网络科技有限公司 提供技术支持
-        </p>
+
+        {/* Footer */}
+        <div className="mt-16 text-center text-sm text-muted-foreground animate-in fade-in duration-500 delay-700">
+          <p>技术支持：兔到到科技</p>
+        </div>
       </div>
-    </div>
+
+      {/* Confirmation Dialog for New Users */}
+      <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>确认注册</AlertDialogTitle>
+            <AlertDialogDescription>
+              该手机号 {phoneNumber} 尚未注册，是否确认要使用该号码注册并登录？
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmRegister}>
+              确认注册
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
-}
+};
+
+export default Auth;

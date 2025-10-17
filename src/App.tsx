@@ -36,6 +36,9 @@ import SkillsTraining from "./pages/SkillsTraining";
 import CertificationTest from "./pages/CertificationTest";
 import QuickRegister from "./pages/QuickRegister";
 import NewbieCourse from "./pages/NewbieCourse";
+import LocationSelection from "./pages/LocationSelection";
+import CertificationIntro from "./pages/CertificationIntro";
+import CertificationProcess from "./pages/CertificationProcess";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +52,9 @@ function App() {
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/register" element={<QuickRegister />} />
+          <Route path="/register/location" element={<LocationSelection />} />
+          <Route path="/certification" element={<CertificationIntro />} />
+          <Route path="/certification/process" element={<CertificationProcess />} />
           <Route path="/tasks" element={<TaskHall />} />
           <Route path="/grab/:orderId" element={<OrderGrab />} />
           <Route path="/service/:orderId" element={<OrderService />} />
