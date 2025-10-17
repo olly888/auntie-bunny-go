@@ -905,6 +905,15 @@ export type Database = {
         Args: { order_id: string }
         Returns: boolean
       }
+      create_demo_completed_orders: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          order_id: string
+          order_type: string
+          payout: number
+          status: string
+        }[]
+      }
       create_demo_order_for_my_store: {
         Args: Record<PropertyKey, never>
         Returns: string
