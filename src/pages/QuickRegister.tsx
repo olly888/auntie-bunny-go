@@ -123,7 +123,6 @@ const QuickRegister = () => {
                      idCardValid !== false &&
                      formData.gender && 
                      formData.age && 
-                     validateAge(formData.age) &&
                      !ageError;
 
   return (
