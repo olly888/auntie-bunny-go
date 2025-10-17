@@ -14,11 +14,19 @@ import { Progress } from "@/components/ui/progress";
 
 interface AgreementDialogProps {
   open: boolean;
+  agreementId?: string;
+  agreementTitle?: string;
   onAgree: () => void;
   onDisagree: () => void;
 }
 
-const AgreementDialog = ({ open, onAgree, onDisagree }: AgreementDialogProps) => {
+const AgreementDialog = ({ 
+  open, 
+  agreementId = "service-cooperation",
+  agreementTitle = "服务合作协议",
+  onAgree, 
+  onDisagree 
+}: AgreementDialogProps) => {
   const [readTime, setReadTime] = useState(0);
   const minReadTime = 10; // 最少阅读10秒
   const canAgree = readTime >= minReadTime;
@@ -42,7 +50,7 @@ const AgreementDialog = ({ open, onAgree, onDisagree }: AgreementDialogProps) =>
     <AlertDialog open={open}>
       <AlertDialogContent className="max-w-md max-h-[80vh]">
         <AlertDialogHeader>
-          <AlertDialogTitle>服务合作协议</AlertDialogTitle>
+          <AlertDialogTitle>{agreementTitle}</AlertDialogTitle>
           <AlertDialogDescription>
             请仔细阅读以下协议内容
           </AlertDialogDescription>

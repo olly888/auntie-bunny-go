@@ -12,8 +12,6 @@ import { OrderCard, OnboardingTask } from "@/components/order/OrderCard";
 import { OfflineReasonDialog } from "@/components/order/OfflineReasonDialog";
 import { useDemoOrders } from "@/hooks/useDemoOrders";
 import { toast } from "@/hooks/use-toast";
-import { useAgreementCheck } from "@/hooks/useAgreementCheck";
-import AgreementDialog from "@/components/AgreementDialog";
 import rabbitMascot from "@/assets/rabbit-mascot.png";
 
 // 获取新手任务列表
@@ -46,6 +44,18 @@ const getOnboardingTasks = (profile: any): OnboardingTask[] => {
       completed: profile?.is_training_completed || false,
       route: '/skills-training',
       description: '完成新人上岗学习与考核'
+    },
+    {
+      id: 'onboarding-agreement',
+      type: '📄 签署协议任务',
+      duration: '10-15分钟',
+      address: '在线签署',
+      distance: '0公里',
+      payout: '0',
+      isOnboardingTask: true,
+      completed: !!profile?.agreement_signed_at,
+      route: '/profile/agreements',
+      description: '阅读并签署服务合作协议'
     }
   ];
 };
@@ -59,7 +69,6 @@ const Workbench = () => {
   const [showGrabModal, setShowGrabModal] = useState(false);
   const [broadcastOrder, setBroadcastOrder] = useState<OrderInfo | null>(null);
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
-  const { needsAgreement, setNeedsAgreement, signAgreement } = useAgreementCheck();
 
   // 从 localStorage 加载 profile 并监听变化
   useEffect(() => {
@@ -70,7 +79,7 @@ const Workbench = () => {
         setProfile(parsedProfile);
         
         // 检查是否完成所有新手任务并自动激活
-        if (parsedProfile.is_id_verified && parsedProfile.is_training_completed) {
+        if (parsedProfile.is_id_verified && parsedProfile.is_training_completed && parsedProfile.agreement_signed_at) {
           if (parsedProfile.onboarding_status !== 'activated') {
             parsedProfile.onboarding_status = 'activated';
             localStorage.setItem("mock_user_profile", JSON.stringify(parsedProfile));
@@ -147,7 +156,7 @@ const Workbench = () => {
     if (checked && profile?.onboarding_status !== 'activated') {
       toast({
         title: "账户尚未激活",
-        description: "请先完成实名认证与新人学习",
+        description: "请先完成所有新手任务",
         action: (
           <Button 
             size="sm" 
@@ -165,12 +174,6 @@ const Workbench = () => {
     }
 
     if (checked) {
-      // 检查是否已签署协议
-      if (needsAgreement) {
-        setNeedsAgreement(true);
-        return;
-      }
-      
       setIsOnline(true);
       toast({
         title: "已上线",
@@ -179,24 +182,6 @@ const Workbench = () => {
     } else {
       setShowOfflineDialog(true);
     }
-  };
-
-  const handleAgreeAgreement = () => {
-    signAgreement();
-    setIsOnline(true);
-    toast({
-      title: "协议签署成功",
-      description: "现在可以开始接单了！"
-    });
-  };
-
-  const handleDisagreeAgreement = () => {
-    setNeedsAgreement(false);
-    toast({
-      title: "未签署协议",
-      description: "签署协议后才能上线接单",
-      variant: "destructive"
-    });
   };
 
   const confirmGoOffline = async (reason: string) => {
@@ -400,6 +385,20 @@ const Workbench = () => {
           <TabsContent value="hall" className="mt-4">
             {onboardingTasks.length > 0 || pendingOrders.length > 0 ? (
               <div className="space-y-3">
+                {/* 新手任务提示卡片 */}
+                {onboardingTasks.length > 0 && (
+                  <Card className="p-4 bg-primary/5 border-primary/20">
+                    <div className="flex items-start gap-3">
+                      <div className="text-2xl">🎯</div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-foreground mb-1">新手任务</h3>
+                        <p className="text-sm text-muted-foreground">
+                          完成以下 {onboardingTasks.length} 个任务即可激活账户，开始接单赚钱
+                        </p>
+                      </div>
+                    </div>
+                  </Card>
+                )}
                 {/* 新手任务置顶显示 */}
                 {onboardingTasks.map((task) => (
                   <OrderCard
@@ -556,13 +555,6 @@ const Workbench = () => {
         open={showOfflineDialog}
         onOpenChange={setShowOfflineDialog}
         onConfirm={confirmGoOffline}
-      />
-      
-      {/* 协议签署弹窗 */}
-      <AgreementDialog
-        open={needsAgreement}
-        onAgree={handleAgreeAgreement}
-        onDisagree={handleDisagreeAgreement}
       />
       
       <BottomNav />
