@@ -5,103 +5,47 @@ import { BottomNav } from "@/components/ui/bottom-nav";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Phone, RefreshCw, Plus, CheckCircle } from "lucide-react";
+import { RefreshCw, Plus } from "lucide-react";
 import { GrabModal, OrderInfo } from "@/components/order/GrabModal";
-import { OrderCard } from "@/components/order/OrderCard";
+import { OrderCard, OnboardingTask } from "@/components/order/OrderCard";
 import { OfflineReasonDialog } from "@/components/order/OfflineReasonDialog";
 import { useDemoOrders } from "@/hooks/useDemoOrders";
 import { toast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import rabbitMascot from "@/assets/rabbit-mascot.png";
-import { useAuthContext } from "@/contexts/AuthContext";
 
-// 新手任务卡片组件
-const OnboardingTaskCard = ({ profile, onRefresh }: { profile: any; onRefresh: () => void }) => {
-  const navigate = useNavigate();
-  
-  const tasks = [
-    {
-      id: 'id_verify',
-      title: '上传身份证并完成实名认证',
-      completed: profile?.is_id_verified || false,
-      route: '/profile/details'
-    },
-    {
-      id: 'training',
-      title: '完成新人上岗学习与考核',
-      completed: profile?.is_training_completed || false,
-      route: '/skills-training'
-    }
-  ];
-  
-  const completedCount = tasks.filter(t => t.completed).length;
-  
+// 获取新手任务列表
+const getOnboardingTasks = (profile: any): OnboardingTask[] => {
   if (profile?.onboarding_status === 'activated') {
-    return null;
+    return []; // 已激活用户不显示新手任务
   }
   
-  return (
-    <Card id="onboarding-tasks" className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20 mb-6">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">🎯 新手任务</CardTitle>
-          <Badge variant={completedCount === 2 ? "default" : "secondary"}>
-            {completedCount}/2
-          </Badge>
-        </div>
-        <CardDescription>
-          完成以下任务，即可解锁【上线接单】功能！
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-3">
-      {tasks.map((task) => (
-        <div 
-          key={task.id}
-          className="flex items-center justify-between p-3 bg-card rounded-lg"
-        >
-          <div className="flex items-center gap-3">
-            {task.completed ? (
-              <CheckCircle className="w-5 h-5 text-green-500" />
-            ) : (
-              <div className="w-5 h-5 rounded-full border-2 border-muted-foreground" />
-            )}
-            <span className={task.completed ? "line-through text-muted-foreground" : ""}>
-              {task.title}
-            </span>
-          </div>
-          {!task.completed && (
-            <Button 
-              size="sm" 
-              variant="outline"
-              onClick={() => navigate(task.route)}
-            >
-              去完成
-            </Button>
-          )}
-        </div>
-      ))}
-      
-      {!profile?.is_training_completed && (
-        <Button 
-          className="w-full mt-4"
-          onClick={() => navigate('/skills-training/course/0')}
-        >
-          📚 开始新手学习
-        </Button>
-      )}
-        
-        {completedCount === 2 && (
-          <div className="pt-2">
-            <p className="text-sm text-green-600 font-medium text-center">
-              🎉 恭喜您已完成所有任务！系统将自动激活您的账户
-            </p>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
+  return [
+    {
+      id: 'onboarding-id-verify',
+      type: '🆔 实名认证任务',
+      duration: '5-10分钟',
+      address: '在线完成',
+      distance: '0公里',
+      payout: '0',
+      isOnboardingTask: true,
+      completed: profile?.is_id_verified || false,
+      route: '/profile/details',
+      description: '上传身份证并完成实名认证'
+    },
+    {
+      id: 'onboarding-training',
+      type: '📚 新手培训任务',
+      duration: '15-20分钟',
+      address: '在线学习',
+      distance: '0公里',
+      payout: '0',
+      isOnboardingTask: true,
+      completed: profile?.is_training_completed || false,
+      route: '/skills-training',
+      description: '完成新人上岗学习与考核'
+    }
+  ];
 };
 
 const Workbench = () => {
@@ -114,15 +58,36 @@ const Workbench = () => {
   const [broadcastOrder, setBroadcastOrder] = useState<OrderInfo | null>(null);
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
 
-  // 从 localStorage 加载 profile
+  // 从 localStorage 加载 profile 并监听变化
   useEffect(() => {
     const loadProfile = () => {
       const storedProfile = localStorage.getItem("mock_user_profile");
       if (storedProfile) {
-        setProfile(JSON.parse(storedProfile));
+        const parsedProfile = JSON.parse(storedProfile);
+        setProfile(parsedProfile);
+        
+        // 检查是否完成所有新手任务
+        if (parsedProfile.is_id_verified && parsedProfile.is_training_completed) {
+          if (parsedProfile.onboarding_status !== 'activated') {
+            // 自动激活账户
+            parsedProfile.onboarding_status = 'activated';
+            localStorage.setItem("mock_user_profile", JSON.stringify(parsedProfile));
+            
+            toast({
+              title: "🎉 账户已激活！",
+              description: "恭喜您完成所有新手任务，现在可以上线接单了！",
+              duration: 5000
+            });
+          }
+        }
       }
     };
+    
     loadProfile();
+    
+    // 监听 storage 事件（跨页面同步）
+    window.addEventListener('storage', loadProfile);
+    return () => window.removeEventListener('storage', loadProfile);
   }, []);
 
   // 刷新 profile
@@ -327,13 +292,13 @@ const Workbench = () => {
 
   // 计算工作时长（简化计算）
   const workHours = Math.floor(todayStats.completed * 0.75);
+  
+  // 获取新手任务列表
+  const onboardingTasks = getOnboardingTasks(profile);
 
   return (
     <div className="min-h-screen bg-background pb-20">
       <div className="max-w-md mx-auto p-4 space-y-6">
-        
-        {/* 新手任务卡片（置顶显示） */}
-        {profile && <OnboardingTaskCard profile={profile} onRefresh={refreshProfile} />}
         
         {/* 顶部问候卡片 */}
         <Card className="p-6 bg-gradient-primary text-primary-foreground">
@@ -413,8 +378,17 @@ const Workbench = () => {
           </div>
 
           <TabsContent value="hall" className="mt-4">
-            {pendingOrders.length > 0 ? (
+            {onboardingTasks.length > 0 || pendingOrders.length > 0 ? (
               <div className="space-y-3">
+                {/* 新手任务置顶显示 */}
+                {onboardingTasks.map((task) => (
+                  <OrderCard
+                    key={task.id}
+                    order={task}
+                    variant="compact"
+                  />
+                ))}
+                {/* 待抢订单 */}
                 {pendingOrders.map((order) => (
                   <OrderCard
                     key={order.id}

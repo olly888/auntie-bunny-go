@@ -132,10 +132,10 @@ const QuickRegister = () => {
         <Button 
           variant="ghost" 
           className="mb-4"
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/auth')}
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          返回
+          返回登录页
         </Button>
         
         <Card>

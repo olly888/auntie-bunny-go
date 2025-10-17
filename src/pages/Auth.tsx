@@ -150,10 +150,15 @@ export default function Auth() {
           让每一份付出都有回报
         </p>
         
+        {/* 提示文案 */}
+        <p className="text-sm text-center text-muted-foreground mb-4">
+          还没有账号？登录后将引导您快速注册
+        </p>
+        
         {/* 主登录区域 */}
         <div className="w-full max-w-sm space-y-4">
           {/* 微信一键登录 - 巨大按钮 */}
-          <Button 
+          <Button
             className="w-full h-16 text-lg font-semibold bg-[#07C160] hover:bg-[#06AD56] text-white shadow-lg disabled:opacity-50"
             onClick={handleWeChatLogin}
             disabled={loading || !agreedToTerms}
