@@ -9,6 +9,7 @@ import { ArrowLeft, Share2, Wallet, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 interface InvitationStats {
   totalInvites: number;
@@ -28,6 +29,7 @@ interface InvitationRecord {
 const InvitationRewards = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, loading: authLoading } = useAuthContext();
   const [loading, setLoading] = useState(true);
   const [qrCodeUrl, setQrCodeUrl] = useState("");
   const [refCode, setRefCode] = useState("");
@@ -40,20 +42,23 @@ const InvitationRewards = () => {
   const [records, setRecords] = useState<InvitationRecord[]>([]);
 
   useEffect(() => {
-    loadInvitationData();
-  }, []);
-
-  const loadInvitationData = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
+    if (!authLoading) {
       if (!user) {
         toast({
           title: "请先登录",
+          description: "登录后即可查看邀请奖励",
           variant: "destructive",
         });
         navigate("/auth");
-        return;
+      } else {
+        loadInvitationData();
       }
+    }
+  }, [authLoading, user, navigate, toast]);
+
+  const loadInvitationData = async () => {
+    try {
+      if (!user) return;
 
       // 获取或创建邀请码
       const { data: referral, error: refError } = await supabase
@@ -136,7 +141,7 @@ const InvitationRewards = () => {
     return <Badge variant={variant}>{label}</Badge>;
   };
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-background p-4">
         <div className="max-w-md mx-auto">
