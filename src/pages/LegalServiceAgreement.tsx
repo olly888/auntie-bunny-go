@@ -2,9 +2,28 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 const LegalServiceAgreement = () => {
   const navigate = useNavigate();
+  const [userName, setUserName] = useState("___________");
+  const [idNumber, setIdNumber] = useState("___________");
+  const [signDate, setSignDate] = useState("___________");
+
+  useEffect(() => {
+    // 从 localStorage 获取用户信息
+    const profile = localStorage.getItem("userProfile");
+    if (profile) {
+      const data = JSON.parse(profile);
+      setUserName(data.name || "___________");
+      setIdNumber(data.idNumber || "___________");
+    }
+    
+    // 设置当前日期
+    const today = new Date();
+    const dateStr = `${today.getFullYear()}年${today.getMonth() + 1}月${today.getDate()}日`;
+    setSignDate(dateStr);
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -22,103 +41,302 @@ const LegalServiceAgreement = () => {
         </div>
       </div>
 
-      <div className="max-w-md mx-auto p-4">
+      <div className="max-w-md mx-auto p-4 pb-6">
         <Card>
-          <CardHeader>
-            <CardTitle>兔到到与服务人员合作服务协议</CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-center text-base">新就业形态服务合作协议</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4 text-sm">
+          <CardContent className="space-y-5 text-sm">
+            {/* 甲乙方信息 */}
+            <div className="bg-muted/50 p-4 rounded-lg space-y-2 text-xs">
+              <div className="flex gap-2">
+                <span className="font-medium min-w-[70px]">甲方（平台方）：</span>
+                <span>深圳十五分钟网络科技有限公司</span>
+              </div>
+              <div className="flex gap-2">
+                <span className="font-medium min-w-[70px]">乙方（服务者）：</span>
+                <span className="text-primary font-medium">{userName}</span>
+              </div>
+              <div className="flex gap-2">
+                <span className="font-medium min-w-[70px]">身份证号码：</span>
+                <span className="text-primary font-medium">{idNumber}</span>
+              </div>
+            </div>
+
+            {/* 签订信息 */}
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              本《新就业形态服务合作协议》（以下简称"本协议"）由以上双方于 
+              <span className="text-primary font-medium mx-1">{signDate}</span> 
+              在深圳市南山区签订。
+            </p>
+
+            {/* 鉴于条款 */}
+            <p className="text-xs text-muted-foreground leading-relaxed border-l-2 border-primary/30 pl-3">
+              鉴于甲方合法运营"兔到到"即时家务服务平台（以下简称<strong className="text-foreground">"平台"</strong>），
+              为用户和服务者提供信息匹配、技术支持等服务；乙方作为具备相应服务技能的独立服务提供者，
+              意愿通过平台获取服务机会并获得报酬。
+            </p>
+
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              甲乙双方根据《中华人民共和国民法典》及相关法律法规，本着平等、自愿、公平、诚信的原则，
+              经友好协商，达成以下合作协议：
+            </p>
+
+            <div className="h-px bg-border" />
+
+            {/* 第一条 */}
             <div>
-              <h3 className="font-semibold mb-2">1. 定义与适用范围</h3>
-              <p className="text-muted-foreground leading-relaxed">
-                本协议是兔到到平台与注册服务人员（以下简称"阿姨"）之间关于家庭服务合作的法律协议。
-                通过注册成为平台服务人员，即表示同意接受本协议的所有条款。
+              <h3 className="font-semibold text-foreground mb-3">第一条：定义</h3>
+              <div className="space-y-2 pl-3">
+                <p className="text-muted-foreground leading-relaxed">
+                  <strong className="text-foreground">1.1 平台：</strong> 
+                  指由甲方运营的，名为"兔到到"的，包含用户端、服务者端（以下简称"兔管家端"）及管理后台的即时家务服务信息平台。
+                </p>
+                <p className="text-muted-foreground leading-relaxed">
+                  <strong className="text-foreground">1.2 兔管家：</strong> 
+                  指符合平台注册要求，使用"兔管家端"小程序接受服务订单并为用户提供服务的乙方。
+                </p>
+              </div>
+            </div>
+
+            {/* 第二条 */}
+            <div>
+              <h3 className="font-semibold text-foreground mb-3">第二条：合作关系与性质</h3>
+              <div className="space-y-2 pl-3">
+                <p className="text-muted-foreground leading-relaxed">
+                  <strong className="text-foreground">2.1</strong> 双方一致确认并同意，本协议项下的合作关系为平等的民事合作关系，
+                  不构成任何形式的劳动关系、劳务关系、雇佣关系或合伙关系。乙方并非甲方的员工，不受甲方内部劳动规章制度的管理。
+                </p>
+                <p className="text-muted-foreground leading-relaxed">
+                  <strong className="text-foreground">2.2</strong> 乙方作为独立的家政服务提供者，
+                  自主决定是否在平台注册、上线接单时间、以及是否接受平台推送的服务订单。
+                </p>
+              </div>
+            </div>
+
+            {/* 第三条 */}
+            <div>
+              <h3 className="font-semibold text-foreground mb-3">第三条：合作范围与流程</h3>
+              <div className="space-y-2 pl-3">
+                <p className="text-muted-foreground leading-relaxed">
+                  <strong className="text-foreground">3.1</strong> 甲方负责提供平台的技术支持与维护，
+                  发布来自用户的服务订单信息，并提供订单管理、费用代收代付等服务。
+                </p>
+                <p className="text-muted-foreground leading-relaxed">
+                  <strong className="text-foreground">3.2</strong> 乙方通过"兔管家端"接收订单信息，自主决定是否接单。
+                  一旦接单，应按照平台展示的服务项目标准（SOP）和应用内规定的流程（如"我已到达"、"开始服务"等）完成服务，
+                  并确保服务状态的实时、准确同步。
+                </p>
+              </div>
+            </div>
+
+            {/* 第四条 */}
+            <div>
+              <h3 className="font-semibold text-foreground mb-3">第四条：资质与培训</h3>
+              <div className="space-y-2 pl-3">
+                <p className="text-muted-foreground leading-relaxed">
+                  <strong className="text-foreground">4.1</strong> 乙方保证其为平台提供的所有个人资料
+                  （包括但不限于身份证信息、健康状况等）均真实、准确、合法、有效。
+                </p>
+                <p className="text-muted-foreground leading-relaxed">
+                  <strong className="text-foreground">4.2</strong> 乙方同意并承诺，在激活接单资格前，
+                  必须完成平台提供的线上服务标准培训与考核，以确保其提供的服务符合平台质量要求。
+                </p>
+              </div>
+            </div>
+
+            {/* 第五条 */}
+            <div>
+              <h3 className="font-semibold text-foreground mb-3">第五条：服务费用与结算</h3>
+              <div className="space-y-2 pl-3">
+                <p className="text-muted-foreground leading-relaxed">
+                  <strong className="text-foreground">5.1</strong> 每笔订单的服务费用由平台根据市场价格确定，
+                  并在订单推送时向乙方明确展示。乙方接受订单即视为对该笔费用的认可。
+                </p>
+                <p className="text-muted-foreground leading-relaxed">
+                  <strong className="text-foreground">5.2</strong> 乙方在此不可撤销地授权甲方，
+                  作为乙方向用户收取服务费用的唯一代收方。
+                </p>
+                <p className="text-muted-foreground leading-relaxed">
+                  <strong className="text-foreground">5.3</strong> 平台以周为单位为乙方结算上一自然周（周一至周日）
+                  内所有已完成订单的服务费用，并于约定的结算日（以平台公示为准）支付至乙方在平台绑定的有效收款账户。
+                </p>
+              </div>
+            </div>
+
+            {/* 第六条 */}
+            <div>
+              <h3 className="font-semibold text-foreground mb-3">第六条：甲方的权利与义务</h3>
+              <div className="space-y-2 pl-3">
+                <p className="text-muted-foreground leading-relaxed">
+                  <strong className="text-foreground">6.1</strong> 审核乙方的注册资料，并决定是否与乙方建立合作关系。
+                </p>
+                <p className="text-muted-foreground leading-relaxed">
+                  <strong className="text-foreground">6.2</strong> 根据平台规则，为乙方提供服务培训材料和技术支持。
+                </p>
+                <p className="text-muted-foreground leading-relaxed">
+                  <strong className="text-foreground">6.3</strong> 按照本协议约定，及时、准确地与乙方进行费用结算。
+                </p>
+                <p className="text-muted-foreground leading-relaxed">
+                  <strong className="text-foreground">6.4</strong> 有权根据乙方的服务质量、用户评价、违规情况等，
+                  调整其在平台内的信用评级或派单优先级。
+                </p>
+              </div>
+            </div>
+
+            {/* 第七条 */}
+            <div>
+              <h3 className="font-semibold text-foreground mb-3">第七条：乙方的权利与义务</h3>
+              <div className="space-y-2 pl-3">
+                <p className="text-muted-foreground leading-relaxed">
+                  <strong className="text-foreground">7.1</strong> 按照本协议约定，获得提供服务的报酬。
+                </p>
+                <p className="text-muted-foreground leading-relaxed">
+                  <strong className="text-foreground">7.2</strong> 严格遵守平台的所有服务规范、操作流程（SOP）
+                  和行为准则（详见附件一）。
+                </p>
+                <p className="text-muted-foreground leading-relaxed">
+                  <strong className="text-foreground">7.3</strong> 服务期间，应保持专业、友好的服务态度，
+                  维护平台及自身的良好形象。
+                </p>
+                <p className="text-muted-foreground leading-relaxed">
+                  <strong className="text-foreground">7.4</strong> 对服务过程中获悉的任何用户信息（地址、电话、家庭情况等）
+                  负有严格的保密义务，不得以任何形式泄露、传播或用于服务之外的任何目的。
+                </p>
+                <div className="bg-destructive/10 border border-destructive/30 rounded-md p-3">
+                  <p className="text-destructive leading-relaxed font-medium">
+                    <strong className="text-destructive">7.5【核心条款】</strong> 乙方承诺绝不以任何形式
+                    （包括但不限于口头、微信、电话）引导、暗示或接受用户进行绕开平台的私下交易（"跳单"）。
+                    一经发现，甲方有权立即单方面解除本协议，永久封停乙方账户，并扣除所有未结算费用，
+                    同时保留追究乙方违约责任的权利。
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* 第八条 */}
+            <div>
+              <h3 className="font-semibold text-foreground mb-3">第八条：责任承担</h3>
+              <div className="space-y-2 pl-3">
+                <p className="text-muted-foreground leading-relaxed">
+                  <strong className="text-foreground">8.1</strong> 因乙方在服务过程中存在故意或重大过失，
+                  导致用户人身或财产受到损害的，由乙方独立承担全部赔偿责任。
+                </p>
+                <p className="text-muted-foreground leading-relaxed">
+                  <strong className="text-foreground">8.2</strong> 因甲方平台技术故障，导致订单信息错误、费用计算错误等，
+                  给乙方造成直接经济损失的，由甲方在故障范围内承担责任。
+                </p>
+              </div>
+            </div>
+
+            {/* 第九条 */}
+            <div>
+              <h3 className="font-semibold text-foreground mb-3">第九条：协议期限与解除</h3>
+              <div className="space-y-2 pl-3">
+                <p className="text-muted-foreground leading-relaxed">
+                  <strong className="text-foreground">9.1</strong> 本协议自乙方在线点击同意之日起生效，有效期一年，
+                  到期后若双方无异议则自动续期。
+                </p>
+                <p className="text-muted-foreground leading-relaxed">
+                  <strong className="text-foreground">9.2</strong> 任何一方提前7日书面通知对方，均可解除本协议。
+                  若乙方严重违反本协议约定（尤其是第七条第五款），甲方有权单方面立即解除协议。
+                </p>
+              </div>
+            </div>
+
+            {/* 第十条 */}
+            <div>
+              <h3 className="font-semibold text-foreground mb-3">第十条：争议解决</h3>
+              <div className="space-y-2 pl-3">
+                <p className="text-muted-foreground leading-relaxed">
+                  <strong className="text-foreground">10.1</strong> 因本协议引起的任何争议，双方应友好协商解决；
+                  协商不成的，任何一方均有权向甲方所在地有管辖权的人民法院提起诉讼。
+                </p>
+              </div>
+            </div>
+
+            <div className="h-px bg-border my-4" />
+
+            {/* 附件一 */}
+            <div className="bg-muted/30 p-4 rounded-lg space-y-4">
+              <h3 className="font-semibold text-foreground text-center">
+                附件一：《兔管家服务安全与行为准则承诺书》
+              </h3>
+              
+              <div className="text-xs text-muted-foreground leading-relaxed">
+                本人 <span className="text-primary font-medium">{userName}</span> 
+                (身份证号: <span className="text-primary font-medium">{idNumber}</span>)，
+                作为"兔到到"平台的独立合作服务者，为保障用户体验与自身安全，郑重作出以下承诺：
+              </div>
+
+              <div className="space-y-3 pl-2">
+                <div className="flex gap-2">
+                  <span className="font-medium text-foreground min-w-[80px]">专业形象：</span>
+                  <span className="text-muted-foreground leading-relaxed">
+                    服务期间，按平台要求着装，仪表整洁，精神饱满。
+                  </span>
+                </div>
+
+                <div className="flex gap-2">
+                  <span className="font-medium text-foreground min-w-[80px]">服务礼仪：</span>
+                  <span className="text-muted-foreground leading-relaxed">
+                    使用文明用语，态度亲切，不大声喧哗。
+                  </span>
+                </div>
+
+                <div className="flex gap-2">
+                  <span className="font-medium text-foreground min-w-[80px]">用户隐私保护：</span>
+                  <span className="text-muted-foreground leading-relaxed">
+                    绝不主动询问用户隐私，绝不在用户家中进行任何形式的拍照、录像、录音
+                    （平台要求作为服务凭证的除外），绝不泄露用户任何信息。
+                  </span>
+                </div>
+
+                <div className="flex gap-2">
+                  <span className="font-medium text-foreground min-w-[80px]">财产物品安全：</span>
+                  <span className="text-muted-foreground leading-relaxed">
+                    爱护用户家中物品，轻拿轻放，如遇用户贵重物品，主动提醒用户收管。
+                  </span>
+                </div>
+
+                <div className="flex gap-2">
+                  <span className="font-medium text-foreground min-w-[80px]">禁止私下交易：</span>
+                  <span className="text-muted-foreground leading-relaxed">
+                    坚决拒绝任何形式的私下交易（"跳单"）请求，并有义务告知用户通过平台交易的安全性。
+                  </span>
+                </div>
+
+                <div className="flex gap-2">
+                  <span className="font-medium text-foreground min-w-[80px]">人身安全：</span>
+                  <span className="text-muted-foreground leading-relaxed">
+                    服务期间注意用电、用水、用气安全，不进行任何危险操作，遇紧急情况第一时间报警并通知平台。
+                  </span>
+                </div>
+              </div>
+
+              <p className="text-xs text-muted-foreground leading-relaxed pt-2 border-t">
+                我已完整阅读、充分理解并同意严格遵守以上所有条款。如有违反，愿意接受平台根据合作协议进行的处理，
+                并承担由此产生的一切责任。
+              </p>
+            </div>
+
+            <div className="h-px bg-border my-4" />
+
+            {/* 电子签署确认 */}
+            <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+              <h4 className="font-semibold text-foreground mb-3 text-center">【电子签署确认】</h4>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                <strong className="text-foreground">乙方确认：</strong>本人在同意本协议前，
+                已完整阅读、充分理解并自愿接受本协议及附件的全部条款内容。
+                乙方的在线点击"同意"、"接受"或勾选"我已阅读并同意"并继续使用平台的行为，
+                即视为乙方本人真实意愿的表示，构成对本协议及附件的有效签署，
+                具有与手写签名同等的法律效力。
               </p>
             </div>
             
-            <div>
-              <h3 className="font-semibold mb-2">2. 合作模式与服务范围</h3>
-              <p className="text-muted-foreground leading-relaxed">
-                平台为阿姨提供订单信息和客户匹配服务，阿姨提供专业的家庭清洁、保洁、维护等上门服务。
-                双方建立合作关系，共同为客户提供优质便捷的家庭服务体验。
-              </p>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-2">3. 订单与服务履约</h3>
-              <p className="text-muted-foreground leading-relaxed">
-                阿姨应及时响应订单邀请，按约定时间到达服务地点，按照服务标准完成工作。
-                如遇特殊情况需要改约或取消，应提前与客户和平台沟通协调。
-              </p>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-2">4. 收入结算与提现</h3>
-              <p className="text-muted-foreground leading-relaxed">
-                服务费用按照平台标准结算，完成服务并获得客户确认后进入结算周期。
-                阿姨可通过平台提现功能申请收入提取，平台将按约定时间转账至绑定银行账户。
-              </p>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-2">5. 行为规范与处罚</h3>
-              <p className="text-muted-foreground leading-relaxed">
-                阿姨应遵守职业道德，诚信服务，不得无故爽约、虚假打卡或从事违规行为。
-                违反规定的行为将面临警告、暂停服务、扣除费用等处罚措施。
-              </p>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-2">6. 安全与保险</h3>
-              <p className="text-muted-foreground leading-relaxed">
-                阿姨应严格按照安全操作规范作业，注意人身和财产安全。
-                平台将为注册阿姨购买相应的保险服务，如发生意外事故应及时报案并联系平台处理。
-              </p>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-2">7. 信息与隐私保护</h3>
-              <p className="text-muted-foreground leading-relaxed">
-                双方应严格保护客户隐私和个人信息安全，不得泄露、传播或用于其他用途。
-                阿姨在服务过程中获取的客户信息应严格保密。
-              </p>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-2">8. 知识产权与品牌使用</h3>
-              <p className="text-muted-foreground leading-relaxed">
-                平台拥有"兔到到"品牌和相关知识产权，阿姨在服务中可使用平台品牌标识，
-                但不得擅自用于其他商业用途或从事有损品牌形象的行为。
-              </p>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-2">9. 协议期限、变更与解除</h3>
-              <p className="text-muted-foreground leading-relaxed">
-                本协议自签署之日起生效，双方均可提前30天通知对方解除合作关系。
-                平台有权根据业务发展需要修改协议条款，修改后将及时通知阿姨。
-              </p>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-2">10. 违约与争议解决</h3>
-              <p className="text-muted-foreground leading-relaxed">
-                因履行本协议发生的争议，双方应友好协商解决。协商不成的，
-                提交平台所在地人民法院管辖，适用中华人民共和国法律。
-              </p>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-2">11. 其他条款</h3>
-              <p className="text-muted-foreground leading-relaxed">
-                本协议未尽事宜，双方可另行协商确定。协议条款如与法律法规冲突，
-                以法律法规为准。平台联系方式和通知以应用内消息为准。
-              </p>
-            </div>
-            
-            <div className="pt-4 border-t">
+            <div className="pt-4 border-t text-center">
               <p className="text-xs text-muted-foreground">
-                最后更新时间：2024年12月28日
+                最后更新时间：2025年1月17日
               </p>
             </div>
           </CardContent>
