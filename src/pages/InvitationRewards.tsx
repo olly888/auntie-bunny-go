@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthContext } from "@/contexts/AuthContext";
+import { useMockAuth } from "@/hooks/useMockAuth";
 
 interface InvitationStats {
   totalInvites: number;
@@ -30,6 +31,8 @@ const InvitationRewards = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, loading: authLoading } = useAuthContext();
+  const { state: mockState } = useMockAuth();
+  const isLoggedIn = mockState.isAuthenticated || !!user;
   const [loading, setLoading] = useState(true);
   const [qrCodeUrl, setQrCodeUrl] = useState("");
   const [refCode, setRefCode] = useState("");
@@ -42,19 +45,19 @@ const InvitationRewards = () => {
   const [records, setRecords] = useState<InvitationRecord[]>([]);
 
   useEffect(() => {
-    if (!authLoading) {
-      if (!user) {
-        toast({
-          title: "请先登录",
-          description: "登录后即可查看邀请奖励",
-          variant: "destructive",
-        });
-        navigate("/auth");
-      } else {
-        loadInvitationData();
-      }
+    if (authLoading) return;
+
+    if (isLoggedIn) {
+      loadInvitationData();
+    } else {
+      // 未登录也可访问：生成通用注册链接二维码
+      const inviteUrl = `${window.location.origin}/auth?type=worker`;
+      QRCode.toDataURL(inviteUrl, { width: 300, margin: 2 })
+        .then((url) => setQrCodeUrl(url))
+        .catch((err) => console.error("生成通用二维码失败:", err))
+        .finally(() => setLoading(false));
     }
-  }, [authLoading, user, navigate, toast]);
+  }, [authLoading, isLoggedIn]);
 
   const loadInvitationData = async () => {
     try {
@@ -115,7 +118,14 @@ const InvitationRewards = () => {
   };
 
   const handleShare = () => {
-    const inviteText = `我在兔到到赚钱，你也来！邀请码：${refCode}\n立即扫码加入，完成培训即可开始接单赚钱！\n${window.location.origin}/auth?ref=${refCode}&type=worker`;
+    const baseUrl = `${window.location.origin}/auth?type=worker`;
+    const inviteUrl = refCode
+      ? `${window.location.origin}/auth?ref=${refCode}&type=worker`
+      : baseUrl;
+
+    const inviteText = refCode
+      ? `我在兔到到赚钱，你也来！邀请码：${refCode}\n立即扫码加入，完成培训即可开始接单赚钱！\n${inviteUrl}`
+      : `我在兔到到赚钱，你也来！登录后可领取专属邀请码～\n立即扫码加入，完成培训即可开始接单赚钱！\n${inviteUrl}`;
     
     if (navigator.share) {
       navigator.share({
@@ -234,7 +244,7 @@ const InvitationRewards = () => {
                     <img src={qrCodeUrl} alt="邀请二维码" className="w-48 h-48" />
                   </div>
                 )}
-                <p className="text-xs text-muted-foreground mt-4">邀请码：{refCode}</p>
+                <p className="text-xs text-muted-foreground mt-4">邀请码：{refCode || "登录后自动生成"}</p>
               </div>
             </CardContent>
           </Card>
