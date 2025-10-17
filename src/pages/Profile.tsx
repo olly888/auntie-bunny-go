@@ -2,11 +2,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { SkillBadge } from "@/components/ui/skill-badge";
 import { useNavigate } from "react-router-dom";
-import { User, Star, GraduationCap, Settings, ChevronRight, MessageCircle, HelpCircle, FileText, Gift } from "lucide-react";
+import { User, Star, GraduationCap, Settings, ChevronRight, HelpCircle, FileText, Gift } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useMockAuth } from "@/hooks/useMockAuth";
 import { DemoOrder } from "@/hooks/useDemoOrders";
+import { supabase } from "@/integrations/supabase/client";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -17,53 +19,80 @@ const Profile = () => {
     monthlyServices: 0
   });
   const [avatarUrl, setAvatarUrl] = useState<string>("");
-  const [userName, setUserName] = useState("李阿姨");
+  const [userName, setUserName] = useState("服务者");
+  const [employeeId, setEmployeeId] = useState("TDD001234");
+  const [skillLevel, setSkillLevel] = useState<string>("junior");
+  const [badgeType, setBadgeType] = useState<string | null>(null);
 
-  // 从 localStorage 加载真实数据
+  // 从 Supabase 和 localStorage 加载真实数据
   useEffect(() => {
-    try {
-      // 加载个人信息
-      const savedProfile = localStorage.getItem("userProfile");
-      if (savedProfile) {
-        const profile = JSON.parse(savedProfile);
-        if (profile.name) setUserName(profile.name);
-        if (profile.avatarUrl) setAvatarUrl(profile.avatarUrl);
-      }
-
-      // 加载订单数据并计算统计
-      const completedOrdersStr = localStorage.getItem("completedOrders");
-      if (completedOrdersStr) {
-        const completedOrders: DemoOrder[] = JSON.parse(completedOrdersStr).map((order: any) => ({
-          ...order,
-          createdAt: new Date(order.createdAt)
-        }));
-
-        const now = new Date();
-        const currentMonth = now.getMonth();
-        const currentYear = now.getFullYear();
-
-        // 计算本月订单
-        const monthlyOrders = completedOrders.filter(order => {
-          const orderDate = new Date(order.createdAt);
-          return orderDate.getMonth() === currentMonth && 
-                 orderDate.getFullYear() === currentYear;
-        });
-
-        // 计算本月收入
-        const monthlyIncome = monthlyOrders.reduce((sum, order) => sum + order.payout, 0);
+    const loadUserData = async () => {
+      try {
+        // 优先从 Supabase profiles 读取认证信息
+        const { data: { user } } = await supabase.auth.getUser();
         
-        // 计算服务次数
-        const monthlyServices = monthlyOrders.length;
+        if (user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name, employee_id, avatar_url, skill_level, badge_type')
+            .eq('id', user.id)
+            .single();
+          
+          if (profile) {
+            if (profile.full_name) setUserName(profile.full_name);
+            if (profile.employee_id) setEmployeeId(profile.employee_id);
+            else setEmployeeId(`TDD${user.id.slice(-6).toUpperCase()}`);
+            if (profile.avatar_url) setAvatarUrl(profile.avatar_url);
+            setSkillLevel(profile.skill_level || "junior");
+            setBadgeType(profile.badge_type);
+          }
+        }
+        
+        // fallback 到 localStorage（仅用于姓名和头像）
+        const savedProfile = localStorage.getItem("userProfile");
+        if (savedProfile && !userName) {
+          const localProfile = JSON.parse(savedProfile);
+          if (localProfile.name && userName === "服务者") setUserName(localProfile.name);
+          if (localProfile.avatarUrl && !avatarUrl) setAvatarUrl(localProfile.avatarUrl);
+        }
 
-        setStats({
-          monthlyIncome,
-          rating: 4.9, // 评分暂时固定
-          monthlyServices
-        });
+        // 加载订单数据并计算统计
+        const completedOrdersStr = localStorage.getItem("completedOrders");
+        if (completedOrdersStr) {
+          const completedOrders: DemoOrder[] = JSON.parse(completedOrdersStr).map((order: any) => ({
+            ...order,
+            createdAt: new Date(order.createdAt)
+          }));
+
+          const now = new Date();
+          const currentMonth = now.getMonth();
+          const currentYear = now.getFullYear();
+
+          // 计算本月订单
+          const monthlyOrders = completedOrders.filter(order => {
+            const orderDate = new Date(order.createdAt);
+            return orderDate.getMonth() === currentMonth && 
+                   orderDate.getFullYear() === currentYear;
+          });
+
+          // 计算本月收入
+          const monthlyIncome = monthlyOrders.reduce((sum, order) => sum + order.payout, 0);
+          
+          // 计算服务次数
+          const monthlyServices = monthlyOrders.length;
+
+          setStats({
+            monthlyIncome,
+            rating: 4.9, // 评分暂时固定
+            monthlyServices
+          });
+        }
+      } catch (error) {
+        console.error("加载数据失败:", error);
       }
-    } catch (error) {
-      console.error("加载数据失败:", error);
-    }
+    };
+    
+    loadUserData();
   }, []);
 
   const menuItems = [
@@ -71,8 +100,7 @@ const Profile = () => {
     { icon: FileText, label: "电子合同", path: "/profile/agreements" },
     { icon: Star, label: "我的评价", path: "/reviews" },
     { icon: GraduationCap, label: "技能培训", path: "/skills-training" },
-    { icon: HelpCircle, label: "帮助中心", path: "/help" },
-    { icon: MessageCircle, label: "联系平台/申诉", path: "/contact" },
+    { icon: HelpCircle, label: "联系与帮助", path: "/help" },
     { icon: Settings, label: "系统设置", path: "/settings" },
   ];
 
@@ -93,9 +121,11 @@ const Profile = () => {
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
-              <h2 className="text-lg font-semibold text-foreground">
-                {userName} <span className="text-sm font-normal text-muted-foreground">(工号: TDD001234)</span>
-              </h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-semibold text-foreground">{userName}</h2>
+                <SkillBadge skillLevel={skillLevel} badgeType={badgeType} />
+              </div>
+              <p className="text-sm text-muted-foreground">工号: {employeeId}</p>
             </div>
             <ChevronRight className="w-5 h-5 text-muted-foreground" />
           </div>

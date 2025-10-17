@@ -21,7 +21,6 @@ import Insurance from "./pages/Insurance";
 import Security from "./pages/Security";
 import Settings from "./pages/Settings";
 import Help from "./pages/Help";
-import ContactSupport from "./pages/ContactSupport";
 import AppealProgress from "./pages/AppealProgress";
 import SalaryExplanation from "./pages/SalaryExplanation";
 import CoursePlayer from "./pages/CoursePlayer";
@@ -84,7 +83,6 @@ function App() {
           {/* Other Profile Routes */}
           <Route path="/reviews" element={<Reviews />} />
           <Route path="/help" element={<Help />} />
-          <Route path="/contact" element={<ContactSupport />} />
           <Route path="/appeal-progress/:ticketNumber" element={<AppealProgress />} />
           <Route path="/security" element={<Security />} />
           <Route path="/settings" element={<Settings />} />

@@ -424,6 +424,7 @@ export type Database = {
           agreement_signed_at: string | null
           agreement_version: string | null
           avatar_url: string | null
+          badge_type: string | null
           created_at: string
           education: string | null
           emergency_contact: string | null
@@ -458,6 +459,7 @@ export type Database = {
           agreement_signed_at?: string | null
           agreement_version?: string | null
           avatar_url?: string | null
+          badge_type?: string | null
           created_at?: string
           education?: string | null
           emergency_contact?: string | null
@@ -492,6 +494,7 @@ export type Database = {
           agreement_signed_at?: string | null
           agreement_version?: string | null
           avatar_url?: string | null
+          badge_type?: string | null
           created_at?: string
           education?: string | null
           emergency_contact?: string | null

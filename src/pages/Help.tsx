@@ -1,11 +1,68 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { ArrowLeft, HelpCircle, MessageCircle } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { ChevronLeft, Phone, HelpCircle, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { toast } from "sonner";
+import { useMockAuth } from "@/hooks/useMockAuth";
+import ownerQr from "@/assets/owner-wechat-qr.png";
 
 const Help = () => {
   const navigate = useNavigate();
+  const { state: mockState } = useMockAuth();
+  const [appealType, setAppealType] = useState("");
+  const [appealContent, setAppealContent] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleCall = () => {
+    window.location.href = "tel:400-8888-888";
+  };
+
+  const handleSubmitAppeal = async () => {
+    if (!appealType) {
+      toast.error("请选择申诉类型");
+      return;
+    }
+    
+    if (!appealContent.trim()) {
+      toast.error("请输入申诉内容");
+      return;
+    }
+
+    // 检查是否为演示用户
+    if (mockState.user && mockState.user.id.startsWith('user_')) {
+      toast.info("演示账户无法提交真实申诉，请联系站长");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // 生成工单号
+      const ticketNumber = `APP${Date.now()}`;
+      
+      toast.success("申诉已提交", {
+        description: `工单号：${ticketNumber}，请在"申诉进度"页面查看处理状态`
+      });
+
+      // 清空表单
+      setAppealType("");
+      setAppealContent("");
+      
+      // 3秒后跳转到申诉进度页
+      setTimeout(() => {
+        navigate("/appeal-progress");
+      }, 3000);
+    } catch (error) {
+      toast.error("提交失败，请稍后重试");
+      console.error(error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const faqItems = [
     {
@@ -38,20 +95,19 @@ const Help = () => {
     }
   ];
 
-
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-card shadow-card p-4">
-        <div className="max-w-md mx-auto flex items-center gap-3">
+      <div className="sticky top-0 z-10 bg-background border-b border-border">
+        <div className="max-w-md mx-auto px-4 py-4 flex items-center gap-3">
           <Button
-            variant="outline"
+            variant="ghost"
             size="icon"
             onClick={() => navigate("/profile")}
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ChevronLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-lg font-semibold">帮助中心</h1>
+          <h1 className="text-lg font-semibold">联系与帮助</h1>
         </div>
       </div>
 
@@ -120,7 +176,73 @@ const Help = () => {
           </CardContent>
         </Card>
 
-        {/* Contact Webmaster */}
+        {/* 在线申诉 */}
+        <Card>
+          <CardHeader>
+            <CardTitle>在线申诉</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">申诉类型</label>
+              <Select value={appealType} onValueChange={setAppealType}>
+                <SelectTrigger>
+                  <SelectValue placeholder="请选择申诉类型" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="订单争议">订单争议</SelectItem>
+                  <SelectItem value="收入问题">收入问题</SelectItem>
+                  <SelectItem value="技术故障">技术故障</SelectItem>
+                  <SelectItem value="账号问题">账号问题</SelectItem>
+                  <SelectItem value="其他">其他</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">申诉内容</label>
+              <Textarea
+                placeholder="请详细描述您遇到的问题..."
+                value={appealContent}
+                onChange={(e) => setAppealContent(e.target.value)}
+                rows={6}
+                className="resize-none"
+              />
+            </div>
+
+            <Button 
+              onClick={handleSubmitAppeal}
+              disabled={isSubmitting}
+              className="w-full"
+            >
+              {isSubmitting ? "提交中..." : "提交申诉"}
+            </Button>
+
+            <p className="text-xs text-muted-foreground text-center">
+              提交后可在"申诉进度"页面查看处理状态
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* 平台客服 */}
+        <Card>
+          <CardHeader>
+            <CardTitle>平台客服</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+              <div>
+                <p className="font-medium">客服热线</p>
+                <p className="text-2xl font-bold text-primary">400-8888-888</p>
+                <p className="text-xs text-muted-foreground mt-1">工作时间：9:00-21:00</p>
+              </div>
+              <Button size="icon" onClick={handleCall}>
+                <Phone className="h-5 w-5" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 联系站长 */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -131,7 +253,7 @@ const Help = () => {
           <CardContent className="space-y-4">
             <div className="flex flex-col items-center justify-center p-4 bg-accent/30 rounded-lg">
               <img 
-                src="/src/assets/owner-wechat-qr.png" 
+                src={ownerQr}
                 alt="站长企业微信二维码" 
                 className="w-32 h-32 mb-3"
               />
