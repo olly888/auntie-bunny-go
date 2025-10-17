@@ -55,14 +55,110 @@ const OrderDetail = () => {
   const { data: order, isLoading: orderLoading } = useQuery({
     queryKey: ['order-detail', orderId],
     queryFn: async () => {
+      // 先尝试从数据库获取
       const { data: orders, error } = await supabase.rpc('get_filtered_orders');
       
       if (error) throw error;
       
-      const order = orders?.find((o: any) => o.id === orderId);
-      if (!order) throw new Error('订单不存在');
+      const dbOrder = orders?.find((o: any) => o.id === orderId);
+      if (dbOrder) return dbOrder as OrderDetail;
       
-      return order as OrderDetail;
+      // 如果数据库中没有，使用模拟数据
+      const mockOrders: OrderDetail[] = [
+        {
+          id: "a0b1c2d3-e4f5-6789-abcd-ef0123456789",
+          type: "cleaning",
+          address: "华润城润府",
+          duration_minutes: 120,
+          payout: 85.50,
+          status: "completed",
+          created_at: "2024-01-15T08:00:00Z",
+          started_at: "2024-01-15T08:30:00Z",
+          completed_at: "2024-01-15T10:30:00Z",
+          contact_name: "王女士",
+          contact_phone: "138****1001",
+          settled: true,
+          settled_at: "2024-01-16T10:00:00Z",
+          total_amount: 98.33,
+          paid_amount: 85.50,
+          assignee_id: "demo-user",
+        },
+        {
+          id: "b1c2d3e4-f5a6-789a-bcde-f01234567890",
+          type: "maintenance",
+          address: "万科云城",
+          duration_minutes: 90,
+          payout: 120.00,
+          status: "completed",
+          created_at: "2024-01-14T12:00:00Z",
+          started_at: "2024-01-14T12:50:00Z",
+          completed_at: "2024-01-14T14:20:00Z",
+          contact_name: "李先生",
+          contact_phone: "139****2002",
+          settled: true,
+          settled_at: "2024-01-15T10:00:00Z",
+          total_amount: 138.00,
+          paid_amount: 120.00,
+          assignee_id: "demo-user",
+        },
+        {
+          id: "c2d3e4f5-a6b7-89ab-cdef-012345678901",
+          type: "delivery",
+          address: "海岸城",
+          duration_minutes: 60,
+          payout: 45.00,
+          status: "completed",
+          created_at: "2024-01-13T15:00:00Z",
+          started_at: "2024-01-13T15:45:00Z",
+          completed_at: "2024-01-13T16:45:00Z",
+          contact_name: "张女士",
+          contact_phone: "137****3003",
+          settled: false,
+          total_amount: 51.75,
+          paid_amount: 45.00,
+          assignee_id: "demo-user",
+        },
+        {
+          id: "d3e4f5a6-b789-abcd-ef01-23456789abcd",
+          type: "cleaning",
+          address: "深业上城",
+          duration_minutes: 150,
+          payout: 95.00,
+          status: "completed",
+          created_at: "2024-01-12T06:00:00Z",
+          started_at: "2024-01-12T06:45:00Z",
+          completed_at: "2024-01-12T09:15:00Z",
+          contact_name: "刘先生",
+          contact_phone: "136****4004",
+          settled: false,
+          total_amount: 109.25,
+          paid_amount: 95.00,
+          assignee_id: "demo-user",
+        },
+        {
+          id: "e4f5a6b7-89ab-cdef-0123-456789abcdef",
+          type: "maintenance",
+          address: "卓越世纪中心",
+          duration_minutes: 180,
+          payout: 150.00,
+          status: "completed",
+          created_at: "2024-01-11T15:00:00Z",
+          started_at: "2024-01-11T15:30:00Z",
+          completed_at: "2024-01-11T18:30:00Z",
+          contact_name: "陈女士",
+          contact_phone: "135****5005",
+          settled: true,
+          settled_at: "2024-01-12T10:00:00Z",
+          total_amount: 172.50,
+          paid_amount: 150.00,
+          assignee_id: "demo-user",
+        }
+      ];
+      
+      const mockOrder = mockOrders.find(o => o.id === orderId);
+      if (!mockOrder) throw new Error('订单不存在');
+      
+      return mockOrder;
     },
     enabled: !!orderId,
   });

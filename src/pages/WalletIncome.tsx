@@ -1,59 +1,89 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { BottomNav } from "@/components/ui/bottom-nav";
-import { ArrowLeft, Clock, MapPin, Banknote, Plus } from "lucide-react";
+import { ArrowLeft, Clock, MapPin, Banknote } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { zhCN } from "date-fns/locale";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { Skeleton } from "@/components/ui/skeleton";
-import { toast } from "sonner";
 
 const WalletIncome = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('all');
-  const [isCreatingDemo, setIsCreatingDemo] = useState(false);
   
-  // 从数据库获取真实订单数据
-  const { data: orders = [], isLoading, refetch } = useQuery({
-    queryKey: ['income-orders'],
-    queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_filtered_orders');
-      
-      if (error) throw error;
-      
-      // 只返回已完成的订单
-      return (data || []).filter((order: any) => 
-        order.status === 'completed' && order.completed_at
-      );
+  // 演示用模拟数据
+  const mockOrders = [
+    {
+      id: "a0b1c2d3-e4f5-6789-abcd-ef0123456789",
+      type: "cleaning",
+      payout: 85.50,
+      address: "华润城润府",
+      duration_minutes: 120,
+      completed_at: new Date("2024-01-15T10:30:00"),
+      settled: true,
+      contact_name: "王女士",
+      contact_phone: "138****1001",
+      started_at: new Date("2024-01-15T08:30:00"),
+      total_amount: 98.33,
+      paid_amount: 85.50
     },
-  });
-
-  // 创建测试订单
-  const handleCreateDemoOrders = async () => {
-    setIsCreatingDemo(true);
-    try {
-      const { data, error } = await supabase.rpc('create_demo_completed_orders');
-      
-      if (error) throw error;
-      
-      toast.success("测试订单创建成功", {
-        description: `已创建 ${data?.length || 5} 个已完成订单`
-      });
-      
-      // 刷新订单列表
-      refetch();
-    } catch (error: any) {
-      console.error('Error creating demo orders:', error);
-      toast.error("创建失败", {
-        description: error.message || "请稍后重试"
-      });
-    } finally {
-      setIsCreatingDemo(false);
+    {
+      id: "b1c2d3e4-f5a6-789a-bcde-f01234567890",
+      type: "maintenance",
+      payout: 120.00,
+      address: "万科云城",
+      duration_minutes: 90,
+      completed_at: new Date("2024-01-14T14:20:00"),
+      settled: true,
+      contact_name: "李先生",
+      contact_phone: "139****2002",
+      started_at: new Date("2024-01-14T12:50:00"),
+      total_amount: 138.00,
+      paid_amount: 120.00
+    },
+    {
+      id: "c2d3e4f5-a6b7-89ab-cdef-012345678901",
+      type: "delivery",
+      payout: 45.00,
+      address: "海岸城",
+      duration_minutes: 60,
+      completed_at: new Date("2024-01-13T16:45:00"),
+      settled: false,
+      contact_name: "张女士",
+      contact_phone: "137****3003",
+      started_at: new Date("2024-01-13T15:45:00"),
+      total_amount: 51.75,
+      paid_amount: 45.00
+    },
+    {
+      id: "d3e4f5a6-b789-abcd-ef01-23456789abcd",
+      type: "cleaning",
+      payout: 95.00,
+      address: "深业上城",
+      duration_minutes: 150,
+      completed_at: new Date("2024-01-12T09:15:00"),
+      settled: false,
+      contact_name: "刘先生",
+      contact_phone: "136****4004",
+      started_at: new Date("2024-01-12T06:45:00"),
+      total_amount: 109.25,
+      paid_amount: 95.00
+    },
+    {
+      id: "e4f5a6b7-89ab-cdef-0123-456789abcdef",
+      type: "maintenance",
+      payout: 150.00,
+      address: "卓越世纪中心",
+      duration_minutes: 180,
+      completed_at: new Date("2024-01-11T18:30:00"),
+      settled: true,
+      contact_name: "陈女士",
+      contact_phone: "135****5005",
+      started_at: new Date("2024-01-11T15:30:00"),
+      total_amount: 172.50,
+      paid_amount: 150.00
     }
-  };
+  ];
 
   const getOrderTypeLabel = (type: string) => {
     const typeMap: { [key: string]: string } = {
@@ -76,10 +106,10 @@ const WalletIncome = () => {
   };
 
   // Filter orders based on active tab
-  const filteredOrders = orders.filter((order: any) => {
+  const filteredOrders = mockOrders.filter(order => {
     if (activeTab === 'all') return true;
-    if (activeTab === 'settled') return order.settled === true;
-    if (activeTab === 'pending') return order.settled !== true;
+    if (activeTab === 'settled') return order.settled;
+    if (activeTab === 'pending') return !order.settled;
     return true;
   });
 
@@ -88,30 +118,16 @@ const WalletIncome = () => {
       <div className="max-w-md mx-auto p-4 space-y-6">
         
         {/* 页面标题 */}
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => navigate('/wallet')}
-              className="p-2"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <h1 className="text-2xl font-bold text-foreground">收入明细</h1>
-          </div>
-          
-          {orders.length === 0 && !isLoading && (
-            <Button
-              size="sm"
-              onClick={handleCreateDemoOrders}
-              disabled={isCreatingDemo}
-              className="flex items-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              {isCreatingDemo ? "创建中..." : "生成测试数据"}
-            </Button>
-          )}
+        <div className="flex items-center gap-4">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => navigate('/wallet')}
+            className="p-2"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <h1 className="text-2xl font-bold text-foreground">收入明细</h1>
         </div>
 
         {/* 收入筛选 */}
@@ -124,22 +140,10 @@ const WalletIncome = () => {
           
           <TabsContent value={activeTab} className="mt-4">
             <div className="space-y-3">
-              {isLoading ? (
-                <div className="space-y-3">
-                  {[1, 2, 3].map((i) => (
-                    <Skeleton key={i} className="h-32 w-full" />
-                  ))}
-                </div>
-              ) : filteredOrders.length === 0 ? (
+              {filteredOrders.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <div className="text-lg mb-2">暂无收入记录</div>
-                  <div className="text-sm">
-                    {activeTab === 'all' 
-                      ? '还没有完成的订单记录' 
-                      : activeTab === 'settled'
-                      ? '暂无已结算的订单'
-                      : '暂无待结算的订单'}
-                  </div>
+                  <div className="text-sm">该分类下没有订单记录</div>
                 </div>
               ) : (
                 filteredOrders.map((order: any) => (
