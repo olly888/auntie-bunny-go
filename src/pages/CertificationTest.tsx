@@ -5,7 +5,9 @@ import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useAuthContext } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 interface Question {
@@ -18,6 +20,9 @@ interface Question {
 const CertificationTest = () => {
   const navigate = useNavigate();
   const { skillId } = useParams();
+  const [searchParams] = useSearchParams();
+  const testType = searchParams.get('type');
+  const { user, profile, refreshProfile } = useAuthContext();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [showResult, setShowResult] = useState(false);
@@ -106,7 +111,7 @@ const CertificationTest = () => {
     }
   };
 
-  const calculateScore = () => {
+  const calculateScore = async () => {
     const finalAnswers = { ...answers, [currentQuestion]: selectedAnswer };
     let correct = 0;
 
@@ -120,16 +125,31 @@ const CertificationTest = () => {
     
     if (score >= 80) {
       // Pass the test
-      toast.success("恭喜！您已通过认证测试！");
-      setTimeout(() => {
-        navigate('/skills-training');
-      }, 2000);
+      if (testType === 'onboarding' && user) {
+        await supabase.from('profiles')
+          .update({ is_training_completed: true })
+          .eq('id', user.id);
+        
+        await refreshProfile();
+        
+        if (profile?.is_id_verified) {
+          toast.success("🎉 恭喜激活成功！", {
+            description: "您现在可以开始接单赚钱了！"
+          });
+          setTimeout(() => navigate('/workbench'), 2000);
+        } else {
+          toast.success("培训完成！", {
+            description: "还需完成实名认证"
+          });
+          setTimeout(() => navigate('/profile/details'), 2000);
+        }
+      } else {
+        toast.success("恭喜！您已通过认证测试！");
+        setTimeout(() => navigate('/skills-training'), 2000);
+      }
     } else {
-      // Failed
       toast.error(`很遗憾，您的得分为${score}分，需要80分以上才能通过。请继续学习后再试。`);
-      setTimeout(() => {
-        navigate('/skills-training');
-      }, 3000);
+      setTimeout(() => navigate('/skills-training'), 3000);
     }
     
     setShowResult(true);

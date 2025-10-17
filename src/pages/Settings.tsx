@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Bell, HelpCircle, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -151,9 +152,10 @@ const Settings = () => {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>取消</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => {
+                  <AlertDialogAction onClick={async () => {
+                    await supabase.auth.signOut();
                     localStorage.clear();
-                    navigate('/');
+                    navigate('/auth');
                     toast({
                       title: "已退出登录",
                       description: "感谢使用，期待您的再次登录",

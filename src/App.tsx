@@ -35,6 +35,7 @@ import WalletIncome from "./pages/WalletIncome";
 import SkillsTraining from "./pages/SkillsTraining";
 import CertificationTest from "./pages/CertificationTest";
 import QuickRegister from "./pages/QuickRegister";
+import NewbieCourse from "./pages/NewbieCourse";
 
 const queryClient = new QueryClient();
 
@@ -64,9 +65,11 @@ function App() {
           <Route path="/income/settlement-rules" element={<SettlementRules />} />
           
           {/* Skills Training Routes */}
-          <Route path="/skills-training" element={<SkillsTraining />} />
-          <Route path="/skills-training/course/:courseId" element={<CoursePlayer />} />
-          <Route path="/skills-training/test/:skillId" element={<CertificationTest />} />
+        <Route path="/skills-training" element={<SkillsTraining />} />
+        <Route path="/skills-training/course/0" element={<NewbieCourse />} />
+        <Route path="/skills-training/course/:courseId" element={<CoursePlayer />} />
+        <Route path="/skills-training/test/:skillId" element={<CertificationTest />} />
+        <Route path="/certification-test" element={<CertificationTest />} />
           
           {/* Other Profile Routes */}
           <Route path="/reviews" element={<Reviews />} />

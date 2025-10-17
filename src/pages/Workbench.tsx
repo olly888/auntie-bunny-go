@@ -56,32 +56,41 @@ const OnboardingTaskCard = ({ profile, onRefresh }: { profile: any; onRefresh: (
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
-        {tasks.map((task) => (
-          <div 
-            key={task.id}
-            className="flex items-center justify-between p-3 bg-card rounded-lg"
-          >
-            <div className="flex items-center gap-3">
-              {task.completed ? (
-                <CheckCircle className="w-5 h-5 text-green-500" />
-              ) : (
-                <div className="w-5 h-5 rounded-full border-2 border-muted-foreground" />
-              )}
-              <span className={task.completed ? "line-through text-muted-foreground" : ""}>
-                {task.title}
-              </span>
-            </div>
-            {!task.completed && (
-              <Button 
-                size="sm" 
-                variant="outline"
-                onClick={() => navigate(task.route)}
-              >
-                去完成
-              </Button>
+      {tasks.map((task) => (
+        <div 
+          key={task.id}
+          className="flex items-center justify-between p-3 bg-card rounded-lg"
+        >
+          <div className="flex items-center gap-3">
+            {task.completed ? (
+              <CheckCircle className="w-5 h-5 text-green-500" />
+            ) : (
+              <div className="w-5 h-5 rounded-full border-2 border-muted-foreground" />
             )}
+            <span className={task.completed ? "line-through text-muted-foreground" : ""}>
+              {task.title}
+            </span>
           </div>
-        ))}
+          {!task.completed && (
+            <Button 
+              size="sm" 
+              variant="outline"
+              onClick={() => navigate(task.route)}
+            >
+              去完成
+            </Button>
+          )}
+        </div>
+      ))}
+      
+      {!profile?.is_training_completed && (
+        <Button 
+          className="w-full mt-4"
+          onClick={() => navigate('/skills-training/course/0')}
+        >
+          📚 开始新手学习
+        </Button>
+      )}
         
         {completedCount === 2 && (
           <div className="pt-2">

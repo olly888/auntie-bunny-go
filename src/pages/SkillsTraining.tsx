@@ -26,6 +26,15 @@ const SkillsTraining = () => {
   
   const courses = [
     {
+      id: 0,
+      title: "新手任务：快速上岗指南",
+      type: "required",
+      duration: "20分钟",
+      description: "专为新人设计的快速上岗课程，完成后即可开始接单",
+      skillId: "onboarding",
+      isNewbie: true
+    },
+    {
       id: 1,
       title: "服务礼仪与沟通技巧",
       type: "required",
@@ -68,6 +77,14 @@ const SkillsTraining = () => {
   ];
 
   const skills: Skill[] = [
+    {
+      id: "onboarding",
+      name: "新手上岗",
+      level: "必修",
+      certified: false,
+      courseId: 0,
+      description: "新人必修课程认证"
+    },
     {
       id: "home_cleaning",
       name: "家居清洁",

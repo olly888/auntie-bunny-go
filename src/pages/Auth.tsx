@@ -3,103 +3,109 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { useMockAuth } from "@/hooks/useMockAuth";
-import { Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { Link, useNavigate } from "react-router-dom";
 import { Rabbit, MessageSquare } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import rabbitMascot from "@/assets/rabbit-mascot.png";
 import ownerWechatQR from "@/assets/owner-wechat-qr.png";
 
 const Auth = () => {
-  const { state, loginWithWeChat, sendOtp, loginWithPhone, setLastLoginMethod } = useMockAuth();
-  const [activeTab, setActiveTab] = useState<'wechat' | 'phone'>('wechat');
-  const [phone, setPhone] = useState('');
-  const [code, setCode] = useState('');
-  const [countdown, setCountdown] = useState(0);
+  const navigate = useNavigate();
+  const { signInWithPassword, signUp } = useAuth();
+  const [mode, setMode] = useState<'login' | 'signup'>('login');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showCustomerService, setShowCustomerService] = useState(false);
 
-  // 初始化时读取上次登录方式
+  // 检查现有会话
   useEffect(() => {
-    const lastMethod = state.lastLoginMethod || 'wechat';
-    setActiveTab(lastMethod);
-  }, [state.lastLoginMethod]);
-
-  // 倒计时逻辑
-  useEffect(() => {
-    if (countdown > 0) {
-      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [countdown]);
-
-  // 处理微信登录
-  const handleWeChatLogin = async () => {
-    setIsLoading(true);
-    try {
-      await loginWithWeChat();
-      setLastLoginMethod('wechat');
-    } catch (error) {
-      setShowCustomerService(true);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // 发送验证码
-  const handleSendOtp = async () => {
-    if (!phone || !/^1[3-9]\d{9}$/.test(phone)) {
-      toast({
-        title: "手机号格式错误",
-        description: "请输入正确的11位手机号",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      const result = await sendOtp(phone);
-      if (result.success) {
-        setCountdown(result.countdown);
-      } else {
-        setShowCustomerService(true);
-      }
-    } catch (error) {
-      setShowCustomerService(true);
-    }
-  };
-
-  // 手机登录
-  const handlePhoneLogin = async () => {
-    if (!phone || !code) {
-      toast({
-        title: "请填写完整信息",
-        description: "请输入手机号和验证码",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const result = await loginWithPhone({ phone, code });
-      if (result.success) {
-        setLastLoginMethod('phone');
-      } else {
-        toast({
-          title: "登录失败",
-          description: result.error || "登录失败，请重试",
-          variant: "destructive",
-        });
-        if (result.error?.includes('未授权')) {
-          setShowCustomerService(true);
+    const checkSession = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id, onboarding_status')
+          .eq('id', user.id)
+          .maybeSingle();
+        
+        if (!profile) {
+          navigate('/register');
+        } else {
+          navigate('/workbench');
         }
       }
-    } catch (error) {
-      setShowCustomerService(true);
-    } finally {
-      setIsLoading(false);
+    };
+    checkSession();
+  }, [navigate]);
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      toast({
+        title: "请填写完整信息",
+        description: "请输入邮箱和密码",
+        variant: "destructive",
+      });
+      return;
     }
+
+    setIsLoading(true);
+    const { data, error } = await signInWithPassword(email, password);
+    if (!error && data?.user) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', data.user.id)
+        .maybeSingle();
+      
+      navigate(profile ? '/workbench' : '/register');
+    } else {
+      toast({
+        title: "登录失败",
+        description: error?.message || "请检查邮箱和密码",
+        variant: "destructive",
+      });
+    }
+    setIsLoading(false);
+  };
+
+  const handleSignup = async () => {
+    if (!email || !password) {
+      toast({
+        title: "请填写完整信息",
+        description: "请输入邮箱和密码",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (password.length < 6) {
+      toast({
+        title: "密码过短",
+        description: "密码至少需要6个字符",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    const { error } = await signUp(email, password);
+    if (!error) {
+      toast({
+        title: "注册成功！",
+        description: "请前往快速注册页完善信息",
+      });
+      navigate('/register');
+    } else {
+      toast({
+        title: "注册失败",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+    setIsLoading(false);
   };
 
   return (
@@ -130,72 +136,64 @@ const Auth = () => {
             </div>
           </div>
 
-          {/* 登录方式切换 */}
+          {/* 登录/注册切换 */}
           <Tabs 
-            value={activeTab} 
-            onValueChange={(value) => {
-              setActiveTab(value as 'wechat' | 'phone');
-              setLastLoginMethod(value as 'wechat' | 'phone');
-            }}
+            value={mode} 
+            onValueChange={(value) => setMode(value as 'login' | 'signup')}
             className="w-full"
           >
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="wechat">一键登录</TabsTrigger>
-              <TabsTrigger value="phone">手机验证码登录</TabsTrigger>
+              <TabsTrigger value="login">登录</TabsTrigger>
+              <TabsTrigger value="signup">注册</TabsTrigger>
             </TabsList>
 
-            {/* 微信一键登录 */}
-            <TabsContent value="wechat" className="space-y-4 mt-6">
+            {/* 登录 */}
+            <TabsContent value="login" className="space-y-4 mt-6">
+              <Input
+                type="email"
+                placeholder="请输入邮箱"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <Input
+                type="password"
+                placeholder="请输入密码"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
               <Button
-                onClick={handleWeChatLogin}
+                onClick={handleLogin}
                 disabled={isLoading}
-                className="w-full h-12 bg-green-600 hover:bg-green-700 text-white font-medium"
+                className="w-full h-12"
               >
-                {isLoading ? "登录中..." : "微信一键登录"}
+                {isLoading ? "登录中..." : "登录"}
               </Button>
             </TabsContent>
 
-            {/* 手机验证码登录 */}
-            <TabsContent value="phone" className="space-y-4 mt-6">
-              <div className="space-y-4">
-                <Input
-                  type="tel"
-                  placeholder="请输入手机号"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  maxLength={11}
-                />
-                
-                <div className="flex gap-2">
-                  <Input
-                    type="text"
-                    placeholder="请输入验证码"
-                    value={code}
-                    onChange={(e) => setCode(e.target.value)}
-                    maxLength={6}
-                  />
-                  <Button
-                    variant="outline"
-                    onClick={handleSendOtp}
-                    disabled={countdown > 0 || !phone}
-                    className="whitespace-nowrap"
-                  >
-                    {countdown > 0 ? `${countdown}s` : "获取验证码"}
-                  </Button>
-                </div>
-
-                <Button
-                  onClick={handlePhoneLogin}
-                  disabled={isLoading || !phone || !code}
-                  className="w-full h-12"
-                >
-                  {isLoading ? "登录中..." : "登录"}
-                </Button>
-
-                <p className="text-xs text-muted-foreground text-center">
-                  未授权账号无法登录，请联系运营经理开通
-                </p>
-              </div>
+            {/* 注册 */}
+            <TabsContent value="signup" className="space-y-4 mt-6">
+              <Input
+                type="email"
+                placeholder="请输入邮箱"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <Input
+                type="password"
+                placeholder="设置密码（至少6位）"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <Button
+                onClick={handleSignup}
+                disabled={isLoading}
+                className="w-full h-12"
+              >
+                {isLoading ? "注册中..." : "注册"}
+              </Button>
+              <p className="text-xs text-muted-foreground text-center">
+                注册后需完善个人信息才能开始接单
+              </p>
             </TabsContent>
           </Tabs>
         </div>
