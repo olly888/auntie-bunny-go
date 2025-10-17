@@ -79,7 +79,7 @@ const AppealProgress = () => {
     return (
       <div className="min-h-screen bg-background p-4">
         <div className="max-w-md mx-auto">
-          <Button variant="ghost" onClick={() => navigate('/contact')}>
+          <Button variant="ghost" onClick={() => navigate('/help')}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             返回
           </Button>
@@ -99,7 +99,7 @@ const AppealProgress = () => {
       <div className="max-w-md mx-auto p-4 space-y-6">
         {/* Header */}
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/contact')}>
+          <Button variant="ghost" size="sm" onClick={() => navigate('/help')}>
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="flex-1">

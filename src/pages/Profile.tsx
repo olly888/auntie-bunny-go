@@ -157,7 +157,7 @@ const Profile = () => {
             <div className="flex items-center gap-3">
               <Gift className="w-5 h-5 text-primary" />
               <div className="text-base text-foreground">邀请奖励</div>
-              <Badge variant="secondary" className="ml-1">赚钱</Badge>
+              <Badge className="ml-1 bg-primary text-primary-foreground hover:bg-primary/90">赚钱</Badge>
             </div>
             <ChevronRight className="w-5 h-5 text-muted-foreground" />
           </Button>

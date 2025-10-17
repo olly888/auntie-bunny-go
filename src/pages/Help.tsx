@@ -52,18 +52,19 @@ const Help = () => {
       // 生成工单号
       const ticketNumber = `APP${Date.now()}`;
       
+      // 显示成功提示
       toast.success("申诉已提交", {
-        description: `工单号：${ticketNumber}，请在"申诉进度"页面查看处理状态`
+        description: `工单号：${ticketNumber}，客服将在24小时内处理`
       });
 
       // 清空表单
       setAppealType("");
       setAppealContent("");
       
-      // 3秒后跳转到申诉进度页
+      // 跳转到申诉进度页，传递工单号
       setTimeout(() => {
-        navigate("/appeal-progress");
-      }, 3000);
+        navigate(`/appeal-progress/${ticketNumber}`);
+      }, 1500);
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast.error(error.errors[0].message);

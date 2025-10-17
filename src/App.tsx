@@ -48,7 +48,15 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
-        <Sonner />
+        <Sonner 
+          position="bottom-center"
+          toastOptions={{
+            duration: 2500,
+            style: {
+              marginBottom: '80px',
+            },
+          }}
+        />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
