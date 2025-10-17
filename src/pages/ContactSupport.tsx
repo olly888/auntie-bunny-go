@@ -99,15 +99,6 @@ const ContactSupport = () => {
         </div>
 
         <div className="p-4 space-y-6">
-          {/* 平台客服电话 */}
-          <Card className="p-4 bg-accent/5">
-            <p className="text-sm text-muted-foreground mb-2">平台客服电话</p>
-            <p className="font-medium text-lg">{platformPhone}</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              工作时间：周一至周日 9:00-21:00
-            </p>
-          </Card>
-
           {/* 在线申诉表单 */}
           <Card className="shadow-card">
             <CardHeader className="pb-3">

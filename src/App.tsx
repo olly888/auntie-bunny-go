@@ -16,6 +16,7 @@ import Withdraw from "./pages/Withdraw";
 import WithdrawHistory from "./pages/WithdrawHistory";
 import MyBankCards from "./pages/MyBankCards";
 import Invitations from "./pages/Invitations";
+import InvitationRewards from "./pages/InvitationRewards";
 import Insurance from "./pages/Insurance";
 import Security from "./pages/Security";
 import Settings from "./pages/Settings";
@@ -98,6 +99,7 @@ function App() {
           <Route path="/income/performance" element={<MyPerformance />} />
           <Route path="/wallet/cards" element={<MyBankCards />} />
           <Route path="/invitations" element={<Invitations />} />
+          <Route path="/invitation-rewards" element={<InvitationRewards />} />
           <Route path="/insurance" element={<Insurance />} />
           
           <Route path="*" element={<NotFound />} />

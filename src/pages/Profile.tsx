@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { useNavigate } from "react-router-dom";
-import { User, Star, GraduationCap, Settings, ChevronRight, MessageCircle, HelpCircle, FileText } from "lucide-react";
+import { User, Star, GraduationCap, Settings, ChevronRight, MessageCircle, HelpCircle, FileText, Gift } from "lucide-react";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -48,6 +49,22 @@ const Profile = () => {
             <div className="text-lg font-bold text-foreground">28</div>
             <div className="text-xs text-muted-foreground">本月服务</div>
           </div>
+        </div>
+
+        {/* 邀请奖励 */}
+        <div className="bg-card rounded-xl shadow-card overflow-hidden">
+          <Button
+            variant="ghost"
+            className="w-full justify-between h-auto py-4 px-4 rounded-none hover:bg-accent"
+            onClick={() => navigate("/invitation-rewards")}
+          >
+            <div className="flex items-center gap-3">
+              <Gift className="w-5 h-5 text-primary" />
+              <div className="text-base text-foreground">邀请奖励</div>
+              <Badge variant="secondary" className="ml-1">赚钱</Badge>
+            </div>
+            <ChevronRight className="w-5 h-5 text-muted-foreground" />
+          </Button>
         </div>
 
         {/* 功能菜单 */}
