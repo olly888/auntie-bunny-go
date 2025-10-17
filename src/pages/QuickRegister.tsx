@@ -1,26 +1,23 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { ArrowLeft, Clock, ChevronDown, CheckCircle2, XCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
 
 const QuickRegister = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [idCardFront, setIdCardFront] = useState<File | null>(null);
-  const [idCardBack, setIdCardBack] = useState<File | null>(null);
   const [idCardValid, setIdCardValid] = useState<boolean | null>(null);
+  const [ageError, setAgeError] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     full_name: "",
     id_card_number: "",
     gender: "",
-    birth_year: ""
+    age: ""
   });
 
   // 实时验证身份证号
@@ -33,16 +30,33 @@ const QuickRegister = () => {
     }
   };
 
+  // 验证年龄
+  const validateAge = (value: string) => {
+    const age = parseInt(value);
+    if (value && (isNaN(age) || age < 18 || age > 70)) {
+      setAgeError("年龄必须在18-70岁之间");
+      return false;
+    } else {
+      setAgeError(null);
+      return true;
+    }
+  };
+
   const handleIdCardChange = (value: string) => {
     setFormData({ ...formData, id_card_number: value });
     validateIdCard(value);
   };
 
+  const handleAgeChange = (value: string) => {
+    setFormData({ ...formData, age: value });
+    validateAge(value);
+  };
+
   const handleSubmit = async () => {
     // 验证必填字段
-    if (!formData.full_name || !formData.id_card_number || !formData.gender || !formData.birth_year) {
+    if (!formData.full_name || !formData.id_card_number || !formData.gender || !formData.age) {
       toast.error("请填写完整信息", {
-        description: "姓名、身份证号、性别和出生年份为必填项"
+        description: "所有字段均为必填项"
       });
       return;
     }
@@ -52,6 +66,11 @@ const QuickRegister = () => {
       toast.error("身份证号格式错误", {
         description: "请输入正确的18位身份证号码"
       });
+      return;
+    }
+
+    // 验证年龄
+    if (!validateAge(formData.age)) {
       return;
     }
 
@@ -72,19 +91,18 @@ const QuickRegister = () => {
         full_name: formData.full_name,
         id_card_number: formData.id_card_number,
         gender: formData.gender,
-        birth_year: parseInt(formData.birth_year),
+        age: parseInt(formData.age),
         onboarding_status: 'registered',
         is_id_verified: false,
         is_training_completed: false,
-        has_id_card_uploaded: !!(idCardFront || idCardBack),
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
 
       localStorage.setItem("mock_user_profile", JSON.stringify(profile));
 
-      toast.success("🎉 注册成功！欢迎加入兔到到大家庭！", {
-        description: "正在为您跳转到工作台..."
+      toast.success("🎉 注册成功！", {
+        description: "欢迎加入兔到到大家庭！正在跳转..."
       });
 
       // 2秒后跳转
@@ -104,11 +122,9 @@ const QuickRegister = () => {
                      formData.id_card_number.length === 18 && 
                      idCardValid !== false &&
                      formData.gender && 
-                     formData.birth_year;
-
-  // 生成年份选项 (18-70岁)
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 53 }, (_, i) => currentYear - 18 - i);
+                     formData.age && 
+                     validateAge(formData.age) &&
+                     !ageError;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
@@ -124,169 +140,97 @@ const QuickRegister = () => {
         </Button>
         
         <Card>
-          <CardHeader className="text-center pb-4">
-            {/* 标题优化 */}
+          <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold">
-              还差一步，即可完成注册！
+              还差一步，即可开始赚钱！
             </CardTitle>
-            
-            {/* 进度条 */}
-            <div className="mt-4">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">
-                  1
-                </div>
-                <div className="flex-1 h-1 bg-primary max-w-[100px]"></div>
-                <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">
-                  1
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                完成度 100%
-              </p>
-            </div>
           </CardHeader>
           
-          <CardContent className="space-y-6">
-            {/* 必填信息区 */}
-            <div className="p-5 bg-primary/5 border-2 border-primary/30 rounded-xl space-y-4">
-              <div className="flex items-center justify-between mb-3">
-                <Badge className="bg-primary text-primary-foreground">
-                  必填信息
-                </Badge>
-                <span className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  仅需1分钟
-                </span>
-              </div>
+          <CardContent className="space-y-4">
+            {/* 真实姓名 */}
+            <div className="space-y-2">
+              <Label className="text-base font-semibold">真实姓名</Label>
+              <Input
+                value={formData.full_name}
+                onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                placeholder="请输入您的真实姓名"
+                className="h-12"
+              />
+            </div>
               
-              {/* 真实姓名 */}
-              <div className="space-y-2">
-                <Label className="text-base font-semibold">真实姓名</Label>
+            {/* 身份证号码 */}
+            <div className="space-y-2">
+              <Label className="text-base font-semibold">身份证号码</Label>
+              <div className="relative">
                 <Input
-                  value={formData.full_name}
-                  onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                  placeholder="请输入您的真实姓名"
-                  className="h-12 text-base"
+                  value={formData.id_card_number}
+                  onChange={(e) => handleIdCardChange(e.target.value)}
+                  placeholder="请输入身份证号码"
+                  maxLength={18}
+                  className="h-12 pr-10"
                 />
-              </div>
-              
-              {/* 身份证号码 */}
-              <div className="space-y-2">
-                <Label className="text-base font-semibold">身份证号码</Label>
-                <div className="relative">
-                  <Input
-                    value={formData.id_card_number}
-                    onChange={(e) => handleIdCardChange(e.target.value)}
-                    placeholder="请输入身份证号码"
-                    maxLength={18}
-                    className="h-12 text-base pr-10"
-                  />
-                  {idCardValid === true && (
-                    <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500" />
-                  )}
-                  {idCardValid === false && (
-                    <XCircle className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-destructive" />
-                  )}
-                </div>
+                {idCardValid === true && (
+                  <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500" />
+                )}
                 {idCardValid === false && (
-                  <p className="text-xs text-destructive">身份证号格式错误，请检查</p>
+                  <XCircle className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-destructive" />
                 )}
               </div>
+              {idCardValid === false && (
+                <p className="text-xs text-destructive">身份证号格式错误，请检查</p>
+              )}
+            </div>
               
-              {/* 性别和出生年份 */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-2">
-                  <Label className="text-base font-semibold">性别</Label>
-                  <div className="flex gap-2">
-                    <Button 
-                      type="button"
-                      variant={formData.gender === '男' ? 'default' : 'outline'}
-                      className="flex-1 h-12"
-                      onClick={() => setFormData({ ...formData, gender: '男' })}
-                    >
-                      <span className="mr-1">👨</span> 男
-                    </Button>
-                    <Button 
-                      type="button"
-                      variant={formData.gender === '女' ? 'default' : 'outline'}
-                      className="flex-1 h-12"
-                      onClick={() => setFormData({ ...formData, gender: '女' })}
-                    >
-                      <span className="mr-1">👩</span> 女
-                    </Button>
-                  </div>
+            {/* 性别和年龄 */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">性别</Label>
+                <div className="flex gap-2">
+                  <Button 
+                    type="button"
+                    variant={formData.gender === '男' ? 'default' : 'outline'}
+                    className="flex-1 h-12"
+                    onClick={() => setFormData({ ...formData, gender: '男' })}
+                  >
+                    <span className="mr-1">👨</span> 男
+                  </Button>
+                  <Button 
+                    type="button"
+                    variant={formData.gender === '女' ? 'default' : 'outline'}
+                    className="flex-1 h-12"
+                    onClick={() => setFormData({ ...formData, gender: '女' })}
+                  >
+                    <span className="mr-1">👩</span> 女
+                  </Button>
                 </div>
-                
-                <div className="space-y-2">
-                  <Label className="text-base font-semibold">出生年份</Label>
-                  <Select value={formData.birth_year} onValueChange={(value) => setFormData({ ...formData, birth_year: value })}>
-                    <SelectTrigger className="h-12">
-                      <SelectValue placeholder="选择" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {years.map(year => (
-                        <SelectItem key={year} value={year.toString()}>
-                          {year}年
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">年龄</Label>
+                <Input
+                  type="number"
+                  value={formData.age}
+                  onChange={(e) => handleAgeChange(e.target.value)}
+                  placeholder="请输入年龄"
+                  min={18}
+                  max={70}
+                  className="h-12"
+                />
+                {ageError && (
+                  <p className="text-xs text-destructive mt-1">{ageError}</p>
+                )}
               </div>
             </div>
             
-            {/* 可选上传区 - 折叠面板 */}
-            <details className="group">
-              <summary className="cursor-pointer list-none">
-                <div className="flex items-center justify-between p-4 border border-dashed rounded-lg hover:bg-muted/50 transition-colors">
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className="text-xs">
-                      可选
-                    </Badge>
-                    <span className="text-sm text-muted-foreground">
-                      身份证照片上传（提前上传可加快审核）
-                    </span>
-                  </div>
-                  <ChevronDown className="w-4 h-4 text-muted-foreground group-open:rotate-180 transition-transform" />
-                </div>
-              </summary>
-              
-              <div className="mt-3 p-4 border border-dashed rounded-lg space-y-3">
-                <div className="space-y-2">
-                  <Label className="text-sm">身份证正面</Label>
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setIdCardFront(e.target.files?.[0] || null)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm">身份证背面</Label>
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setIdCardBack(e.target.files?.[0] || null)}
-                  />
-                </div>
-              </div>
-            </details>
-            
-            {/* 按钮区 */}
-            <div className="space-y-3 pt-4">
-              <Button 
-                size="lg" 
-                className="w-full h-14 text-lg font-semibold bg-primary hover:bg-primary/90"
-                onClick={handleSubmit}
-                disabled={!formValid || loading}
-              >
-                {loading ? "提交中..." : "完成注册"}
-              </Button>
-              
-              <p className="text-xs text-center text-muted-foreground leading-relaxed">
-                *更详细的资料可在后续"个人中心"随时完善
-              </p>
-            </div>
+            {/* 提交按钮 */}
+            <Button 
+              size="lg" 
+              className="w-full h-14 text-lg font-semibold bg-primary hover:bg-primary/90 mt-6"
+              onClick={handleSubmit}
+              disabled={!formValid || loading}
+            >
+              {loading ? "注册中..." : "开始赚钱 💰"}
+            </Button>
           </CardContent>
         </Card>
       </div>
