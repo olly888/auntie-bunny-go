@@ -14,6 +14,56 @@ export type Database = {
   }
   public: {
     Tables: {
+      appeal_tickets: {
+        Row: {
+          appeal_type: string
+          completed_at: string | null
+          content: string
+          created_at: string | null
+          id: string
+          notes: string | null
+          result: string | null
+          status: string | null
+          ticket_number: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          appeal_type: string
+          completed_at?: string | null
+          content: string
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          result?: string | null
+          status?: string | null
+          ticket_number: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          appeal_type?: string
+          completed_at?: string | null
+          content?: string
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          result?: string | null
+          status?: string | null
+          ticket_number?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appeal_tickets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bank_accounts: {
         Row: {
           account_holder: string
@@ -370,6 +420,9 @@ export type Database = {
       profiles: {
         Row: {
           age: number | null
+          agreement_ip: string | null
+          agreement_signed_at: string | null
+          agreement_version: string | null
           avatar_url: string | null
           created_at: string
           education: string | null
@@ -401,6 +454,9 @@ export type Database = {
         }
         Insert: {
           age?: number | null
+          agreement_ip?: string | null
+          agreement_signed_at?: string | null
+          agreement_version?: string | null
           avatar_url?: string | null
           created_at?: string
           education?: string | null
@@ -432,6 +488,9 @@ export type Database = {
         }
         Update: {
           age?: number | null
+          agreement_ip?: string | null
+          agreement_signed_at?: string | null
+          agreement_version?: string | null
           avatar_url?: string | null
           created_at?: string
           education?: string | null

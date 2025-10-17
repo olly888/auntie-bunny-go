@@ -34,15 +34,36 @@ const ContactSupport = () => {
     setIsSubmitting(true);
     
     try {
-      // 模拟API调用
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const storedUser = localStorage.getItem("mock_user");
+      if (!storedUser) {
+        toast({
+          title: "未登录",
+          description: "请先登录",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const user = JSON.parse(storedUser);
       
-      // 生成工单编号
+      // 生成工单号
       const ticketNumber = `AP${Date.now().toString().slice(-8)}`;
+      
+      // TODO: 实际项目中应该保存到Supabase
+      // await supabase.from('appeal_tickets').insert(appeal);
       
       toast({
         title: "申诉已提交",
         description: `工单编号：${ticketNumber}\n我们将在24小时内回复您`,
+        action: (
+          <Button 
+            size="sm" 
+            onClick={() => navigate(`/appeal-progress/${ticketNumber}`)}
+          >
+            查看进度
+          </Button>
+        ),
+        duration: 5000
       });
       
       // 重置表单
@@ -78,29 +99,13 @@ const ContactSupport = () => {
         </div>
 
         <div className="p-4 space-y-6">
-          {/* 客服电话卡片 */}
-          <Card className="bg-gradient-primary text-primary-foreground shadow-card">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Phone className="w-5 h-5" />
-                平台客服电话
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="text-center">
-                <div className="text-3xl font-bold mb-2">{platformPhone}</div>
-                <div className="text-sm opacity-90">工作时间：周一至周日 9:00-21:00</div>
-              </div>
-              <Button 
-                variant="secondary" 
-                size="lg" 
-                className="w-full"
-                onClick={handleCall}
-              >
-                <Phone className="w-5 h-5 mr-2" />
-                一键拨打
-              </Button>
-            </CardContent>
+          {/* 平台客服电话 */}
+          <Card className="p-4 bg-accent/5">
+            <p className="text-sm text-muted-foreground mb-2">平台客服电话</p>
+            <p className="font-medium text-lg">{platformPhone}</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              工作时间：周一至周日 9:00-21:00
+            </p>
           </Card>
 
           {/* 在线申诉表单 */}

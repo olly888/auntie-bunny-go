@@ -1,13 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { useNavigate } from "react-router-dom";
-import { User, Star, GraduationCap, Settings, ChevronRight, MessageCircle, HelpCircle } from "lucide-react";
+import { User, Star, GraduationCap, Settings, ChevronRight, MessageCircle, HelpCircle, FileText } from "lucide-react";
 
 const Profile = () => {
   const navigate = useNavigate();
 
   const menuItems = [
     { icon: User, label: "个人信息", description: "管理头像、姓名、证件等个人资料", path: "/profile/details" },
+    { icon: FileText, label: "电子合同", description: "查看已签署的协议", path: "/profile/agreements" },
     { icon: Star, label: "我的评价", description: "查看用户给出的所有历史评价", path: "/reviews" },
     { icon: GraduationCap, label: "技能培训", description: "课程学习、技能认证、测试考核", path: "/skills-training" },
     { icon: HelpCircle, label: "帮助中心", description: "查看平台规则和常见问题解答", path: "/help" },
@@ -37,16 +38,16 @@ const Profile = () => {
         {/* 快速数据 */}
         <div className="grid grid-cols-3 gap-4">
           <div className="bg-card rounded-lg p-4 text-center shadow-card">
-            <div className="text-lg font-bold text-foreground">4.9</div>
+            <div className="text-lg font-bold text-green-600 dark:text-green-400">¥2,450</div>
+            <div className="text-xs text-muted-foreground">本月收入</div>
+          </div>
+          <div className="bg-card rounded-lg p-4 text-center shadow-card">
+            <div className="text-lg font-bold text-foreground">4.9 ⭐</div>
             <div className="text-xs text-muted-foreground">服务评分</div>
           </div>
           <div className="bg-card rounded-lg p-4 text-center shadow-card">
-            <div className="text-lg font-bold text-foreground">328</div>
-            <div className="text-xs text-muted-foreground">累计服务</div>
-          </div>
-          <div className="bg-card rounded-lg p-4 text-center shadow-card">
-            <div className="text-lg font-bold text-foreground">5</div>
-            <div className="text-xs text-muted-foreground">总服务小时</div>
+            <div className="text-lg font-bold text-foreground">28</div>
+            <div className="text-xs text-muted-foreground">本月服务</div>
           </div>
         </div>
 

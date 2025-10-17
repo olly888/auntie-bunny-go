@@ -1,9 +1,8 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import TaskHall from "./pages/TaskHall";
@@ -11,6 +10,7 @@ import OrderGrab from "./pages/OrderGrab";
 import OrderService from "./pages/OrderService";
 import Profile from "./pages/Profile";
 import ProfileDetails from "./pages/ProfileDetails";
+import ProfileAgreements from "./pages/ProfileAgreements";
 import MyPerformance from "./pages/MyPerformance";
 import Withdraw from "./pages/Withdraw";
 import WithdrawHistory from "./pages/WithdrawHistory";
@@ -21,8 +21,10 @@ import Security from "./pages/Security";
 import Settings from "./pages/Settings";
 import Help from "./pages/Help";
 import ContactSupport from "./pages/ContactSupport";
+import AppealProgress from "./pages/AppealProgress";
 import SalaryExplanation from "./pages/SalaryExplanation";
 import CoursePlayer from "./pages/CoursePlayer";
+import CourseDetail from "./pages/CourseDetail";
 import Reviews from "./pages/Reviews";
 import Notifications from "./pages/Notifications";
 import LegalPrivacyPolicy from "./pages/LegalPrivacyPolicy";
@@ -34,7 +36,6 @@ import SettlementRules from "./pages/SettlementRules";
 import WalletIncome from "./pages/WalletIncome";
 import SkillsTraining from "./pages/SkillsTraining";
 import CertificationTest from "./pages/CertificationTest";
-import QuickRegister from "./pages/QuickRegister";
 import NewbieCourse from "./pages/NewbieCourse";
 import LocationSelection from "./pages/LocationSelection";
 import CertificationIntro from "./pages/CertificationIntro";
@@ -51,7 +52,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
-          <Route path="/register" element={<QuickRegister />} />
+          <Route path="/register" element={<Navigate to="/auth" replace />} />
           <Route path="/register/location" element={<LocationSelection />} />
           <Route path="/certification" element={<CertificationIntro />} />
           <Route path="/certification/process" element={<CertificationProcess />} />
@@ -62,6 +63,7 @@ function App() {
           
           <Route path="/profile" element={<Profile />} />
           <Route path="/profile/details" element={<ProfileDetails />} />
+          <Route path="/profile/agreements" element={<ProfileAgreements />} />
           
           {/* Wallet & Income Routes */}
           <Route path="/wallet" element={<MyWallet />} />
@@ -76,11 +78,13 @@ function App() {
         <Route path="/skills-training/course/:courseId" element={<CoursePlayer />} />
         <Route path="/skills-training/test/:skillId" element={<CertificationTest />} />
         <Route path="/certification-test" element={<CertificationTest />} />
+        <Route path="/course/:lessonId" element={<CourseDetail />} />
           
           {/* Other Profile Routes */}
           <Route path="/reviews" element={<Reviews />} />
           <Route path="/help" element={<Help />} />
           <Route path="/contact" element={<ContactSupport />} />
+          <Route path="/appeal-progress/:ticketNumber" element={<AppealProgress />} />
           <Route path="/security" element={<Security />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/notifications" element={<Notifications />} />

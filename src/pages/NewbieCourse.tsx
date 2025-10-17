@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -10,6 +10,12 @@ import { cn } from "@/lib/utils";
 const NewbieCourse = () => {
   const navigate = useNavigate();
   const [completedLessons, setCompletedLessons] = useState<number[]>([]);
+
+  useEffect(() => {
+    // 从localStorage加载完成状态
+    const completed = JSON.parse(localStorage.getItem('completed_lessons') || '[]');
+    setCompletedLessons(completed);
+  }, []);
 
   const lessons = [
     { 
@@ -42,9 +48,8 @@ const NewbieCourse = () => {
   const allCompleted = completedLessons.length === lessons.length;
 
   const handleLessonClick = (lessonId: number) => {
-    if (!completedLessons.includes(lessonId)) {
-      setCompletedLessons([...completedLessons, lessonId]);
-    }
+    // 跳转到课程详情页
+    navigate(`/course/${lessonId}`);
   };
 
   const handleComplete = () => {

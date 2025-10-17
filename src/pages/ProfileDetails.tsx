@@ -137,7 +137,7 @@ export default function ProfileDetails() {
       };
 
       localStorage.setItem("mock_user_profile", JSON.stringify(updatedProfile));
-      toast.success("保存成功", { description: "个人信息已更新" });
+      // 不显示toast，按钮状态反馈即可
     } catch (error) {
       console.error('Error saving profile:', error);
       toast.error("保存失败", { description: "请重试" });
@@ -173,7 +173,7 @@ export default function ProfileDetails() {
       };
       reader.readAsDataURL(file);
       
-      toast.success("照片已选择", { description: "记得点击保存按钮" });
+      // 不显示toast，图片预览本身就是反馈
     };
     
     input.click();

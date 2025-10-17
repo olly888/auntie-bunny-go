@@ -12,6 +12,8 @@ import { OrderCard, OnboardingTask } from "@/components/order/OrderCard";
 import { OfflineReasonDialog } from "@/components/order/OfflineReasonDialog";
 import { useDemoOrders } from "@/hooks/useDemoOrders";
 import { toast } from "@/hooks/use-toast";
+import { useAgreementCheck } from "@/hooks/useAgreementCheck";
+import AgreementDialog from "@/components/AgreementDialog";
 import rabbitMascot from "@/assets/rabbit-mascot.png";
 
 // 获取新手任务列表
@@ -57,6 +59,7 @@ const Workbench = () => {
   const [showGrabModal, setShowGrabModal] = useState(false);
   const [broadcastOrder, setBroadcastOrder] = useState<OrderInfo | null>(null);
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+  const { needsAgreement, setNeedsAgreement, signAgreement } = useAgreementCheck();
 
   // 从 localStorage 加载 profile 并监听变化
   useEffect(() => {
@@ -162,6 +165,12 @@ const Workbench = () => {
     }
 
     if (checked) {
+      // 检查是否已签署协议
+      if (needsAgreement) {
+        setNeedsAgreement(true);
+        return;
+      }
+      
       setIsOnline(true);
       toast({
         title: "已上线",
@@ -172,13 +181,28 @@ const Workbench = () => {
     }
   };
 
+  const handleAgreeAgreement = () => {
+    signAgreement();
+    setIsOnline(true);
+    toast({
+      title: "协议签署成功",
+      description: "现在可以开始接单了！"
+    });
+  };
+
+  const handleDisagreeAgreement = () => {
+    setNeedsAgreement(false);
+    toast({
+      title: "未签署协议",
+      description: "签署协议后才能上线接单",
+      variant: "destructive"
+    });
+  };
+
   const confirmGoOffline = async (reason: string) => {
     setIsOnline(false);
     setShowOfflineDialog(false);
-    toast({
-      title: "已下线",
-      description: `下线原因：${reason}`
-    });
+    // 不显示toast，开关状态变化本身就是反馈
   };
 
   // 模拟广播弹窗
@@ -270,10 +294,8 @@ const Workbench = () => {
 
   // 刷新当前页面内容
   const handleRefresh = () => {
-    toast({
-      title: "已刷新",
-      description: "内容已更新到最新状态",
-    });
+    // 不显示toast，直接刷新数据
+    // 实际应用中这里应该重新请求数据
   };
 
   // 完成当前订单
@@ -534,6 +556,13 @@ const Workbench = () => {
         open={showOfflineDialog}
         onOpenChange={setShowOfflineDialog}
         onConfirm={confirmGoOffline}
+      />
+      
+      {/* 协议签署弹窗 */}
+      <AgreementDialog
+        open={needsAgreement}
+        onAgree={handleAgreeAgreement}
+        onDisagree={handleDisagreeAgreement}
       />
       
       <BottomNav />
