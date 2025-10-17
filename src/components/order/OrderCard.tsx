@@ -16,6 +16,7 @@ export interface OnboardingTask {
   completed: boolean;
   route: string;
   description: string;
+  benefit?: string;
 }
 
 interface OrderCardProps {
@@ -54,18 +55,20 @@ export const OrderCard = ({ order, onClaim, variant = 'default' }: OrderCardProp
               </div>
               <div className="flex items-center gap-1 text-sm text-muted-foreground truncate">
                 {isOnboardingTask ? (
-                  <>
-                    <Clock className="w-3 h-3" />
-                    <span>{order.duration}</span>
-                    <span>·</span>
-                  </>
+                  order.benefit && (
+                    <>
+                      <span className="text-primary font-medium">✓</span>
+                      <span className="text-primary text-xs font-medium">{order.benefit}</span>
+                      <span>·</span>
+                    </>
+                  )
                 ) : null}
                 <MapPin className="w-3 h-3" />
                 <span className="truncate">{order.address}</span>
                 {!isOnboardingTask && <span>({order.distance})</span>}
               </div>
               {isOnboardingTask && (
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-sm font-medium text-primary/80 mt-1.5">
                   {order.description}
                 </p>
               )}
@@ -88,12 +91,12 @@ export const OrderCard = ({ order, onClaim, variant = 'default' }: OrderCardProp
                 已完成
               </Button>
             ) : (
-              <Button 
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-                onClick={() => navigate(order.route)}
-              >
-                去完成
-              </Button>
+            <Button 
+              className="w-full bg-gradient-to-r from-primary to-primary/80 hover:opacity-90 text-primary-foreground font-bold shadow-lg"
+              onClick={() => navigate(order.route)}
+            >
+              立即解锁 🎁
+            </Button>
             )
           ) : (
             <Button 
@@ -162,10 +165,10 @@ export const OrderCard = ({ order, onClaim, variant = 'default' }: OrderCardProp
             </Button>
           ) : (
             <Button 
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+              className="w-full bg-gradient-to-r from-primary to-primary/80 hover:opacity-90 text-primary-foreground font-bold shadow-lg"
               onClick={() => navigate(order.route)}
             >
-              去完成
+              立即解锁 🎁
             </Button>
           )
         ) : (

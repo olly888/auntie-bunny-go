@@ -17,45 +17,48 @@ import rabbitMascot from "@/assets/rabbit-mascot.png";
 // 获取新手任务列表
 const getOnboardingTasks = (profile: any): OnboardingTask[] => {
   if (profile?.onboarding_status === 'activated') {
-    return []; // 已激活用户不显示新手任务
+    return [];
   }
   
   return [
     {
       id: 'onboarding-id-verify',
-      type: '🆔 实名认证任务',
-      duration: '5-10分钟',
-      address: '在线完成',
-      distance: '0公里',
+      type: '💎 解锁接单资格',
+      duration: '',
+      address: '✨ 快速认证',
+      distance: '',
       payout: '0',
       isOnboardingTask: true,
       completed: profile?.is_id_verified || false,
       route: '/certification',
-      description: '完成身份证扫描和人脸识别认证'
+      description: '🎁 通过认证即可开始接单赚钱',
+      benefit: '解锁接单能力'
     },
     {
       id: 'onboarding-training',
-      type: '📚 新手培训任务',
-      duration: '15-20分钟',
-      address: '在线学习',
-      distance: '0公里',
+      type: '🚀 掌握赚钱技巧',
+      duration: '',
+      address: '💡 轻松学习',
+      distance: '',
       payout: '0',
       isOnboardingTask: true,
       completed: profile?.is_training_completed || false,
       route: '/skills-training',
-      description: '完成新人上岗学习与考核'
+      description: '📈 学会服务技巧，订单源源不断',
+      benefit: '提升接单成功率'
     },
     {
       id: 'onboarding-agreement',
-      type: '📄 签署协议任务',
-      duration: '10-15分钟',
-      address: '在线签署',
-      distance: '0公里',
+      type: '🛡️ 开启收入保障',
+      duration: '',
+      address: '📝 电子签署',
+      distance: '',
       payout: '0',
       isOnboardingTask: true,
       completed: !!profile?.agreement_signed_at,
       route: '/profile/agreements',
-      description: '阅读并签署服务合作协议'
+      description: '💰 签署协议，收入结算有保障',
+      benefit: '获得平台保障'
     }
   ];
 };
@@ -85,9 +88,9 @@ const Workbench = () => {
             localStorage.setItem("mock_user_profile", JSON.stringify(parsedProfile));
             
             toast({
-              title: "🎉 账户已激活！",
-              description: "恭喜您完成所有新手任务，现在可以开始接单赚钱了！",
-              duration: 5000
+              title: "🎊 恭喜解锁接单权限！",
+              description: "您已获得全部赚钱能力！现在就去抢单，开启收入增长之旅 💰",
+              duration: 6000
             });
           }
         }
@@ -387,13 +390,15 @@ const Workbench = () => {
               <div className="space-y-3">
                 {/* 新手任务提示卡片 */}
                 {onboardingTasks.length > 0 && (
-                  <Card className="p-4 bg-primary/5 border-primary/20">
+                  <Card className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border-amber-200 dark:border-amber-800">
                     <div className="flex items-start gap-3">
-                      <div className="text-2xl">🎯</div>
+                      <div className="text-3xl">🎉</div>
                       <div className="flex-1">
-                        <h3 className="font-semibold text-foreground mb-1">新手任务</h3>
-                        <p className="text-sm text-muted-foreground">
-                          完成以下 {onboardingTasks.length} 个任务即可激活账户，开始接单赚钱
+                        <h3 className="font-bold text-foreground mb-1.5 text-base">
+                          距离开始赚钱，只差 {onboardingTasks.filter(t => !t.completed).length} 步！
+                        </h3>
+                        <p className="text-sm font-medium text-amber-700 dark:text-amber-400">
+                          💰 完成即可开启月入过万之旅
                         </p>
                       </div>
                     </div>
