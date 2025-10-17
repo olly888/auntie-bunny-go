@@ -34,6 +34,7 @@ import SettlementRules from "./pages/SettlementRules";
 import WalletIncome from "./pages/WalletIncome";
 import SkillsTraining from "./pages/SkillsTraining";
 import CertificationTest from "./pages/CertificationTest";
+import QuickRegister from "./pages/QuickRegister";
 
 const queryClient = new QueryClient();
 
@@ -46,13 +47,13 @@ function App() {
         <Routes>
           <Route path="/" element={<Workbench />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/register" element={<QuickRegister />} />
           <Route path="/tasks" element={<TaskHall />} />
           <Route path="/grab/:orderId" element={<OrderGrab />} />
           <Route path="/service/:orderId" element={<OrderService />} />
           <Route path="/workbench" element={<Workbench />} />
           
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/profile/details" element={<ProfileDetails />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/profile/details" element={<ProfileDetails />} />
           
           {/* Wallet & Income Routes */}

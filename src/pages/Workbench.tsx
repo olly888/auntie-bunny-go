@@ -5,8 +5,9 @@ import { BottomNav } from "@/components/ui/bottom-nav";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Phone, RefreshCw, Plus } from "lucide-react";
+import { Phone, RefreshCw, Plus, CheckCircle } from "lucide-react";
 import { GrabModal, OrderInfo } from "@/components/order/GrabModal";
 import { OrderCard } from "@/components/order/OrderCard";
 import { OfflineReasonDialog } from "@/components/order/OfflineReasonDialog";
@@ -14,8 +15,89 @@ import { useDemoOrders } from "@/hooks/useDemoOrders";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import rabbitMascot from "@/assets/rabbit-mascot.png";
+import { useAuthContext } from "@/contexts/AuthContext";
+
+// 新手任务卡片组件
+const OnboardingTaskCard = ({ profile, onRefresh }: { profile: any; onRefresh: () => void }) => {
+  const navigate = useNavigate();
+  
+  const tasks = [
+    {
+      id: 'id_verify',
+      title: '上传身份证并完成实名认证',
+      completed: profile?.is_id_verified || false,
+      route: '/profile/details'
+    },
+    {
+      id: 'training',
+      title: '完成新人上岗学习与考核',
+      completed: profile?.is_training_completed || false,
+      route: '/skills-training'
+    }
+  ];
+  
+  const completedCount = tasks.filter(t => t.completed).length;
+  
+  if (profile?.onboarding_status === 'activated') {
+    return null;
+  }
+  
+  return (
+    <Card id="onboarding-tasks" className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20 mb-6">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg">🎯 新手任务</CardTitle>
+          <Badge variant={completedCount === 2 ? "default" : "secondary"}>
+            {completedCount}/2
+          </Badge>
+        </div>
+        <CardDescription>
+          完成以下任务，即可解锁【上线接单】功能！
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {tasks.map((task) => (
+          <div 
+            key={task.id}
+            className="flex items-center justify-between p-3 bg-card rounded-lg"
+          >
+            <div className="flex items-center gap-3">
+              {task.completed ? (
+                <CheckCircle className="w-5 h-5 text-green-500" />
+              ) : (
+                <div className="w-5 h-5 rounded-full border-2 border-muted-foreground" />
+              )}
+              <span className={task.completed ? "line-through text-muted-foreground" : ""}>
+                {task.title}
+              </span>
+            </div>
+            {!task.completed && (
+              <Button 
+                size="sm" 
+                variant="outline"
+                onClick={() => navigate(task.route)}
+              >
+                去完成
+              </Button>
+            )}
+          </div>
+        ))}
+        
+        {completedCount === 2 && (
+          <div className="pt-2">
+            <p className="text-sm text-green-600 font-medium text-center">
+              🎉 恭喜您已完成所有任务！系统将自动激活您的账户
+            </p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
 
 const Workbench = () => {
+  const navigate = useNavigate();
+  const { profile, refreshProfile } = useAuthContext();
   const [isOnline, setIsOnline] = useState(true);
   const [showOfflineDialog, setShowOfflineDialog] = useState(false);
   const [activeTab, setActiveTab] = useState("hall");
@@ -33,7 +115,6 @@ const Workbench = () => {
     "🎀 服务开始前，形象与礼仪也准备好了",
     "💖 你不是一个人在等待，是兔到到和你一起"
   ];
-  const navigate = useNavigate();
   const location = useLocation();
   
   const { 
@@ -49,7 +130,6 @@ const Workbench = () => {
   // Set active tab from navigation state
   useEffect(() => {
     if (location.state?.activeTab) {
-      // Validate activeTab value against allowed values
       const validTabs = ["hall", "inprogress", "done"];
       if (validTabs.includes(location.state.activeTab)) {
         setActiveTab(location.state.activeTab);
@@ -63,12 +143,33 @@ const Workbench = () => {
       setCurrentMessageIndex((prev) => 
         (prev + 1) % rotatingMessages.length
       );
-    }, 30000); // 30秒轮播
+    }, 30000);
 
     return () => clearInterval(interval);
   }, [rotatingMessages.length]);
 
   const handleToggleOnline = (checked: boolean) => {
+    // 检查是否已激活
+    if (checked && profile?.onboarding_status !== 'activated') {
+      toast({
+        title: "账户尚未激活",
+        description: "请先完成实名认证与新人学习",
+        action: (
+          <Button 
+            size="sm" 
+            onClick={() => {
+              document.getElementById('onboarding-tasks')?.scrollIntoView({ 
+                behavior: 'smooth' 
+              });
+            }}
+          >
+            立即前往
+          </Button>
+        )
+      });
+      return;
+    }
+
     if (checked) {
       setIsOnline(true);
       toast({
@@ -82,7 +183,6 @@ const Workbench = () => {
 
   const confirmGoOffline = async (reason: string) => {
     try {
-      // 记录下线原因到数据库
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const { error } = await supabase.from('offline_logs').insert({
@@ -171,7 +271,6 @@ const Workbench = () => {
 
   // 从任务大厅抢单
   const handleClaimFromHall = (orderId: string) => {
-    // 验证是否可以抢单
     if (!isOnline) {
       toast({
         title: "请先上线",
@@ -227,6 +326,9 @@ const Workbench = () => {
     <div className="min-h-screen bg-background pb-20">
       <div className="max-w-md mx-auto p-4 space-y-6">
         
+        {/* 新手任务卡片（置顶显示） */}
+        {profile && <OnboardingTaskCard profile={profile} onRefresh={refreshProfile} />}
+        
         {/* 顶部问候卡片 */}
         <Card className="p-6 bg-gradient-primary text-primary-foreground">
           <div>
@@ -242,17 +344,24 @@ const Workbench = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className={`w-3 h-3 rounded-full ${isOnline ? 'bg-green-500' : 'bg-gray-400'}`} />
-              <span className="font-medium text-foreground">
-                {isOnline ? "上线接单" : "下线休息"}
-              </span>
+              <div>
+                <span className="font-medium text-foreground">
+                  {isOnline ? "上线接单" : "下线休息"}
+                </span>
+                {profile?.onboarding_status !== 'activated' && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    完成新手任务后解锁
+                  </p>
+                )}
+              </div>
             </div>
             <Switch
               checked={isOnline}
               onCheckedChange={handleToggleOnline}
-              className="data-[state=checked]:bg-green-500"
+              disabled={profile?.onboarding_status !== 'activated'}
+              className={`data-[state=checked]:bg-green-500 ${profile?.onboarding_status !== 'activated' ? 'opacity-50' : ''}`}
             />
           </div>
-          {/* 内嵌统计信息 */}
           <div className="text-xs text-muted-foreground mt-2">
             今日：{todayStats.completed} 单 · ¥{todayStats.earnings} · {workHours} 小时
           </div>

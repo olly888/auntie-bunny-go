@@ -369,6 +369,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          age: number | null
           avatar_url: string | null
           created_at: string
           emergency_contact: string | null
@@ -380,7 +381,10 @@ export type Database = {
           gender: string | null
           id: string
           id_card_number: string | null
+          is_id_verified: boolean | null
+          is_training_completed: boolean | null
           last_password_change_at: string | null
+          onboarding_status: string | null
           phone: string | null
           prejob_training: Database["public"]["Enums"]["prejob_training_status"]
           prejob_training_completed_at: string | null
@@ -393,6 +397,7 @@ export type Database = {
           wecom_qr_url: string | null
         }
         Insert: {
+          age?: number | null
           avatar_url?: string | null
           created_at?: string
           emergency_contact?: string | null
@@ -404,7 +409,10 @@ export type Database = {
           gender?: string | null
           id: string
           id_card_number?: string | null
+          is_id_verified?: boolean | null
+          is_training_completed?: boolean | null
           last_password_change_at?: string | null
+          onboarding_status?: string | null
           phone?: string | null
           prejob_training?: Database["public"]["Enums"]["prejob_training_status"]
           prejob_training_completed_at?: string | null
@@ -417,6 +425,7 @@ export type Database = {
           wecom_qr_url?: string | null
         }
         Update: {
+          age?: number | null
           avatar_url?: string | null
           created_at?: string
           emergency_contact?: string | null
@@ -428,7 +437,10 @@ export type Database = {
           gender?: string | null
           id?: string
           id_card_number?: string | null
+          is_id_verified?: boolean | null
+          is_training_completed?: boolean | null
           last_password_change_at?: string | null
+          onboarding_status?: string | null
           phone?: string | null
           prejob_training?: Database["public"]["Enums"]["prejob_training_status"]
           prejob_training_completed_at?: string | null
@@ -760,7 +772,16 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      onboarding_funnel: {
+        Row: {
+          activated_count: number | null
+          activation_rate_percent: number | null
+          id_verified_count: number | null
+          registered_count: number | null
+          training_completed_count: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       admin_search_profiles: {
