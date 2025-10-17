@@ -113,7 +113,11 @@ const WalletIncome = () => {
                 </div>
               ) : (
                 filteredOrders.map((order: any) => (
-                  <div key={order.id} className="bg-card rounded-xl p-4 shadow-card border border-border/50">
+                  <div 
+                    key={order.id} 
+                    onClick={() => navigate(`/order/${order.id}`)}
+                    className="bg-card rounded-xl p-4 shadow-card border border-border/50 cursor-pointer hover:shadow-lg transition-shadow"
+                  >
                     <div className="flex items-start gap-3 mb-3">
                       <div className="p-2 bg-primary/10 rounded-lg">
                         {getIncomeTypeIcon(order.type)}

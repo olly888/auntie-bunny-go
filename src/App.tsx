@@ -34,6 +34,7 @@ import NotFound from "./pages/NotFound";
 import MyWallet from "./pages/MyWallet";
 import SettlementRules from "./pages/SettlementRules";
 import WalletIncome from "./pages/WalletIncome";
+import OrderDetail from "./pages/OrderDetail";
 import SkillsTraining from "./pages/SkillsTraining";
 import CertificationTest from "./pages/CertificationTest";
 import NewbieCourse from "./pages/NewbieCourse";
@@ -76,6 +77,7 @@ function App() {
           {/* Wallet & Income Routes */}
           <Route path="/wallet" element={<MyWallet />} />
           <Route path="/wallet/income" element={<WalletIncome />} />
+          <Route path="/order/:orderId" element={<OrderDetail />} />
           <Route path="/withdraw" element={<Withdraw />} />
           <Route path="/withdraw/history" element={<WithdrawHistory />} />
           <Route path="/income/settlement-rules" element={<SettlementRules />} />
