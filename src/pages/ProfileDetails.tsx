@@ -46,46 +46,30 @@ export default function ProfileDetails() {
 
   const loadProfile = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
+      const storedUser = localStorage.getItem("mock_user");
+      if (!storedUser) {
         navigate('/auth');
         return;
       }
 
-      // 加载基础信息
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .maybeSingle();
-
-      if (profile) {
+      const storedProfile = localStorage.getItem("mock_user_profile");
+      if (storedProfile) {
+        const profile = JSON.parse(storedProfile);
         setFullName(profile.full_name || "");
         setIdCardNumber(profile.id_card_number || "");
         setGender(profile.gender || "");
-        setPhone(profile.phone || "");
+        setPhone(JSON.parse(storedUser).phone || "");
         setEmergencyContact(profile.emergency_contact || "");
         setEmergencyPhone(profile.emergency_phone || "");
         setEmploymentType(profile.employment_type || "");
         setEmployeeId(profile.employee_id || `TDD${Date.now()}`);
         setAvatar(profile.avatar_url || "");
-      }
-
-      // 加载认证信息
-      const { data: cert } = await supabase
-        .from('provider_certifications')
-        .select('*')
-        .eq('provider_id', user.id)
-        .maybeSingle();
-
-      if (cert) {
-        setIdCardFrontUrl(cert.id_card_front_url || "");
-        setIdCardBackUrl(cert.id_card_back_url || "");
-        setIdVerified(cert.status === 'verified' || cert.auto_verified || false);
-        setHealthCertUrl(cert.health_cert_url || "");
-        setHealthVerified(cert.auto_verified || false);
-        if (cert.health_cert_expires_at) {
-          setHealthCertExpiry(new Date(cert.health_cert_expires_at));
+        setIdVerified(profile.is_id_verified || false);
+        setIdCardFrontUrl(profile.id_card_front_url || "");
+        setIdCardBackUrl(profile.id_card_back_url || "");
+        setHealthCertUrl(profile.health_cert_url || "");
+        if (profile.health_cert_expires_at) {
+          setHealthCertExpiry(new Date(profile.health_cert_expires_at));
         }
       }
     } catch (error) {
@@ -99,43 +83,31 @@ export default function ProfileDetails() {
   const handleSave = async () => {
     try {
       setSaving(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      const storedProfile = localStorage.getItem("mock_user_profile");
+      if (!storedProfile) return;
 
-      // 更新基础信息
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({
-          full_name: fullName,
-          id_card_number: idCardNumber,
-          gender: gender,
-          emergency_contact: emergencyContact,
-          emergency_phone: emergencyPhone,
-          employment_type: employmentType,
-          avatar_url: avatar,
-          employee_id: employeeId,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', user.id);
+      const profile = JSON.parse(storedProfile);
+      
+      // 更新profile
+      const updatedProfile = {
+        ...profile,
+        full_name: fullName,
+        id_card_number: idCardNumber,
+        gender: gender,
+        emergency_contact: emergencyContact,
+        emergency_phone: emergencyPhone,
+        employment_type: employmentType,
+        avatar_url: avatar,
+        employee_id: employeeId,
+        id_card_front_url: idCardFrontUrl,
+        id_card_back_url: idCardBackUrl,
+        is_id_verified: idVerified,
+        health_cert_url: healthCertUrl,
+        health_cert_expires_at: healthCertExpiry?.toISOString().split('T')[0],
+        updated_at: new Date().toISOString()
+      };
 
-      if (profileError) throw profileError;
-
-      // 更新认证信息
-      const { error: certError } = await supabase
-        .from('provider_certifications')
-        .upsert({
-          provider_id: user.id,
-          id_card_front_url: idCardFrontUrl,
-          id_card_back_url: idCardBackUrl,
-          health_cert_url: healthCertUrl,
-          health_cert_expires_at: healthCertExpiry?.toISOString().split('T')[0],
-          updated_at: new Date().toISOString()
-        }, {
-          onConflict: 'provider_id'
-        });
-
-      if (certError) throw certError;
-
+      localStorage.setItem("mock_user_profile", JSON.stringify(updatedProfile));
       toast.success("保存成功", { description: "个人信息已更新" });
     } catch (error) {
       console.error('Error saving profile:', error);
@@ -155,12 +127,33 @@ export default function ProfileDetails() {
       description: "请按照指引完成人脸识别"
     });
 
-    // MVP阶段模拟认证
+    // 模拟认证
     setTimeout(() => {
       setIdVerified(true);
-      toast.success("实名认证成功！", {
-        description: "您的身份信息已通过验证"
-      });
+      
+      // 更新localStorage
+      const storedProfile = localStorage.getItem("mock_user_profile");
+      if (storedProfile) {
+        const profile = JSON.parse(storedProfile);
+        profile.is_id_verified = true;
+        profile.id_card_front_url = idCardFrontUrl;
+        profile.id_card_back_url = idCardBackUrl;
+        
+        // 检查是否满足激活条件
+        if (profile.is_training_completed) {
+          profile.onboarding_status = 'activated';
+          toast.success("🎉 恭喜激活成功！", {
+            description: "您现在可以开始接单赚钱了！"
+          });
+          localStorage.setItem("mock_user_profile", JSON.stringify(profile));
+          setTimeout(() => navigate('/workbench'), 1500);
+        } else {
+          localStorage.setItem("mock_user_profile", JSON.stringify(profile));
+          toast.success("实名认证完成！", {
+            description: "还差最后一步：完成新人培训"
+          });
+        }
+      }
     }, 2000);
   };
 

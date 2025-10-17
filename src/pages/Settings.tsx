@@ -152,9 +152,12 @@ const Settings = () => {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>取消</AlertDialogCancel>
-                  <AlertDialogAction onClick={async () => {
-                    await supabase.auth.signOut();
-                    localStorage.clear();
+                  <AlertDialogAction onClick={() => {
+                    // 清除所有模拟数据
+                    localStorage.removeItem("mock_user");
+                    localStorage.removeItem("mock_user_profile");
+                    localStorage.removeItem("last_login_method");
+                    
                     navigate('/auth');
                     toast({
                       title: "已退出登录",

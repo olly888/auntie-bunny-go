@@ -1,111 +1,113 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
-import { Link, useNavigate } from "react-router-dom";
-import { Rabbit, MessageSquare } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
+import { Phone } from "lucide-react";
+import { Rabbit } from "lucide-react";
+import ownerWechatQr from "@/assets/owner-wechat-qr.png";
 import rabbitMascot from "@/assets/rabbit-mascot.png";
-import ownerWechatQR from "@/assets/owner-wechat-qr.png";
+import { useMockAuth } from "@/hooks/useMockAuth";
 
-const Auth = () => {
+export default function Auth() {
   const navigate = useNavigate();
-  const { signInWithPassword, signUp } = useAuth();
-  const [mode, setMode] = useState<'login' | 'signup'>('login');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [showCustomerService, setShowCustomerService] = useState(false);
+  const { loginWithWeChat, sendOtp, loginWithPhone } = useMockAuth();
+  const [mode, setMode] = useState<'wechat' | 'phone'>('wechat');
+  const [phone, setPhone] = useState('');
+  const [code, setCode] = useState('');
+  const [countdown, setCountdown] = useState(0);
+  const [loading, setLoading] = useState(false);
 
-  // 检查现有会话
+  // 检查是否已登录
   useEffect(() => {
-    const checkSession = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('id, onboarding_status')
-          .eq('id', user.id)
-          .maybeSingle();
-        
-        if (!profile) {
-          navigate('/register');
-        } else {
-          navigate('/workbench');
-        }
+    const storedUser = localStorage.getItem("mock_user");
+    if (storedUser) {
+      const profile = localStorage.getItem("mock_user_profile");
+      if (profile) {
+        navigate('/workbench');
+      } else {
+        navigate('/register');
       }
-    };
-    checkSession();
+    }
   }, [navigate]);
 
-  const handleLogin = async () => {
-    if (!email || !password) {
+  // 倒计时效果
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [countdown]);
+
+  // 微信一键登录
+  const handleWeChatLogin = async () => {
+    setLoading(true);
+    try {
+      await loginWithWeChat();
+      // 检查是否有profile
+      const profile = localStorage.getItem("mock_user_profile");
+      if (profile) {
+        navigate('/workbench');
+      } else {
+        navigate('/register');
+      }
+    } catch (error) {
+      console.error('WeChat login failed:', error);
+    }
+    setLoading(false);
+  };
+
+  // 发送验证码
+  const handleSendOtp = async () => {
+    if (!phone || phone.length !== 11) {
       toast({
-        title: "请填写完整信息",
-        description: "请输入邮箱和密码",
+        title: "手机号格式错误",
+        description: "请输入11位手机号",
         variant: "destructive",
       });
       return;
     }
 
-    setIsLoading(true);
-    const { data, error } = await signInWithPassword(email, password);
-    if (!error && data?.user) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('id', data.user.id)
-        .maybeSingle();
-      
-      navigate(profile ? '/workbench' : '/register');
+    const result = await sendOtp(phone);
+    if (result.success) {
+      setCountdown(result.countdown);
+    }
+  };
+
+  // 手机验证码登录
+  const handlePhoneLogin = async () => {
+    if (!phone || !code) {
+      toast({
+        title: "请填写完整",
+        description: "请输入手机号和验证码",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+    const result = await loginWithPhone({ phone, code });
+    
+    if (result.success) {
+      // 检查是否有profile
+      const profile = localStorage.getItem("mock_user_profile");
+      if (profile) {
+        navigate('/workbench');
+      } else {
+        navigate('/register');
+      }
     } else {
       toast({
         title: "登录失败",
-        description: error?.message || "请检查邮箱和密码",
+        description: result.error,
         variant: "destructive",
       });
     }
-    setIsLoading(false);
-  };
-
-  const handleSignup = async () => {
-    if (!email || !password) {
-      toast({
-        title: "请填写完整信息",
-        description: "请输入邮箱和密码",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (password.length < 6) {
-      toast({
-        title: "密码过短",
-        description: "密码至少需要6个字符",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsLoading(true);
-    const { error } = await signUp(email, password);
-    if (!error) {
-      toast({
-        title: "注册成功！",
-        description: "请前往快速注册页完善信息",
-      });
-      navigate('/register');
-    } else {
-      toast({
-        title: "注册失败",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-    setIsLoading(false);
+    setLoading(false);
   };
 
   return (
@@ -136,66 +138,94 @@ const Auth = () => {
             </div>
           </div>
 
-          {/* 登录/注册切换 */}
-          <Tabs 
-            value={mode} 
-            onValueChange={(value) => setMode(value as 'login' | 'signup')}
-            className="w-full"
-          >
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login">登录</TabsTrigger>
-              <TabsTrigger value="signup">注册</TabsTrigger>
-            </TabsList>
-
-            {/* 登录 */}
-            <TabsContent value="login" className="space-y-4 mt-6">
-              <Input
-                type="email"
-                placeholder="请输入邮箱"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <Input
-                type="password"
-                placeholder="请输入密码"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <Button
-                onClick={handleLogin}
-                disabled={isLoading}
-                className="w-full h-12"
-              >
-                {isLoading ? "登录中..." : "登录"}
-              </Button>
-            </TabsContent>
-
-            {/* 注册 */}
-            <TabsContent value="signup" className="space-y-4 mt-6">
-              <Input
-                type="email"
-                placeholder="请输入邮箱"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <Input
-                type="password"
-                placeholder="设置密码（至少6位）"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <Button
-                onClick={handleSignup}
-                disabled={isLoading}
-                className="w-full h-12"
-              >
-                {isLoading ? "注册中..." : "注册"}
-              </Button>
-              <p className="text-xs text-muted-foreground text-center">
-                注册后需完善个人信息才能开始接单
-              </p>
-            </TabsContent>
-          </Tabs>
+          {/* 登录方式切换 */}
+          <Card>
+            <CardHeader>
+              <CardTitle>登录 / 注册</CardTitle>
+              <CardDescription>
+                兔到到 - 您身边的专业社区服务平台
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Tabs value={mode} onValueChange={(v) => setMode(v as 'wechat' | 'phone')}>
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="wechat">微信登录</TabsTrigger>
+                  <TabsTrigger value="phone">手机登录</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="wechat" className="space-y-4 py-6">
+                  <div className="text-center space-y-4">
+                    <p className="text-sm text-muted-foreground">
+                      使用微信授权快速登录
+                    </p>
+                    <Button 
+                      className="w-full h-12 text-base bg-[#07C160] hover:bg-[#06AD56] text-white"
+                      onClick={handleWeChatLogin}
+                      disabled={loading}
+                    >
+                      {loading ? "登录中..." : "🔑 微信一键登录"}
+                    </Button>
+                    <p className="text-xs text-muted-foreground">
+                      首次登录将自动注册账号
+                    </p>
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="phone" className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">手机号</Label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        id="phone"
+                        type="tel"
+                        placeholder="请输入11位手机号"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        maxLength={11}
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="code">验证码</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="code"
+                        type="text"
+                        placeholder="请输入验证码"
+                        value={code}
+                        onChange={(e) => setCode(e.target.value)}
+                        maxLength={6}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleSendOtp}
+                        disabled={countdown > 0 || !phone}
+                        className="whitespace-nowrap"
+                      >
+                        {countdown > 0 ? `${countdown}秒` : "获取验证码"}
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      演示环境验证码：123456
+                    </p>
+                  </div>
+                  <Button 
+                    className="w-full" 
+                    onClick={handlePhoneLogin}
+                    disabled={loading || !phone || !code}
+                  >
+                    {loading ? "登录中..." : "登录"}
+                  </Button>
+                  <p className="text-xs text-center text-muted-foreground">
+                    首次登录将自动注册账号
+                  </p>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
@@ -203,47 +233,14 @@ const Auth = () => {
       <div className="px-6 pb-8 space-y-4">
         <p className="text-xs text-muted-foreground text-center">
           登录即表示您已同意
-          <Link to="/legal/service-agreement" className="text-primary hover:underline">
-            《用户协议》
-          </Link>
+          <span className="text-primary"> 《用户协议》</span>
           与
-          <Link to="/legal/privacy-policy" className="text-primary hover:underline">
-            《隐私政策》
-          </Link>
+          <span className="text-primary"> 《隐私政策》</span>
         </p>
         <p className="text-xs text-muted-foreground text-center">
           深圳十五分钟网络科技有限公司 提供技术支持
         </p>
       </div>
-
-      {/* 客服二维码弹窗 */}
-      <Dialog open={showCustomerService} onOpenChange={setShowCustomerService}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <MessageSquare className="w-5 h-5 text-primary" />
-              联系客服
-            </DialogTitle>
-            <DialogDescription>
-              登录遇到问题可添加客服微信
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex justify-center py-4">
-            <img 
-              src={ownerWechatQR} 
-              alt="客服微信二维码" 
-              className="w-48 h-48 object-contain"
-            />
-          </div>
-          <div className="text-center">
-            <Button onClick={() => setShowCustomerService(false)}>
-              知道了
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
-};
-
-export default Auth;
+}

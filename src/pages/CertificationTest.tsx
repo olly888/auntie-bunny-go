@@ -125,23 +125,32 @@ const CertificationTest = () => {
     
     if (score >= 80) {
       // Pass the test
-      if (testType === 'onboarding' && user) {
-        await supabase.from('profiles')
-          .update({ is_training_completed: true })
-          .eq('id', user.id);
-        
-        await refreshProfile();
-        
-        if (profile?.is_id_verified) {
-          toast.success("🎉 恭喜激活成功！", {
-            description: "您现在可以开始接单赚钱了！"
-          });
-          setTimeout(() => navigate('/workbench'), 2000);
-        } else {
-          toast.success("培训完成！", {
-            description: "还需完成实名认证"
-          });
-          setTimeout(() => navigate('/profile/details'), 2000);
+      if (testType === 'onboarding') {
+        try {
+          const storedProfile = localStorage.getItem("mock_user_profile");
+          if (storedProfile) {
+            const profile = JSON.parse(storedProfile);
+            profile.is_training_completed = true;
+            profile.updated_at = new Date().toISOString();
+
+            // 检查是否满足激活条件（实名认证 + 新人培训）
+            if (profile.is_id_verified) {
+              profile.onboarding_status = 'activated';
+              localStorage.setItem("mock_user_profile", JSON.stringify(profile));
+              toast.success("🎉 恭喜激活成功！", {
+                description: "您现在可以开始接单赚钱了！"
+              });
+              setTimeout(() => navigate('/workbench'), 2000);
+            } else {
+              localStorage.setItem("mock_user_profile", JSON.stringify(profile));
+              toast.success("培训完成！", {
+                description: "还需完成实名认证"
+              });
+              setTimeout(() => navigate('/profile/details'), 2000);
+            }
+          }
+        } catch (error) {
+          console.error('Error updating training status:', error);
         }
       } else {
         toast.success("恭喜！您已通过认证测试！");

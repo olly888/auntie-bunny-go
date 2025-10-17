@@ -6,7 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const QuickRegister = () => {
@@ -16,81 +15,65 @@ const QuickRegister = () => {
   const [idCardBack, setIdCardBack] = useState<File | null>(null);
   
   const [formData, setFormData] = useState({
-    fullName: "",
-    idCardNumber: "",
+    full_name: "",
+    id_card_number: "",
     gender: "",
     age: ""
   });
 
   const handleSubmit = async (skipIdCard: boolean = false) => {
-    if (!formData.fullName || !formData.idCardNumber || !formData.gender || !formData.age) {
-      toast.error("请填写所有必填信息");
+    // 验证必填字段
+    if (!formData.full_name || !formData.id_card_number || !formData.gender || !formData.age) {
+      toast.error("请填写完整信息", {
+        description: "姓名、身份证号、性别和年龄为必填项"
+      });
+      return;
+    }
+
+    // 简单的身份证号验证
+    if (formData.id_card_number.length !== 18) {
+      toast.error("身份证号格式错误", {
+        description: "请输入18位身份证号码"
+      });
       return;
     }
 
     setLoading(true);
-
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        toast.error("用户未登录");
-        navigate("/auth");
+      const storedUser = localStorage.getItem("mock_user");
+      if (!storedUser) {
+        toast.error("未登录", { description: "请先登录" });
+        navigate('/auth');
         return;
       }
 
-      // 创建profile（状态为registered）
-      const { error: profileError } = await supabase.from('profiles').insert({
+      const user = JSON.parse(storedUser);
+
+      // 保存profile到localStorage
+      const profile = {
         id: user.id,
-        full_name: formData.fullName,
-        id_card_number: formData.idCardNumber,
+        full_name: formData.full_name,
+        id_card_number: formData.id_card_number,
         gender: formData.gender,
         age: parseInt(formData.age),
         onboarding_status: 'registered',
         is_id_verified: false,
-        is_training_completed: false
+        is_training_completed: false,
+        has_id_card_uploaded: !skipIdCard && (!!idCardFront || !!idCardBack),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      localStorage.setItem("mock_user_profile", JSON.stringify(profile));
+
+      toast.success("注册成功！", {
+        description: skipIdCard ? "您可以稍后在个人中心完善资料" : "您的信息已提交"
       });
 
-      if (profileError) {
-        toast.error("创建账户失败：" + profileError.message);
-        return;
-      }
-
-      // 如果上传了身份证，创建认证记录
-      if (!skipIdCard && idCardFront) {
-        // 上传身份证照片到storage
-        const frontFileName = `${user.id}/id_front_${Date.now()}.jpg`;
-        const { error: uploadError } = await supabase.storage
-          .from('order-photos')
-          .upload(frontFileName, idCardFront);
-
-        if (uploadError) {
-          console.error("上传身份证正面失败：", uploadError);
-        }
-
-        const frontUrl = supabase.storage.from('order-photos').getPublicUrl(frontFileName).data.publicUrl;
-        
-        let backUrl = null;
-        if (idCardBack) {
-          const backFileName = `${user.id}/id_back_${Date.now()}.jpg`;
-          await supabase.storage.from('order-photos').upload(backFileName, idCardBack);
-          backUrl = supabase.storage.from('order-photos').getPublicUrl(backFileName).data.publicUrl;
-        }
-
-        // 创建认证记录
-        await supabase.from('provider_certifications').insert({
-          provider_id: user.id,
-          id_card_front_url: frontUrl,
-          id_card_back_url: backUrl,
-          id_card_number: formData.idCardNumber
-        });
-      }
-
-      toast.success("注册成功！");
       navigate('/workbench');
     } catch (error) {
-      console.error("注册错误：", error);
-      toast.error("注册失败，请重试");
+      console.error('Registration error:', error);
+      toast.error("注册失败", { description: "请重试" });
     } finally {
       setLoading(false);
     }
@@ -119,8 +102,8 @@ const QuickRegister = () => {
               <Label htmlFor="fullName">真实姓名 *</Label>
               <Input
                 id="fullName"
-                value={formData.fullName}
-                onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                value={formData.full_name}
+                onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
                 placeholder="请输入您的真实姓名"
                 required
               />
@@ -130,8 +113,8 @@ const QuickRegister = () => {
               <Label htmlFor="idCard">身份证号码 *</Label>
               <Input
                 id="idCard"
-                value={formData.idCardNumber}
-                onChange={(e) => setFormData({ ...formData, idCardNumber: e.target.value })}
+                value={formData.id_card_number}
+                onChange={(e) => setFormData({ ...formData, id_card_number: e.target.value })}
                 placeholder="请输入身份证号码"
                 maxLength={18}
                 required

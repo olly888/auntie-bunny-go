@@ -106,13 +106,32 @@ const OnboardingTaskCard = ({ profile, onRefresh }: { profile: any; onRefresh: (
 
 const Workbench = () => {
   const navigate = useNavigate();
-  const { profile, refreshProfile } = useAuthContext();
+  const [profile, setProfile] = useState<any>(null);
   const [isOnline, setIsOnline] = useState(true);
   const [showOfflineDialog, setShowOfflineDialog] = useState(false);
   const [activeTab, setActiveTab] = useState("hall");
   const [showGrabModal, setShowGrabModal] = useState(false);
   const [broadcastOrder, setBroadcastOrder] = useState<OrderInfo | null>(null);
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+
+  // 从 localStorage 加载 profile
+  useEffect(() => {
+    const loadProfile = () => {
+      const storedProfile = localStorage.getItem("mock_user_profile");
+      if (storedProfile) {
+        setProfile(JSON.parse(storedProfile));
+      }
+    };
+    loadProfile();
+  }, []);
+
+  // 刷新 profile
+  const refreshProfile = () => {
+    const storedProfile = localStorage.getItem("mock_user_profile");
+    if (storedProfile) {
+      setProfile(JSON.parse(storedProfile));
+    }
+  };
 
   // 轮播文案数组
   const rotatingMessages = [
@@ -191,34 +210,12 @@ const Workbench = () => {
   };
 
   const confirmGoOffline = async (reason: string) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { error } = await supabase.from('offline_logs').insert({
-          user_id: user.id,
-          reason: reason,
-          offline_at: new Date().toISOString()
-        });
-
-        if (error) {
-          console.error('Failed to log offline reason:', error);
-        }
-      }
-
-      setIsOnline(false);
-      setShowOfflineDialog(false);
-      toast({
-        title: "已下线",
-        description: `下线原因：${reason}`
-      });
-    } catch (error) {
-      console.error('Error going offline:', error);
-      toast({
-        title: "下线失败",
-        description: "请重试",
-        variant: "destructive"
-      });
-    }
+    setIsOnline(false);
+    setShowOfflineDialog(false);
+    toast({
+      title: "已下线",
+      description: `下线原因：${reason}`
+    });
   };
 
   // 模拟广播弹窗
