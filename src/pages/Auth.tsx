@@ -160,18 +160,56 @@ const Auth = () => {
 
       {/* Confirmation Dialog for New Users */}
       <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className="max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle>确认注册</AlertDialogTitle>
-            <AlertDialogDescription>
-              该手机号 {phoneNumber} 尚未注册，是否确认要使用该号码注册并登录？
+            <AlertDialogTitle className="text-2xl text-center">
+              🎉 恭喜您！开启自由赚钱之旅
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center space-y-4 pt-2">
+              <p className="text-base">
+                手机号 <span className="font-semibold text-primary">{phoneNumber}</span> 即将成为您的财富钥匙
+              </p>
+              
+              {/* 亮点列表 */}
+              <div className="space-y-3 text-left bg-accent/30 p-4 rounded-lg">
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl">💰</span>
+                  <div>
+                    <p className="font-semibold text-foreground">灵活赚钱</p>
+                    <p className="text-sm">自由接单，时间自己掌控，月入过万不是梦</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl">🎯</span>
+                  <div>
+                    <p className="font-semibold text-foreground">订单丰富</p>
+                    <p className="text-sm">社区就近派单，订单源源不断</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl">🛡️</span>
+                  <div>
+                    <p className="font-semibold text-foreground">平台保障</p>
+                    <p className="text-sm">收入及时结算，服务有保险兜底</p>
+                  </div>
+                </div>
+              </div>
+              
+              <p className="text-sm text-muted-foreground">
+                现在加入，即可解锁专属新手福利 🎁
+              </p>
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>取消</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmRegister}>
-              确认注册
+          <AlertDialogFooter className="flex-col gap-2">
+            <AlertDialogAction 
+              onClick={confirmRegister}
+              className="w-full h-12 text-base font-bold"
+            >
+              立即开启赚钱之旅 →
             </AlertDialogAction>
+            <AlertDialogCancel className="w-full">暂不注册</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

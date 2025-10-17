@@ -15,8 +15,8 @@ import { useToast } from "@/hooks/use-toast";
 const LocationSelection = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [city, setCity] = useState("");
-  const [community, setCommunity] = useState("");
+  const [city, setCity] = useState("深圳市");
+  const [community, setCommunity] = useState("南山大冲社区");
 
   const handleJoin = () => {
     const user = JSON.parse(localStorage.getItem("mock_user") || "{}");
@@ -64,14 +64,19 @@ const LocationSelection = () => {
             </Label>
             <Select value={city} onValueChange={setCity}>
               <SelectTrigger className="h-14 text-lg">
-                <SelectValue placeholder="请选择城市" />
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="深圳市">深圳市</SelectItem>
-                <SelectItem value="广州市">广州市</SelectItem>
-                <SelectItem value="北京市">北京市</SelectItem>
-                <SelectItem value="上海市">上海市</SelectItem>
-                <SelectItem value="杭州市">杭州市</SelectItem>
+                <SelectItem value="广州市" disabled className="text-muted-foreground">
+                  广州市（即将开通）
+                </SelectItem>
+                <SelectItem value="北京市" disabled className="text-muted-foreground">
+                  北京市（即将开通）
+                </SelectItem>
+                <SelectItem value="上海市" disabled className="text-muted-foreground">
+                  上海市（即将开通）
+                </SelectItem>
               </SelectContent>
             </Select>
           </CardContent>
@@ -83,35 +88,26 @@ const LocationSelection = () => {
             <Label className="text-base font-semibold mb-3 block">
               意向服务社区
             </Label>
-            <Select value={community} onValueChange={setCommunity} disabled={!city}>
+            <Select value={community} onValueChange={setCommunity}>
               <SelectTrigger className="h-14 text-lg">
-                <SelectValue placeholder="请选择社区" />
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {city === "深圳市" && (
-                  <>
-                    <SelectItem value="南山区大冲社区">南山区大冲社区</SelectItem>
-                    <SelectItem value="福田区上梅林社区">福田区上梅林社区</SelectItem>
-                    <SelectItem value="罗湖区东门社区">罗湖区东门社区</SelectItem>
-                  </>
-                )}
-                {city === "广州市" && (
-                  <>
-                    <SelectItem value="天河区珠江新城">天河区珠江新城</SelectItem>
-                    <SelectItem value="海珠区赤岗">海珠区赤岗</SelectItem>
-                  </>
-                )}
-                {city === "北京市" && (
-                  <>
-                    <SelectItem value="朝阳区国贸">朝阳区国贸</SelectItem>
-                    <SelectItem value="海淀区中关村">海淀区中关村</SelectItem>
-                  </>
-                )}
-                {(city === "上海市" || city === "杭州市") && (
-                  <SelectItem value={`${city}市中心`}>{city}市中心</SelectItem>
-                )}
+                <SelectItem value="南山大冲社区">南山大冲社区</SelectItem>
+                <SelectItem value="福田上梅林社区" disabled className="text-muted-foreground">
+                  福田上梅林社区（即将开通）
+                </SelectItem>
+                <SelectItem value="罗湖东门社区" disabled className="text-muted-foreground">
+                  罗湖东门社区（即将开通）
+                </SelectItem>
               </SelectContent>
             </Select>
+            
+            {/* 添加提示信息 */}
+            <p className="text-sm text-muted-foreground mt-3 flex items-center gap-2">
+              <span>💡</span>
+              <span>更多区域正在火热开通中，敬请期待！</span>
+            </p>
           </CardContent>
         </Card>
 

@@ -23,8 +23,8 @@ const courseData: Record<number, CourseContent> = {
   1: {
     id: 1,
     title: "欢迎加入兔到到",
-    duration: "2分钟",
-    minReadTime: 60,
+    duration: "30秒",
+    minReadTime: 20,
     sections: [
       { type: 'text', content: '欢迎您成为兔到到平台的服务人员！' },
       { type: 'text', content: '兔到到致力于为社区居民提供专业、可靠的家政服务，而您将是这份美好服务的传递者。' },
@@ -40,8 +40,8 @@ const courseData: Record<number, CourseContent> = {
   2: {
     id: 2,
     title: "平台规则与服务标准",
-    duration: "5分钟",
-    minReadTime: 120,
+    duration: "30秒",
+    minReadTime: 25,
     sections: [
       { type: 'text', content: '作为兔到到的服务人员，请务必遵守以下规则：' },
       { type: 'list', items: [
@@ -57,8 +57,8 @@ const courseData: Record<number, CourseContent> = {
   3: {
     id: 3,
     title: "安全作业规范",
-    duration: "5分钟",
-    minReadTime: 120,
+    duration: "30秒",
+    minReadTime: 25,
     sections: [
       { type: 'text', content: '您的安全和客户的安全同样重要，请注意：' },
       { type: 'list', items: [
@@ -74,8 +74,8 @@ const courseData: Record<number, CourseContent> = {
   4: {
     id: 4,
     title: "接单与服务流程",
-    duration: "8分钟",
-    minReadTime: 180,
+    duration: "30秒",
+    minReadTime: 30,
     sections: [
       { type: 'text', content: '完整的服务流程如下：' },
       { type: 'list', items: [
