@@ -372,6 +372,7 @@ export type Database = {
           age: number | null
           avatar_url: string | null
           created_at: string
+          education: string | null
           emergency_contact: string | null
           emergency_phone: string | null
           employee_id: string | null
@@ -390,6 +391,8 @@ export type Database = {
           prejob_training_completed_at: string | null
           require_password_change: boolean
           role: string
+          skill_cert_type: string | null
+          skill_cert_url: string | null
           skill_level: Database["public"]["Enums"]["skill_level"]
           store_id: string | null
           training_notes: string | null
@@ -400,6 +403,7 @@ export type Database = {
           age?: number | null
           avatar_url?: string | null
           created_at?: string
+          education?: string | null
           emergency_contact?: string | null
           emergency_phone?: string | null
           employee_id?: string | null
@@ -418,6 +422,8 @@ export type Database = {
           prejob_training_completed_at?: string | null
           require_password_change?: boolean
           role?: string
+          skill_cert_type?: string | null
+          skill_cert_url?: string | null
           skill_level?: Database["public"]["Enums"]["skill_level"]
           store_id?: string | null
           training_notes?: string | null
@@ -428,6 +434,7 @@ export type Database = {
           age?: number | null
           avatar_url?: string | null
           created_at?: string
+          education?: string | null
           emergency_contact?: string | null
           emergency_phone?: string | null
           employee_id?: string | null
@@ -446,6 +453,8 @@ export type Database = {
           prejob_training_completed_at?: string | null
           require_password_change?: boolean
           role?: string
+          skill_cert_type?: string | null
+          skill_cert_url?: string | null
           skill_level?: Database["public"]["Enums"]["skill_level"]
           store_id?: string | null
           training_notes?: string | null

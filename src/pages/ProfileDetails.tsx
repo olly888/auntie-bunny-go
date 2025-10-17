@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Camera, Lock, Upload, CheckCircle, Calendar } from "lucide-react";
+import { ArrowLeft, Camera, Upload, CheckCircle, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,19 +26,21 @@ export default function ProfileDetails() {
   const [fullName, setFullName] = useState("");
   const [idCardNumber, setIdCardNumber] = useState("");
   const [gender, setGender] = useState("");
+  const [age, setAge] = useState<number | undefined>(undefined);
+  const [education, setEducation] = useState("");
   const [phone, setPhone] = useState("");
+  const [storeName, setStoreName] = useState("");
   const [emergencyContact, setEmergencyContact] = useState("");
   const [emergencyPhone, setEmergencyPhone] = useState("");
   const [employmentType, setEmploymentType] = useState("");
   const [employeeId, setEmployeeId] = useState("");
   
   // 认证信息
-  const [idCardFrontUrl, setIdCardFrontUrl] = useState("");
-  const [idCardBackUrl, setIdCardBackUrl] = useState("");
   const [idVerified, setIdVerified] = useState(false);
   const [healthCertUrl, setHealthCertUrl] = useState("");
   const [healthCertExpiry, setHealthCertExpiry] = useState<Date>();
-  const [healthVerified, setHealthVerified] = useState(false);
+  const [skillCertUrl, setSkillCertUrl] = useState("");
+  const [skillCertType, setSkillCertType] = useState("");
   
   useEffect(() => {
     loadProfile();
@@ -58,6 +60,8 @@ export default function ProfileDetails() {
         setFullName(profile.full_name || "");
         setIdCardNumber(profile.id_card_number || "");
         setGender(profile.gender || "");
+        setAge(profile.age || undefined);
+        setEducation(profile.education || "");
         setPhone(JSON.parse(storedUser).phone || "");
         setEmergencyContact(profile.emergency_contact || "");
         setEmergencyPhone(profile.emergency_phone || "");
@@ -65,11 +69,25 @@ export default function ProfileDetails() {
         setEmployeeId(profile.employee_id || `TDD${Date.now()}`);
         setAvatar(profile.avatar_url || "");
         setIdVerified(profile.is_id_verified || false);
-        setIdCardFrontUrl(profile.id_card_front_url || "");
-        setIdCardBackUrl(profile.id_card_back_url || "");
         setHealthCertUrl(profile.health_cert_url || "");
+        setSkillCertUrl(profile.skill_cert_url || "");
+        setSkillCertType(profile.skill_cert_type || "");
+        
         if (profile.health_cert_expires_at) {
           setHealthCertExpiry(new Date(profile.health_cert_expires_at));
+        }
+        
+        // 获取门店名称
+        if (profile.store_id) {
+          const { data } = await supabase
+            .from('stores')
+            .select('name')
+            .eq('id', profile.store_id)
+            .single();
+          
+          if (data) {
+            setStoreName(data.name);
+          }
         }
       }
     } catch (error) {
@@ -88,22 +106,33 @@ export default function ProfileDetails() {
 
       const profile = JSON.parse(storedProfile);
       
+      // 更新 user 的 phone（如果修改了）
+      const storedUser = localStorage.getItem("mock_user");
+      if (storedUser) {
+        const user = JSON.parse(storedUser);
+        user.phone = phone;
+        localStorage.setItem("mock_user", JSON.stringify(user));
+      }
+      
       // 更新profile
       const updatedProfile = {
         ...profile,
         full_name: fullName,
         id_card_number: idCardNumber,
         gender: gender,
+        age: age,
+        education: education,
+        phone: phone,
         emergency_contact: emergencyContact,
         emergency_phone: emergencyPhone,
         employment_type: employmentType,
         avatar_url: avatar,
         employee_id: employeeId,
-        id_card_front_url: idCardFrontUrl,
-        id_card_back_url: idCardBackUrl,
         is_id_verified: idVerified,
         health_cert_url: healthCertUrl,
         health_cert_expires_at: healthCertExpiry?.toISOString().split('T')[0],
+        skill_cert_url: skillCertUrl,
+        skill_cert_type: skillCertType,
         updated_at: new Date().toISOString()
       };
 
@@ -117,47 +146,7 @@ export default function ProfileDetails() {
     }
   };
 
-  const handleIdVerification = () => {
-    if (!idCardFrontUrl || !idCardBackUrl) {
-      toast.error("请先上传身份证照片");
-      return;
-    }
-
-    toast.info("正在跳转实名认证...", {
-      description: "请按照指引完成人脸识别"
-    });
-
-    // 模拟认证
-    setTimeout(() => {
-      setIdVerified(true);
-      
-      // 更新localStorage
-      const storedProfile = localStorage.getItem("mock_user_profile");
-      if (storedProfile) {
-        const profile = JSON.parse(storedProfile);
-        profile.is_id_verified = true;
-        profile.id_card_front_url = idCardFrontUrl;
-        profile.id_card_back_url = idCardBackUrl;
-        
-        // 检查是否满足激活条件
-        if (profile.is_training_completed) {
-          profile.onboarding_status = 'activated';
-          toast.success("🎉 恭喜激活成功！", {
-            description: "您现在可以开始接单赚钱了！"
-          });
-          localStorage.setItem("mock_user_profile", JSON.stringify(profile));
-          setTimeout(() => navigate('/workbench'), 1500);
-        } else {
-          localStorage.setItem("mock_user_profile", JSON.stringify(profile));
-          toast.success("实名认证完成！", {
-            description: "还差最后一步：完成新人培训"
-          });
-        }
-      }
-    }, 2000);
-  };
-
-  const handleImageUpload = async (type: 'avatar' | 'id_front' | 'id_back' | 'health') => {
+  const handleImageUpload = async (type: 'avatar' | 'health' | 'skill') => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
@@ -166,7 +155,7 @@ export default function ProfileDetails() {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
 
-      // MVP阶段使用本地预览，实际应上传到Supabase Storage
+      // MVP阶段使用本地预览
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
@@ -174,14 +163,11 @@ export default function ProfileDetails() {
           case 'avatar':
             setAvatar(result);
             break;
-          case 'id_front':
-            setIdCardFrontUrl(result);
-            break;
-          case 'id_back':
-            setIdCardBackUrl(result);
-            break;
           case 'health':
             setHealthCertUrl(result);
+            break;
+          case 'skill':
+            setSkillCertUrl(result);
             break;
         }
       };
@@ -247,32 +233,51 @@ export default function ProfileDetails() {
 
             {/* 姓名 */}
             <div className="space-y-2">
-              <Label>姓名</Label>
+              <Label className="flex items-center gap-2">
+                姓名
+                {idVerified && (
+                  <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200">
+                    <CheckCircle className="w-3 h-3 mr-1" />
+                    已认证
+                  </Badge>
+                )}
+              </Label>
               <Input
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                placeholder="请输入姓名"
+                placeholder={idVerified ? "" : "请先完成实名认证"}
+                disabled={idVerified}
+                className={cn(idVerified && "bg-muted cursor-not-allowed")}
               />
+              {idVerified && (
+                <p className="text-xs text-muted-foreground">
+                  实名认证后不可修改
+                </p>
+              )}
             </div>
 
             {/* 身份证号码 */}
             <div className="space-y-2">
-              <Label>身份证号码</Label>
-              <div className="relative">
-                <Input
-                  value={idCardNumber}
-                  onChange={(e) => setIdCardNumber(e.target.value)}
-                  placeholder="请输入身份证号码"
-                  disabled={!!idCardNumber}
-                  className={cn(idCardNumber && "pr-10")}
-                />
-                {idCardNumber && (
-                  <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Label className="flex items-center gap-2">
+                身份证号码
+                {idVerified && (
+                  <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200">
+                    <CheckCircle className="w-3 h-3 mr-1" />
+                    已认证
+                  </Badge>
                 )}
-              </div>
-              {idCardNumber && (
+              </Label>
+              <Input
+                value={idCardNumber}
+                onChange={(e) => setIdCardNumber(e.target.value)}
+                placeholder={idVerified ? "" : "请先完成实名认证"}
+                disabled={idVerified}
+                className={cn(idVerified && "bg-muted cursor-not-allowed")}
+                maxLength={18}
+              />
+              {idVerified && (
                 <p className="text-xs text-muted-foreground">
-                  身份证号码一旦提交将无法修改
+                  实名认证后不可修改
                 </p>
               )}
             </div>
@@ -291,10 +296,60 @@ export default function ProfileDetails() {
               </Select>
             </div>
 
+            {/* 年龄 */}
+            <div className="space-y-2">
+              <Label>年龄</Label>
+              <Input
+                type="number"
+                value={age || ""}
+                onChange={(e) => setAge(e.target.value ? parseInt(e.target.value) : undefined)}
+                placeholder="请输入年龄"
+                min={18}
+                max={70}
+              />
+            </div>
+
+            {/* 学历 */}
+            <div className="space-y-2">
+              <Label>学历</Label>
+              <Select value={education} onValueChange={setEducation}>
+                <SelectTrigger>
+                  <SelectValue placeholder="请选择学历" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="小学">小学</SelectItem>
+                  <SelectItem value="初中">初中</SelectItem>
+                  <SelectItem value="高中/中专">高中/中专</SelectItem>
+                  <SelectItem value="大专">大专</SelectItem>
+                  <SelectItem value="本科">本科</SelectItem>
+                  <SelectItem value="硕士及以上">硕士及以上</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* 电话 */}
             <div className="space-y-2">
               <Label>电话</Label>
-              <Input value={phone} disabled className="bg-muted" />
+              <Input
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="请输入手机号码"
+                type="tel"
+                maxLength={11}
+              />
+            </div>
+
+            {/* 所属门店 */}
+            <div className="space-y-2">
+              <Label>所属门店</Label>
+              <Input
+                value={storeName || "未分配"}
+                disabled
+                className="bg-muted cursor-not-allowed"
+              />
+              <p className="text-xs text-muted-foreground">
+                由管理员分配，无法自行修改
+              </p>
             </div>
 
             {/* 紧急联系人 */}
@@ -346,69 +401,50 @@ export default function ProfileDetails() {
             <CardTitle>上传资料</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* 身份证 */}
-            <div className="space-y-3">
-              <Label>身份证照片</Label>
-              <div className="grid grid-cols-2 gap-4">
-                {/* 身份证正面 */}
-                <div className="space-y-2">
-                  <div
-                    className="aspect-[3/2] border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors"
-                    onClick={() => handleImageUpload('id_front')}
-                  >
-                    {idCardFrontUrl ? (
-                      <img src={idCardFrontUrl} alt="身份证正面" className="w-full h-full object-cover rounded-lg" />
-                    ) : (
-                      <>
-                        <Upload className="w-8 h-8 text-muted-foreground mb-2" />
-                        <span className="text-xs text-muted-foreground">人像面</span>
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                {/* 身份证国徽面 */}
-                <div className="space-y-2">
-                  <div
-                    className="aspect-[3/2] border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors"
-                    onClick={() => handleImageUpload('id_back')}
-                  >
-                    {idCardBackUrl ? (
-                      <img src={idCardBackUrl} alt="身份证国徽面" className="w-full h-full object-cover rounded-lg" />
-                    ) : (
-                      <>
-                        <Upload className="w-8 h-8 text-muted-foreground mb-2" />
-                        <span className="text-xs text-muted-foreground">国徽面</span>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* 实名认证按钮 */}
-              {idVerified ? (
-                <div className="flex items-center gap-2">
-                  <Badge variant="default" className="bg-green-500">
-                    <CheckCircle className="w-3 h-3 mr-1" />
+            {/* 身份证认证状态 */}
+            {idVerified ? (
+              <div className="p-4 border-2 border-green-200 bg-green-50 rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <span className="font-semibold text-green-700">身份证认证</span>
+                  <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200 ml-auto">
                     已认证
                   </Badge>
                 </div>
-              ) : (
+                <p className="text-sm text-muted-foreground">
+                  您已完成实名认证，身份证信息已安全存储，无需重复上传。
+                </p>
+              </div>
+            ) : (
+              <div className="p-4 border-2 border-orange-200 bg-orange-50 rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="font-semibold text-orange-700">身份证认证</span>
+                  <Badge variant="secondary" className="bg-orange-100 text-orange-700 border-orange-200 ml-auto">
+                    未认证
+                  </Badge>
+                </div>
+                <p className="text-sm text-muted-foreground mb-3">
+                  完成实名认证后才能接单赚钱
+                </p>
                 <Button
-                  variant="outline"
+                  variant="default"
                   size="sm"
-                  onClick={handleIdVerification}
-                  disabled={!idCardFrontUrl || !idCardBackUrl}
-                  className="w-full"
+                  onClick={() => navigate('/certification')}
+                  className="w-full bg-orange-500 hover:bg-orange-600"
                 >
                   去认证
                 </Button>
-              )}
-            </div>
+              </div>
+            )}
 
             {/* 健康证 */}
             <div className="space-y-3">
-              <Label>健康证</Label>
+              <div className="flex items-center justify-between">
+                <Label>健康证</Label>
+                <Badge variant={healthCertUrl ? "default" : "secondary"}>
+                  {healthCertUrl ? "已上传" : "未上传"}
+                </Badge>
+              </div>
               <div
                 className="aspect-[3/2] border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors"
                 onClick={() => handleImageUpload('health')}
@@ -419,59 +455,89 @@ export default function ProfileDetails() {
                   <>
                     <Upload className="w-8 h-8 text-muted-foreground mb-2" />
                     <span className="text-xs text-muted-foreground">点击上传健康证</span>
+                    <span className="text-xs text-muted-foreground mt-1">可选，建议上传以提升接单率</span>
                   </>
                 )}
               </div>
 
               {/* 健康证有效期 */}
-              <div className="space-y-2">
-                <Label>健康证有效期</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !healthCertExpiry && "text-muted-foreground"
-                      )}
-                    >
-                      <Calendar className="mr-2 h-4 w-4" />
-                      {healthCertExpiry ? format(healthCertExpiry, "yyyy-MM-dd") : "选择有效期"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <CalendarComponent
-                      mode="single"
-                      selected={healthCertExpiry}
-                      onSelect={setHealthCertExpiry}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
+              {healthCertUrl && (
+                <div className="space-y-2">
+                  <Label>健康证有效期</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !healthCertExpiry && "text-muted-foreground"
+                        )}
+                      >
+                        <Calendar className="mr-2 h-4 w-4" />
+                        {healthCertExpiry ? format(healthCertExpiry, "yyyy-MM-dd") : "选择有效期"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <CalendarComponent
+                        mode="single"
+                        selected={healthCertExpiry}
+                        onSelect={setHealthCertExpiry}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              )}
+            </div>
+
+            {/* 职业技能证书 */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label>职业技能证书</Label>
+                <Badge variant={skillCertUrl ? "default" : "secondary"}>
+                  {skillCertUrl ? "已上传" : "未上传"}
+                </Badge>
               </div>
 
-              {/* 健康证状态 */}
-              {healthCertUrl && healthCertExpiry ? (
-                <div className="flex items-center gap-2">
-                  <Badge variant="default" className="bg-green-500">
-                    <CheckCircle className="w-3 h-3 mr-1" />
-                    已认证
-                  </Badge>
-                  <span className="text-xs text-muted-foreground">
-                    有效期至：{format(healthCertExpiry, "yyyy-MM-dd")}
-                  </span>
+              {skillCertUrl && (
+                <div className="space-y-2">
+                  <Label>证书类型</Label>
+                  <Select value={skillCertType} onValueChange={setSkillCertType}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="请选择证书类型" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="家政师资格证">家政师资格证</SelectItem>
+                      <SelectItem value="育婴师证">育婴师证</SelectItem>
+                      <SelectItem value="保洁师证">保洁师证</SelectItem>
+                      <SelectItem value="养老护理员证">养老护理员证</SelectItem>
+                      <SelectItem value="其他">其他</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-              ) : (
-                <Badge variant="secondary">去上传</Badge>
               )}
+
+              <div
+                className="aspect-[3/2] border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors"
+                onClick={() => handleImageUpload('skill')}
+              >
+                {skillCertUrl ? (
+                  <img src={skillCertUrl} alt="职业技能证书" className="w-full h-full object-cover rounded-lg" />
+                ) : (
+                  <>
+                    <Upload className="w-8 h-8 text-muted-foreground mb-2" />
+                    <span className="text-xs text-muted-foreground">点击上传职业技能证书</span>
+                    <span className="text-xs text-muted-foreground mt-1">可选，有证书可提升接单竞争力</span>
+                  </>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>
 
         {/* 保存按钮 */}
         <Button
-          className="w-full"
-          size="lg"
+          className="w-full h-12"
           onClick={handleSave}
           disabled={saving}
         >
