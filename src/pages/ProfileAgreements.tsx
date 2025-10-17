@@ -35,8 +35,8 @@ const ProfileAgreements = () => {
       const agreementList: Agreement[] = [
         {
           id: "service-cooperation",
-          title: "服务合作协议",
-          version: parsedProfile.agreement_version || "v1.0",
+          title: "新就业形态服务合作协议",
+          version: parsedProfile.agreement_version || "v2.0",
           required: true,
           signed: !!parsedProfile.agreement_signed_at,
           signedAt: parsedProfile.agreement_signed_at || undefined,
@@ -69,7 +69,7 @@ const ProfileAgreements = () => {
     if (storedProfile) {
       const parsedProfile = JSON.parse(storedProfile);
       parsedProfile.agreement_signed_at = now;
-      parsedProfile.agreement_version = "v1.0";
+      parsedProfile.agreement_version = "v2.0";
       localStorage.setItem("mock_user_profile", JSON.stringify(parsedProfile));
 
       // 触发 storage 事件通知其他组件
@@ -105,52 +105,225 @@ const ProfileAgreements = () => {
 
   // 查看协议内容
   const handleViewAgreement = (agreementId: string) => {
+    // 从 localStorage 获取用户信息
+    const userProfile = localStorage.getItem("mock_user_profile");
+    let userName = "___________";
+    let idNumber = "___________";
+    
+    if (userProfile) {
+      const data = JSON.parse(userProfile);
+      userName = data.name || "___________";
+      idNumber = data.id_number || "___________";
+    }
+
+    const today = new Date();
+    const signDate = `${today.getFullYear()}年${today.getMonth() + 1}月${today.getDate()}日`;
+
     const agreementContent = `
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
-  <title>服务合作协议</title>
+  <title>新就业形态服务合作协议</title>
   <style>
-    body { font-family: Arial, sans-serif; line-height: 1.8; padding: 40px; max-width: 800px; margin: 0 auto; }
-    h1 { text-align: center; color: #333; }
-    h2 { color: #555; margin-top: 30px; }
-    p { margin: 15px 0; text-align: justify; }
-    .date { text-align: right; color: #666; margin-top: 40px; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", sans-serif;
+      line-height: 1.8; 
+      padding: 40px 20px; 
+      max-width: 800px; 
+      margin: 0 auto;
+      color: #333;
+      background: #f9fafb;
+    }
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 { 
+      text-align: center; 
+      color: #1a1a1a;
+      font-size: 24px;
+      margin-bottom: 30px;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 15px;
+    }
+    h2 { 
+      color: #374151; 
+      margin-top: 30px;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    h3 {
+      color: #1f2937;
+      font-size: 15px;
+      margin: 20px 0 10px 0;
+    }
+    p { 
+      margin: 12px 0; 
+      text-align: justify;
+      font-size: 14px;
+      color: #4b5563;
+    }
+    .info-box {
+      background: #f3f4f6;
+      padding: 20px;
+      border-radius: 6px;
+      margin: 20px 0;
+      font-size: 13px;
+    }
+    .info-box div {
+      margin: 8px 0;
+    }
+    .highlight {
+      color: #dc2626;
+      font-weight: 600;
+    }
+    .emphasis {
+      color: #059669;
+      font-weight: 500;
+    }
+    .warning {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      padding: 15px;
+      border-radius: 6px;
+      margin: 15px 0;
+    }
+    .warning strong {
+      color: #dc2626;
+    }
+    .attachment {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      padding: 20px;
+      border-radius: 6px;
+      margin: 20px 0;
+    }
+    .signature-box {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      padding: 20px;
+      border-radius: 6px;
+      margin: 20px 0;
+    }
+    ul {
+      padding-left: 25px;
+    }
+    li {
+      margin: 8px 0;
+      color: #4b5563;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #e5e7eb;
+      color: #6b7280;
+      font-size: 12px;
+    }
   </style>
 </head>
 <body>
-  <h1>服务合作协议</h1>
-  <p><strong>版本：v1.0</strong></p>
-  
-  <h2>一、协议双方</h2>
-  <p>甲方：兔到到平台运营方</p>
-  <p>乙方：服务提供者（以下简称"您"）</p>
-  
-  <h2>二、服务内容</h2>
-  <p>1. 您同意通过兔到到平台为用户提供家政、保洁等上门服务。</p>
-  <p>2. 您承诺提供的服务符合平台标准，保证服务质量。</p>
-  <p>3. 您有义务保护客户隐私，不得泄露客户信息。</p>
-  
-  <h2>三、权利与义务</h2>
-  <p>1. 您有权自主选择接单时间和服务区域。</p>
-  <p>2. 您有义务按时完成已接受的订单。</p>
-  <p>3. 平台有权对服务质量进行监督和评估。</p>
-  
-  <h2>四、费用结算</h2>
-  <p>1. 服务费用按照平台规则进行结算。</p>
-  <p>2. 平台将在每月固定时间进行费用结算。</p>
-  <p>3. 您同意平台从服务费中扣除相应的平台服务费。</p>
-  
-  <h2>五、违约责任</h2>
-  <p>1. 如因您的原因导致服务质量问题，您需承担相应责任。</p>
-  <p>2. 如您违反本协议，平台有权暂停或终止合作。</p>
-  
-  <h2>六、其他</h2>
-  <p>1. 本协议自您签署之日起生效。</p>
-  <p>2. 本协议的解释权归兔到到平台所有。</p>
-  
-  <p class="date">兔到到平台<br>2024年</p>
+  <div class="container">
+    <h1>新就业形态服务合作协议</h1>
+    
+    <div class="info-box">
+      <div><strong>甲方（平台方）：</strong>深圳十五分钟网络科技有限公司</div>
+      <div><strong>乙方（服务者）：</strong><span class="emphasis">${userName}</span></div>
+      <div><strong>身份证号码：</strong><span class="emphasis">${idNumber}</span></div>
+    </div>
+
+    <p>本《新就业形态服务合作协议》（以下简称"本协议"）由以上双方于 <span class="emphasis">${signDate}</span> 在深圳市南山区签订。</p>
+
+    <p style="border-left: 3px solid #10b981; padding-left: 15px; margin: 20px 0;">
+      鉴于甲方合法运营"兔到到"即时家务服务平台（以下简称<strong>"平台"</strong>），为用户和服务者提供信息匹配、技术支持等服务；乙方作为具备相应服务技能的独立服务提供者，意愿通过平台获取服务机会并获得报酬。
+    </p>
+
+    <p>甲乙双方根据《中华人民共和国民法典》及相关法律法规，本着平等、自愿、公平、诚信的原则，经友好协商，达成以下合作协议：</p>
+
+    <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
+
+    <h2>第一条：定义</h2>
+    <p><strong>1.1 平台：</strong>指由甲方运营的，名为"兔到到"的，包含用户端、服务者端（以下简称"兔管家端"）及管理后台的即时家务服务信息平台。</p>
+    <p><strong>1.2 兔管家：</strong>指符合平台注册要求，使用"兔管家端"小程序接受服务订单并为用户提供服务的乙方。</p>
+
+    <h2>第二条：合作关系与性质</h2>
+    <p><strong>2.1</strong> 双方一致确认并同意，本协议项下的合作关系为平等的民事合作关系，不构成任何形式的劳动关系、劳务关系、雇佣关系或合伙关系。乙方并非甲方的员工，不受甲方内部劳动规章制度的管理。</p>
+    <p><strong>2.2</strong> 乙方作为独立的家政服务提供者，自主决定是否在平台注册、上线接单时间、以及是否接受平台推送的服务订单。</p>
+
+    <h2>第三条：合作范围与流程</h2>
+    <p><strong>3.1</strong> 甲方负责提供平台的技术支持与维护，发布来自用户的服务订单信息，并提供订单管理、费用代收代付等服务。</p>
+    <p><strong>3.2</strong> 乙方通过"兔管家端"接收订单信息，自主决定是否接单。一旦接单，应按照平台展示的服务项目标准（SOP）和应用内规定的流程（如"我已到达"、"开始服务"等）完成服务，并确保服务状态的实时、准确同步。</p>
+
+    <h2>第四条：资质与培训</h2>
+    <p><strong>4.1</strong> 乙方保证其为平台提供的所有个人资料（包括但不限于身份证信息、健康状况等）均真实、准确、合法、有效。</p>
+    <p><strong>4.2</strong> 乙方同意并承诺，在激活接单资格前，必须完成平台提供的线上服务标准培训与考核，以确保其提供的服务符合平台质量要求。</p>
+
+    <h2>第五条：服务费用与结算</h2>
+    <p><strong>5.1</strong> 每笔订单的服务费用由平台根据市场价格确定，并在订单推送时向乙方明确展示。乙方接受订单即视为对该笔费用的认可。</p>
+    <p><strong>5.2</strong> 乙方在此不可撤销地授权甲方，作为乙方向用户收取服务费用的唯一代收方。</p>
+    <p><strong>5.3</strong> 平台以周为单位为乙方结算上一自然周（周一至周日）内所有已完成订单的服务费用，并于约定的结算日（以平台公示为准）支付至乙方在平台绑定的有效收款账户。</p>
+
+    <h2>第六条：甲方的权利与义务</h2>
+    <p><strong>6.1</strong> 审核乙方的注册资料，并决定是否与乙方建立合作关系。</p>
+    <p><strong>6.2</strong> 根据平台规则，为乙方提供服务培训材料和技术支持。</p>
+    <p><strong>6.3</strong> 按照本协议约定，及时、准确地与乙方进行费用结算。</p>
+    <p><strong>6.4</strong> 有权根据乙方的服务质量、用户评价、违规情况等，调整其在平台内的信用评级或派单优先级。</p>
+
+    <h2>第七条：乙方的权利与义务</h2>
+    <p><strong>7.1</strong> 按照本协议约定，获得提供服务的报酬。</p>
+    <p><strong>7.2</strong> 严格遵守平台的所有服务规范、操作流程（SOP）和行为准则（详见附件一）。</p>
+    <p><strong>7.3</strong> 服务期间，应保持专业、友好的服务态度，维护平台及自身的良好形象。</p>
+    <p><strong>7.4</strong> 对服务过程中获悉的任何用户信息（地址、电话、家庭情况等）负有严格的保密义务，不得以任何形式泄露、传播或用于服务之外的任何目的。</p>
+    
+    <div class="warning">
+      <p><strong>7.5【核心条款】</strong> 乙方承诺绝不以任何形式（包括但不限于口头、微信、电话）引导、暗示或接受用户进行绕开平台的私下交易（"跳单"）。一经发现，甲方有权立即单方面解除本协议，永久封停乙方账户，并扣除所有未结算费用，同时保留追究乙方违约责任的权利。</p>
+    </div>
+
+    <h2>第八条：责任承担</h2>
+    <p><strong>8.1</strong> 因乙方在服务过程中存在故意或重大过失，导致用户人身或财产受到损害的，由乙方独立承担全部赔偿责任。</p>
+    <p><strong>8.2</strong> 因甲方平台技术故障，导致订单信息错误、费用计算错误等，给乙方造成直接经济损失的，由甲方在故障范围内承担责任。</p>
+
+    <h2>第九条：协议期限与解除</h2>
+    <p><strong>9.1</strong> 本协议自乙方在线点击同意之日起生效，有效期一年，到期后若双方无异议则自动续期。</p>
+    <p><strong>9.2</strong> 任何一方提前7日书面通知对方，均可解除本协议。若乙方严重违反本协议约定（尤其是第七条第五款），甲方有权单方面立即解除协议。</p>
+
+    <h2>第十条：争议解决</h2>
+    <p><strong>10.1</strong> 因本协议引起的任何争议，双方应友好协商解决；协商不成的，任何一方均有权向甲方所在地有管辖权的人民法院提起诉讼。</p>
+
+    <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
+
+    <div class="attachment">
+      <h3 style="text-align: center; color: #1f2937;">附件一：《兔管家服务安全与行为准则承诺书》</h3>
+      
+      <p>本人 <span class="emphasis">${userName}</span> (身份证号: <span class="emphasis">${idNumber}</span>)，作为"兔到到"平台的独立合作服务者，为保障用户体验与自身安全，郑重作出以下承诺：</p>
+
+      <ul>
+        <li><strong>专业形象：</strong>服务期间，按平台要求着装，仪表整洁，精神饱满。</li>
+        <li><strong>服务礼仪：</strong>使用文明用语，态度亲切，不大声喧哗。</li>
+        <li><strong>用户隐私保护：</strong>绝不主动询问用户隐私，绝不在用户家中进行任何形式的拍照、录像、录音（平台要求作为服务凭证的除外），绝不泄露用户任何信息。</li>
+        <li><strong>财产物品安全：</strong>爱护用户家中物品，轻拿轻放，如遇用户贵重物品，主动提醒用户收管。</li>
+        <li><strong>禁止私下交易：</strong>坚决拒绝任何形式的私下交易（"跳单"）请求，并有义务告知用户通过平台交易的安全性。</li>
+        <li><strong>人身安全：</strong>服务期间注意用电、用水、用气安全，不进行任何危险操作，遇紧急情况第一时间报警并通知平台。</li>
+      </ul>
+
+      <p style="border-top: 1px solid #e5e7eb; padding-top: 15px; margin-top: 15px;">
+        我已完整阅读、充分理解并同意严格遵守以上所有条款。如有违反，愿意接受平台根据合作协议进行的处理，并承担由此产生的一切责任。
+      </p>
+    </div>
+
+    <div class="signature-box">
+      <h3 style="text-align: center;">【电子签署确认】</h3>
+      <p><strong>乙方确认：</strong>本人在同意本协议前，已完整阅读、充分理解并自愿接受本协议及附件的全部条款内容。乙方的在线点击"同意"、"接受"或勾选"我已阅读并同意"并继续使用平台的行为，即视为乙方本人真实意愿的表示，构成对本协议及附件的有效签署，具有与手写签名同等的法律效力。</p>
+    </div>
+
+    <div class="footer">
+      <p>版本：v2.0 | 最后更新时间：2025年1月17日</p>
+      <p>深圳十五分钟网络科技有限公司</p>
+    </div>
+  </div>
 </body>
 </html>
     `;
