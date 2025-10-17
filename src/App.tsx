@@ -46,7 +46,7 @@ function App() {
         <Toaster />
         <Sonner />
         <Routes>
-          <Route path="/" element={<Workbench />} />
+          <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/register" element={<QuickRegister />} />
           <Route path="/tasks" element={<TaskHall />} />
