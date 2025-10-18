@@ -5,19 +5,24 @@ const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // 检查登录状态
-    const mockUser = localStorage.getItem("mock_user");
-    const mockProfile = localStorage.getItem("mock_user_profile");
+    // SECURITY: Only check localStorage in development mode
+    if (import.meta.env.DEV) {
+      const mockUser = localStorage.getItem("mock_user");
+      const mockProfile = localStorage.getItem("mock_user_profile");
 
-    if (!mockUser) {
-      // 未登录 -> 跳转到登录页
-      navigate("/auth", { replace: true });
-    } else if (!mockProfile) {
-      // 已登录但未注册 -> 跳转到快速注册页
-      navigate("/register", { replace: true });
+      if (!mockUser) {
+        // 未登录 -> 跳转到登录页
+        navigate("/auth", { replace: true });
+      } else if (!mockProfile) {
+        // 已登录但未注册 -> 跳转到快速注册页
+        navigate("/register", { replace: true });
+      } else {
+        // 已登录且已注册 -> 跳转到工作台
+        navigate("/workbench", { replace: true });
+      }
     } else {
-      // 已登录且已注册 -> 跳转到工作台
-      navigate("/workbench", { replace: true });
+      // In production, always go to auth
+      navigate("/auth", { replace: true });
     }
   }, [navigate]);
 
