@@ -31,18 +31,22 @@ export function BottomNav() {
                 key={item.path}
                 onClick={() => navigate(item.path)}
                 className={cn(
-                  "flex flex-col items-center justify-center py-2 px-3 rounded-lg transition-colors relative",
+                  "flex flex-col items-center justify-center py-2 px-3 rounded-lg transition-all duration-300 relative",
                   isActive 
-                    ? "text-primary bg-primary/10" 
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "text-primary bg-primary/20" 
+                    : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
                 )}
                 aria-current={isActive ? "page" : undefined}
                 aria-label={item.label}
               >
+                {/* Active indicator bar */}
+                {isActive && (
+                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-1 bg-primary rounded-t-full" />
+                )}
                 <div className="relative">
-                  <Icon className="w-5 h-5 mb-1" />
+                  <Icon className={cn("mb-1 transition-all", isActive ? "w-6 h-6" : "w-5 h-5")} />
                 </div>
-                <span className="text-xs font-medium">{item.label}</span>
+                <span className={cn("text-xs", isActive ? "font-semibold" : "font-medium")}>{item.label}</span>
               </button>
             );
           })}

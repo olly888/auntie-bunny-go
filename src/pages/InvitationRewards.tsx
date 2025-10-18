@@ -61,7 +61,8 @@ const InvitationRewards = () => {
 
   const loadInvitationData = async () => {
     try {
-      if (!user) return;
+      const currentUser = user || (mockState.isAuthenticated ? mockState.user : null);
+      if (!currentUser) return;
 
       // 获取或创建邀请码
       const { data: referral, error: refError } = await supabase
@@ -183,14 +184,14 @@ const InvitationRewards = () => {
 
         <div className="p-4 space-y-4">
           {/* 顶部高亮卡片 */}
-          <Card className="bg-gradient-to-br from-pink-500 to-purple-600 text-white border-0 shadow-lg overflow-hidden">
+          <Card className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground border-0 shadow-lg overflow-hidden">
             <CardContent className="p-6 relative">
               <div className="text-6xl mb-4">🎁</div>
               <h2 className="text-2xl font-bold mb-2">邀请服务伙伴，双方都赚钱！</h2>
-              <p className="text-white/90 text-sm mb-4">
+              <p className="text-primary-foreground/90 text-sm mb-4">
                 成功邀请注册：<span className="font-bold text-xl">¥100现金</span>
               </p>
-              <div className="flex items-center gap-2 bg-white/20 rounded-lg px-3 py-2 backdrop-blur-sm">
+              <div className="flex items-center gap-2 bg-primary-foreground/20 rounded-lg px-3 py-2 backdrop-blur-sm">
                 <span className="text-sm">被邀请人可获得新手福利包</span>
               </div>
             </CardContent>
@@ -227,7 +228,7 @@ const InvitationRewards = () => {
           {/* 显著的分享按钮 */}
           <Button 
             size="lg" 
-            className="w-full h-14 text-lg bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700"
+            className="w-full h-14 text-lg bg-gradient-to-r from-primary to-primary/80 hover:opacity-90"
             onClick={handleShare}
           >
             <Share2 className="w-5 h-5 mr-2" />
@@ -240,11 +241,28 @@ const InvitationRewards = () => {
               <div className="text-center">
                 <p className="text-sm text-muted-foreground mb-4">好友扫码立即注册</p>
                 {qrCodeUrl && (
-                  <div className="inline-block p-4 bg-white rounded-lg">
+                  <div className="inline-block p-4 bg-white rounded-lg shadow-md">
                     <img src={qrCodeUrl} alt="邀请二维码" className="w-48 h-48" />
                   </div>
                 )}
-                <p className="text-xs text-muted-foreground mt-4">邀请码：{refCode || "登录后自动生成"}</p>
+                {refCode && (
+                  <div className="mt-4 flex items-center justify-center gap-2 bg-muted rounded-lg px-4 py-3">
+                    <span className="text-base font-semibold text-foreground">邀请码：{refCode}</span>
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      onClick={() => {
+                        navigator.clipboard.writeText(refCode);
+                        toast({ title: "邀请码已复制" });
+                      }}
+                    >
+                      复制
+                    </Button>
+                  </div>
+                )}
+                {!refCode && (
+                  <p className="text-xs text-muted-foreground mt-4">登录后自动生成邀请码</p>
+                )}
               </div>
             </CardContent>
           </Card>

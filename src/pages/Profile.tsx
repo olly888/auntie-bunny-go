@@ -28,6 +28,8 @@ const Profile = () => {
   useEffect(() => {
     const loadUserData = async () => {
       try {
+        let nameLoaded = false;
+        
         // 优先从 Supabase profiles 读取认证信息
         const { data: { user } } = await supabase.auth.getUser();
         
@@ -39,7 +41,10 @@ const Profile = () => {
             .single();
           
           if (profile) {
-            if (profile.full_name) setUserName(profile.full_name);
+            if (profile.full_name) {
+              setUserName(profile.full_name);
+              nameLoaded = true;
+            }
             if (profile.employee_id) setEmployeeId(profile.employee_id);
             else setEmployeeId(`TDD${user.id.slice(-6).toUpperCase()}`);
             if (profile.avatar_url) setAvatarUrl(profile.avatar_url);
@@ -48,12 +53,26 @@ const Profile = () => {
           }
         }
         
+        // 检查 mock auth state
+        if (!nameLoaded && mockState.isAuthenticated && mockState.user?.full_name) {
+          setUserName(mockState.user.full_name);
+          nameLoaded = true;
+        }
+        
         // fallback 到 localStorage（仅用于姓名和头像）
         const savedProfile = localStorage.getItem("userProfile");
-        if (savedProfile && !userName) {
+        if (savedProfile && !nameLoaded) {
           const localProfile = JSON.parse(savedProfile);
-          if (localProfile.name && userName === "服务者") setUserName(localProfile.name);
+          if (localProfile.name) {
+            setUserName(localProfile.name);
+            nameLoaded = true;
+          }
           if (localProfile.avatarUrl && !avatarUrl) setAvatarUrl(localProfile.avatarUrl);
+        }
+        
+        // 最终 fallback：使用默认示例名称
+        if (!nameLoaded) {
+          setUserName("李芳");
         }
 
         // 加载订单数据并计算统计
@@ -93,7 +112,7 @@ const Profile = () => {
     };
     
     loadUserData();
-  }, []);
+  }, [mockState.isAuthenticated]);
 
   const menuItems = [
     { icon: User, label: "个人信息", path: "/profile/details" },

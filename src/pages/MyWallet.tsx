@@ -15,50 +15,17 @@ const MyWallet = () => {
   const currentMonthIncome = 1627.50;
 
   return (
-    <div className="min-h-screen bg-background pb-20">
-      <div className="max-w-md mx-auto p-4 space-y-6">
+    <div className="min-h-screen bg-background pb-32">
+      <div className="max-w-md mx-auto space-y-6">
         
-        {/* 页面标题 */}
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-foreground">我的钱包</h1>
-        </div>
-
-        {/* 核心数据卡片 */}
-        <div className="bg-gradient-card rounded-xl p-6 shadow-card border border-primary/20">
-          <div className="space-y-6">
-            {/* 可提现余额 */}
-            <div className="text-center">
-              <div className="text-sm text-muted-foreground mb-2">可提现余额</div>
-              <div className="text-4xl font-bold text-foreground mb-1">¥{withdrawableBalance.toFixed(2)}</div>
-            </div>
-
-            {/* 其他数据 */}
-            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-foreground">¥{pendingAmount.toFixed(2)}</div>
-                <div className="text-xs text-muted-foreground mt-1">审核中金额</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-foreground">¥{totalIncome.toFixed(2)}</div>
-                <div className="text-xs text-muted-foreground mt-1">累计总收入</div>
-              </div>
-            </div>
+        <div className="p-4 space-y-6">
+          {/* 核心数据卡片 */}
+          <div className="bg-gradient-card rounded-xl p-6 shadow-card border border-primary/20">
+...
           </div>
-        </div>
 
-        {/* 核心按钮 - 申请提现 */}
-        <Button 
-          variant="default" 
-          size="lg" 
-          className="w-full h-14 text-lg bg-gradient-primary hover:opacity-90 text-primary-foreground shadow-button"
-          onClick={() => navigate('/withdraw')}
-        >
-          <Wallet className="w-6 h-6 mr-2" />
-          申请提现
-        </Button>
-
-        {/* 附属入口 */}
-        <div className="bg-card rounded-xl shadow-card overflow-hidden">
+          {/* 附属入口 - 移到前面 */}
+          <div className="bg-card rounded-xl shadow-card overflow-hidden">
           <Button
             variant="ghost"
             className="w-full justify-between h-auto p-4 hover:bg-accent rounded-none"
@@ -110,7 +77,21 @@ const MyWallet = () => {
             <ChevronRight className="w-5 h-5 text-muted-foreground" />
           </Button>
         </div>
-        
+        </div>
+      </div>
+      
+      {/* 固定底部按钮 - 申请提现 */}
+      <div className="fixed bottom-20 left-0 right-0 px-4 pb-4 bg-gradient-to-t from-background via-background to-transparent pointer-events-none">
+        <div className="max-w-md mx-auto pointer-events-auto">
+          <Button 
+            size="lg" 
+            className="w-full h-14 text-lg bg-gradient-to-r from-primary to-primary/80 hover:opacity-90 text-primary-foreground shadow-lg"
+            onClick={() => navigate('/withdraw')}
+          >
+            <Wallet className="w-6 h-6 mr-2" />
+            申请提现
+          </Button>
+        </div>
       </div>
       
       <BottomNav />
