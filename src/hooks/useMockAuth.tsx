@@ -40,7 +40,19 @@ export const useMockAuth = () => {
 let otpStorage: { [phone: string]: { code: string; expiry: number } } = {};
 
 export const MockAuthProvider = ({ children }: { children: ReactNode }) => {
+  // SECURITY: Only enable mock auth in development mode
+  const isDevelopment = import.meta.env.DEV;
+  
   const [state, setState] = useState<MockAuthState>(() => {
+    // In production, never use localStorage for authentication
+    if (!isDevelopment) {
+      return {
+        isAuthenticated: false,
+        user: null,
+        lastLoginMethod: null,
+      };
+    }
+    
     const storedUser = localStorage.getItem("mock_user");
     const lastMethod = localStorage.getItem("last_login_method") as 'wechat' | 'phone' | null;
     
@@ -55,6 +67,16 @@ export const MockAuthProvider = ({ children }: { children: ReactNode }) => {
 
   // 微信一键登录（模拟）
   const loginWithWeChat = async () => {
+    // SECURITY: Disabled in production
+    if (!isDevelopment) {
+      toast({
+        title: "功能不可用",
+        description: "此功能仅在开发模式下可用，请使用真实登录",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     try {
       // 模拟微信登录
       const mockUser: MockUser = {
@@ -94,6 +116,11 @@ export const MockAuthProvider = ({ children }: { children: ReactNode }) => {
 
   // 发送OTP验证码（模拟）
   const sendOtp = async (phone: string) => {
+    // SECURITY: Disabled in production
+    if (!isDevelopment) {
+      return { success: false, countdown: 0 };
+    }
+    
     // 检查是否为未授权手机号（以199开头）
     if (phone.startsWith('199')) {
       toast({
@@ -121,6 +148,14 @@ export const MockAuthProvider = ({ children }: { children: ReactNode }) => {
 
   // 手机验证码登录
   const loginWithPhone = async (data: { phone: string; code: string }) => {
+    // SECURITY: Disabled in production
+    if (!isDevelopment) {
+      return {
+        success: false,
+        error: "此功能仅在开发模式下可用，请使用真实登录"
+      };
+    }
+    
     const { phone, code } = data;
 
     // 检查是否为未授权手机号

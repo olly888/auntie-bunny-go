@@ -25,11 +25,14 @@ const Auth = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
 
   useEffect(() => {
-    const mockUser = localStorage.getItem("mock_user");
-    const mockProfile = localStorage.getItem("mock_user_profile");
-    
-    if (mockUser && mockProfile) {
-      navigate("/workbench", { replace: true });
+    // SECURITY: Only check localStorage auth in development mode
+    if (import.meta.env.DEV) {
+      const mockUser = localStorage.getItem("mock_user");
+      const mockProfile = localStorage.getItem("mock_user_profile");
+      
+      if (mockUser && mockProfile) {
+        navigate("/workbench", { replace: true });
+      }
     }
   }, [navigate]);
 
@@ -38,6 +41,16 @@ const Auth = () => {
       toast({
         title: "请先同意协议",
         description: "请阅读并同意《服务协议》和《隐私政策》",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // SECURITY: Mock auth only in development
+    if (!import.meta.env.DEV) {
+      toast({
+        title: "功能不可用",
+        description: "请使用真实的登录方式",
         variant: "destructive",
       });
       return;
@@ -72,6 +85,16 @@ const Auth = () => {
 
   const confirmRegister = () => {
     setShowConfirmDialog(false);
+    
+    // SECURITY: Only allow in development mode
+    if (!import.meta.env.DEV) {
+      toast({
+        title: "功能不可用",
+        description: "请使用真实的注册方式",
+        variant: "destructive",
+      });
+      return;
+    }
     
     // 创建基础用户账户
     const newUser = {

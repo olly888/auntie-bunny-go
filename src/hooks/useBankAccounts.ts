@@ -59,6 +59,15 @@ export const useAddBankAccount = () => {
           .eq('owner_profile_id', user.id);
       }
 
+      // SECURITY: Validate account number format
+      const accountNumber = bankData.account_number;
+      if (!/^\d{10,30}$/.test(accountNumber)) {
+        throw new Error('Invalid account number format');
+      }
+      
+      // SECURITY: Extract last 4 digits immediately, never send full number
+      const last4 = accountNumber.slice(-4);
+      
       // Insert new bank account (only save last 4 digits)
       const { data, error } = await supabase
         .from('bank_accounts')
@@ -66,14 +75,17 @@ export const useAddBankAccount = () => {
           owner_profile_id: user.id,
           bank_name: bankData.bank_name,
           account_holder: bankData.account_holder,
-          account_number_last4: bankData.account_number.slice(-4),
+          account_number_last4: last4,
           is_default: bankData.is_default || false,
         })
         .select()
         .single();
 
       if (error) {
-        console.error('Error adding bank account:', error);
+        // SECURITY: Don't log sensitive data in production
+        if (import.meta.env.DEV) {
+          console.error('Error adding bank account:', error);
+        }
         throw error;
       }
 
