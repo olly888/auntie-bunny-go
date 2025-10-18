@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ArrowLeft, Wallet, ChevronRight, AlertCircle, CheckCircle, CreditCard } from "lucide-react";
+import { ArrowLeft, Wallet, ChevronRight, AlertCircle, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 
@@ -153,38 +153,16 @@ const Withdraw = () => {
                   <div className="flex items-center gap-3">
                     <Wallet className="w-5 h-5 text-success" />
                     <div>
-                      <div className="font-medium text-foreground">
-                        {userInfo.hasLinkedWallet ? userInfo.walletType : "未绑定银行卡"}
-                      </div>
+                      <div className="font-medium text-foreground">{userInfo.walletType}</div>
                       <div className="text-xs text-muted-foreground">
-                        {userInfo.hasLinkedWallet ? "已绑定" : "提现需绑定银行卡"}
+                        {userInfo.hasLinkedWallet ? "已绑定" : "未绑定"}
                       </div>
                     </div>
                   </div>
-                  {userInfo.hasLinkedWallet ? (
+                  {userInfo.hasLinkedWallet && (
                     <CheckCircle className="w-5 h-5 text-success" />
-                  ) : (
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={() => navigate('/wallet/cards')}
-                    >
-                      去绑定
-                    </Button>
                   )}
                 </div>
-                
-                {/* 绑定银行卡按钮 */}
-                {!userInfo.hasLinkedWallet && (
-                  <Button 
-                    variant="default" 
-                    className="w-full mt-2"
-                    onClick={() => navigate('/wallet/cards')}
-                  >
-                    <CreditCard className="w-4 h-4 mr-2" />
-                    绑定银行卡
-                  </Button>
-                )}
               </div>
             </CardContent>
           </Card>

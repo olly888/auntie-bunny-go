@@ -9,7 +9,6 @@ interface MockUser {
   role: 'non-direct' | 'direct';
   isVerified: boolean;
   bankBound: boolean;
-  full_name?: string;
 }
 
 interface MockAuthState {
@@ -87,7 +86,6 @@ export const MockAuthProvider = ({ children }: { children: ReactNode }) => {
         role: 'non-direct',
         isVerified: true,
         bankBound: true,
-        full_name: "李芳",
       };
 
       setState({
@@ -192,7 +190,6 @@ export const MockAuthProvider = ({ children }: { children: ReactNode }) => {
       role: 'non-direct',
       isVerified: true,
       bankBound: true,
-      full_name: "李芳",
     };
 
     setState({
