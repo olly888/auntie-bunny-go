@@ -742,6 +742,42 @@ export type Database = {
           },
         ]
       }
+      security_audit_log: {
+        Row: {
+          action: string
+          created_at: string | null
+          details: Json | null
+          id: string
+          ip_address: unknown | null
+          resource_id: string | null
+          resource_type: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          resource_id?: string | null
+          resource_type?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          resource_id?: string | null
+          resource_type?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       settlement_configs: {
         Row: {
           created_at: string
@@ -891,15 +927,6 @@ export type Database = {
           store_name: string
           updated_at: string
         }[]
-      }
-      bootstrap_admin_account: {
-        Args: {
-          p_email: string
-          p_password: string
-          p_phone: string
-          p_token: string
-        }
-        Returns: Json
       }
       claim_order: {
         Args: { order_id: string }
