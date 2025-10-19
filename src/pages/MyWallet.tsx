@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { BottomNav } from "@/components/ui/bottom-nav";
-import { ArrowLeft, Wallet, ChevronRight, TrendingUp, Clock, FileText } from "lucide-react";
+import { ArrowLeft, Wallet, ChevronRight, TrendingUp, Clock, FileText, CreditCard } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const MyWallet = () => {
@@ -92,6 +92,20 @@ const MyWallet = () => {
             <div className="flex items-center gap-3">
               <Clock className="w-5 h-5 text-primary" />
               <span className="text-base text-foreground">提现记录</span>
+            </div>
+            <ChevronRight className="w-5 h-5 text-muted-foreground" />
+          </Button>
+          
+          <div className="h-px bg-border" />
+          
+          <Button
+            variant="ghost"
+            className="w-full justify-between h-auto py-3 px-4 hover:bg-accent rounded-none"
+            onClick={() => navigate('/my-bank-cards')}
+          >
+            <div className="flex items-center gap-3">
+              <CreditCard className="w-5 h-5 text-primary" />
+              <span className="text-base text-foreground">银行卡管理</span>
             </div>
             <ChevronRight className="w-5 h-5 text-muted-foreground" />
           </Button>

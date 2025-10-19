@@ -31,16 +31,16 @@ export function BottomNav() {
                 key={item.path}
                 onClick={() => navigate(item.path)}
                 className={cn(
-                  "flex flex-col items-center justify-center py-2 px-3 rounded-lg transition-colors relative",
+                  "flex flex-col items-center justify-center py-2 px-3 rounded-lg transition-all duration-200 ease-in-out relative border-t-2",
                   isActive 
-                    ? "text-primary bg-primary/10" 
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "text-primary bg-primary/15 border-t-primary scale-105" 
+                    : "text-muted-foreground hover:text-foreground hover:bg-accent/30 border-t-transparent"
                 )}
                 aria-current={isActive ? "page" : undefined}
                 aria-label={item.label}
               >
                 <div className="relative">
-                  <Icon className="w-5 h-5 mb-1" />
+                  <Icon className={cn("mb-1 transition-transform", isActive ? "w-6 h-6" : "w-5 h-5")} />
                 </div>
                 <span className="text-xs font-medium">{item.label}</span>
               </button>

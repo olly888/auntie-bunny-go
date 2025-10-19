@@ -225,14 +225,14 @@ const InvitationRewards = () => {
           </Card>
 
           {/* 显著的分享按钮 */}
-          <Button 
-            size="lg" 
-            className="w-full h-14 text-lg bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700"
-            onClick={handleShare}
-          >
-            <Share2 className="w-5 h-5 mr-2" />
-            立即分享给微信好友
-          </Button>
+              <Button 
+                size="lg" 
+                className="w-full h-14 text-lg bg-primary hover:bg-primary/90 text-primary-foreground shadow-button transition-all"
+                onClick={handleShare}
+              >
+                <Share2 className="w-5 h-5 mr-2" />
+                立即分享给微信好友
+              </Button>
 
           {/* 二维码展示 */}
           <Card>
