@@ -101,7 +101,7 @@ const MyWallet = () => {
           <Button
             variant="ghost"
             className="w-full justify-between h-auto py-3 px-4 hover:bg-accent rounded-none"
-            onClick={() => navigate('/my-bank-cards')}
+            onClick={() => navigate('/wallet/cards')}
           >
             <div className="flex items-center gap-3">
               <CreditCard className="w-5 h-5 text-primary" />
