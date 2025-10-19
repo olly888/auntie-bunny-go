@@ -610,12 +610,14 @@ export type Database = {
           experience_years: number | null
           gender: string | null
           id: string
+          ip_address: unknown | null
           motivation: string | null
           name: string
           notes: string | null
           phone: string
           referrer_code: string | null
           status: string
+          submitted_at: string | null
           updated_at: string
           work_area: string | null
         }
@@ -626,12 +628,14 @@ export type Database = {
           experience_years?: number | null
           gender?: string | null
           id?: string
+          ip_address?: unknown | null
           motivation?: string | null
           name: string
           notes?: string | null
           phone: string
           referrer_code?: string | null
           status?: string
+          submitted_at?: string | null
           updated_at?: string
           work_area?: string | null
         }
@@ -642,12 +646,14 @@ export type Database = {
           experience_years?: number | null
           gender?: string | null
           id?: string
+          ip_address?: unknown | null
           motivation?: string | null
           name?: string
           notes?: string | null
           phone?: string
           referrer_code?: string | null
           status?: string
+          submitted_at?: string | null
           updated_at?: string
           work_area?: string | null
         }
