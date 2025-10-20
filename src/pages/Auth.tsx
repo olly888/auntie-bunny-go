@@ -25,14 +25,12 @@ const Auth = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
 
   useEffect(() => {
-    // SECURITY: Only check localStorage auth in development mode
-    if (import.meta.env.DEV) {
-      const mockUser = localStorage.getItem("mock_user");
-      const mockProfile = localStorage.getItem("mock_user_profile");
-      
-      if (mockUser && mockProfile) {
-        navigate("/workbench", { replace: true });
-      }
+    // NOTE: 演示模式 - 检查本地存储的模拟用户数据，已登录则自动跳转
+    const mockUser = localStorage.getItem("mock_user");
+    const mockProfile = localStorage.getItem("mock_user_profile");
+    
+    if (mockUser && mockProfile) {
+      navigate("/workbench", { replace: true });
     }
   }, [navigate]);
 
@@ -46,16 +44,7 @@ const Auth = () => {
       return;
     }
 
-    // SECURITY: Mock auth only in development
-    if (!import.meta.env.DEV) {
-      toast({
-        title: "功能不可用",
-        description: "请使用真实的登录方式",
-        variant: "destructive",
-      });
-      return;
-    }
-
+    // NOTE: 演示模式 - 模拟一键登录功能，用于前端流程演示
     setLoading(true);
 
     // 模拟获取手机号
@@ -86,16 +75,7 @@ const Auth = () => {
   const confirmRegister = () => {
     setShowConfirmDialog(false);
     
-    // SECURITY: Only allow in development mode
-    if (!import.meta.env.DEV) {
-      toast({
-        title: "功能不可用",
-        description: "请使用真实的注册方式",
-        variant: "destructive",
-      });
-      return;
-    }
-    
+    // NOTE: 演示模式 - 模拟用户注册流程，用于前端流程演示
     // 创建基础用户账户
     const newUser = {
       id: `user_${Date.now()}`,
