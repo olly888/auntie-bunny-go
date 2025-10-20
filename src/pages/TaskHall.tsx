@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { BottomNav } from "@/components/ui/bottom-nav";
@@ -11,8 +12,72 @@ import rabbitMascot from "@/assets/rabbit-mascot.png";
 const TaskHall = () => {
   const navigate = useNavigate();
   const { pendingOrders, claimOrder, createOrder } = useDemoOrders();
+  const [profile, setProfile] = useState<any>(null);
+
+  // 加载用户 profile 并监听变化
+  useEffect(() => {
+    const loadProfile = () => {
+      const storedProfile = localStorage.getItem("mock_user_profile");
+      if (storedProfile) {
+        setProfile(JSON.parse(storedProfile));
+      }
+    };
+    
+    loadProfile();
+    window.addEventListener('storage', loadProfile);
+    return () => window.removeEventListener('storage', loadProfile);
+  }, []);
 
   const handleClaimOrder = (orderId: string) => {
+    // 检查是否已登录
+    const storedProfile = localStorage.getItem("mock_user_profile");
+    if (!storedProfile) {
+      toast({
+        title: "请先登录",
+        description: "需要登录后才能抢单",
+        variant: "destructive"
+      });
+      navigate("/auth");
+      return;
+    }
+
+    const userProfile = JSON.parse(storedProfile);
+    
+    // 检查是否已激活
+    if (userProfile.onboarding_status !== 'activated') {
+      // 计算未完成的任务
+      const incompleteTasks = [];
+      if (!userProfile.is_id_verified) {
+        incompleteTasks.push({ name: "实名认证", route: "/certification" });
+      }
+      if (!userProfile.is_training_completed) {
+        incompleteTasks.push({ name: "培训学习", route: "/skills-training" });
+      }
+      if (!userProfile.agreement_signed_at) {
+        incompleteTasks.push({ name: "签署合同", route: "/profile/agreements" });
+      }
+
+      // 显示友好提示
+      toast({
+        title: "🔒 账户尚未激活",
+        description: `还需完成 ${incompleteTasks.length} 个新手任务才能抢单`,
+        action: (
+          <Button 
+            size="sm" 
+            onClick={() => {
+              // 导航到第一个未完成的任务
+              navigate(incompleteTasks[0].route);
+            }}
+          >
+            立即前往
+          </Button>
+        ),
+        duration: 6000
+      });
+      return;
+    }
+
+    // 已激活用户，正常抢单逻辑
     const claimedOrder = claimOrder(orderId);
     if (claimedOrder) {
       toast({
@@ -73,6 +138,47 @@ const TaskHall = () => {
 
         <div className="p-4 space-y-4">
           
+          {/* 新手任务提示卡片 */}
+          {profile && profile.onboarding_status !== 'activated' && (
+            <Card className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border-amber-200 dark:border-amber-800">
+              <div className="flex items-start gap-3">
+                <div className="text-3xl">🎁</div>
+                <div className="flex-1">
+                  <h3 className="font-bold text-foreground mb-2">
+                    完成新手任务，解锁抢单权限
+                  </h3>
+                  <div className="space-y-1.5 mb-3">
+                    {!profile.is_id_verified && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="w-5 h-5 rounded-full bg-amber-500 text-white flex items-center justify-center text-xs">1</span>
+                        <span className="text-muted-foreground">实名认证</span>
+                      </div>
+                    )}
+                    {!profile.is_training_completed && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="w-5 h-5 rounded-full bg-amber-500 text-white flex items-center justify-center text-xs">2</span>
+                        <span className="text-muted-foreground">培训学习</span>
+                      </div>
+                    )}
+                    {!profile.agreement_signed_at && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="w-5 h-5 rounded-full bg-amber-500 text-white flex items-center justify-center text-xs">3</span>
+                        <span className="text-muted-foreground">签署合同</span>
+                      </div>
+                    )}
+                  </div>
+                  <Button 
+                    size="sm" 
+                    className="bg-primary hover:bg-primary/90"
+                    onClick={() => navigate("/workbench")}
+                  >
+                    前往完成
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          )}
+
           {/* 演示功能区 */}
           <Card className="p-4 bg-primary/5 border-primary/20">
             <div className="text-center space-y-2">

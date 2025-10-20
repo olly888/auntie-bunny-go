@@ -261,6 +261,28 @@ const Workbench = () => {
       return;
     }
 
+    // 检查账户激活状态
+    if (profile?.onboarding_status !== 'activated') {
+      toast({
+        title: "🔒 账户尚未激活",
+        description: "请先完成所有新手任务才能抢单",
+        action: (
+          <Button 
+            size="sm" 
+            onClick={() => {
+              document.getElementById('onboarding-tasks')?.scrollIntoView({ 
+                behavior: 'smooth' 
+              });
+            }}
+          >
+            立即完成
+          </Button>
+        ),
+        duration: 6000
+      });
+      return;
+    }
+
     if (currentOrder) {
       toast({
         title: "当前已有任务",
