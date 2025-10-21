@@ -17,11 +17,6 @@ const MyWallet = () => {
   return (
     <div className="min-h-screen bg-background pb-20">
       <div className="max-w-md mx-auto p-4 space-y-6">
-        
-        {/* 页面标题 */}
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-foreground">我的钱包</h1>
-        </div>
 
         {/* 核心数据卡片 */}
         <div className="bg-gradient-card rounded-xl p-6 shadow-card border border-primary/20">
@@ -45,17 +40,6 @@ const MyWallet = () => {
             </div>
           </div>
         </div>
-
-        {/* 核心按钮 - 申请提现 */}
-        <Button 
-          variant="default" 
-          size="lg" 
-          className="w-full h-14 text-lg bg-gradient-primary hover:opacity-90 text-primary-foreground shadow-button"
-          onClick={() => navigate('/withdraw')}
-        >
-          <Wallet className="w-6 h-6 mr-2" />
-          申请提现
-        </Button>
 
         {/* 附属入口 */}
         <div className="bg-card rounded-xl shadow-card overflow-hidden">
@@ -124,6 +108,17 @@ const MyWallet = () => {
             <ChevronRight className="w-5 h-5 text-muted-foreground" />
           </Button>
         </div>
+
+        {/* 核心按钮 - 申请提现（移至底部）*/}
+        <Button 
+          variant="default" 
+          size="lg" 
+          className="w-full h-14 text-lg bg-gradient-primary hover:opacity-90 text-primary-foreground shadow-button"
+          onClick={() => navigate('/withdraw')}
+        >
+          <Wallet className="w-6 h-6 mr-2" />
+          申请提现
+        </Button>
         
       </div>
       
