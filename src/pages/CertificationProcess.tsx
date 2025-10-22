@@ -56,28 +56,16 @@ const CertificationProcess = () => {
       profile.is_id_verified = true;
       profile.full_name = fullName;
       profile.id_card_number = idNumber;
+      localStorage.setItem("mock_user_profile", JSON.stringify(profile));
 
-      // 检查是否可以激活
-      if (profile.is_training_completed) {
-        profile.onboarding_status = "activated";
-        localStorage.setItem("mock_user_profile", JSON.stringify(profile));
-        
-        toast({
-          title: "🎉 恭喜激活成功！",
-          description: "您现在可以开始接单赚钱了！",
-          duration: 5000,
-        });
-      } else {
-        localStorage.setItem("mock_user_profile", JSON.stringify(profile));
-        
-        toast({
-          title: "✅ 实名认证完成！",
-          description: "还差最后一步：完成新人培训即可激活",
-          duration: 5000,
-        });
-      }
+      toast({
+        title: "✅ 实名认证完成！",
+        description: "请补充完善个人信息，7天内完成即可",
+        duration: 4000,
+      });
 
-      setTimeout(() => navigate("/workbench"), 2000);
+      // 跳转到个人信息页面补充资料
+      setTimeout(() => navigate("/profile/details"), 2000);
     }, 3000);
   };
 

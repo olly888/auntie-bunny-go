@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { ArrowLeft, MapPin, Clock, Banknote, Phone, User, Calendar, CheckCircle2, Image as ImageIcon } from "lucide-react";
 import { format } from "date-fns";
@@ -50,6 +51,8 @@ interface CustomerNote {
 const OrderDetail = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useState(() => new URLSearchParams(window.location.search));
+  const isPreviewMode = searchParams.get('preview') === 'true';
 
   // 查询订单详情
   const { data: order, isLoading: orderLoading } = useQuery({
@@ -262,8 +265,36 @@ const OrderDetail = () => {
           <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="p-2">
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <h1 className="text-2xl font-bold text-foreground">订单详情</h1>
+          <h1 className="text-2xl font-bold text-foreground">
+            {isPreviewMode ? '订单预览' : '订单详情'}
+          </h1>
         </div>
+
+        {/* 预览模式提示 */}
+        {isPreviewMode && (
+          <Card className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border-amber-200 dark:border-amber-800">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="text-2xl">👀</div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-foreground mb-1">
+                    这是订单预览模式
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    完成新手任务后即可抢单，预计收入 <span className="text-primary font-bold">¥{order.payout}</span>
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  className="bg-gradient-to-r from-primary to-primary/80"
+                  onClick={() => navigate('/workbench')}
+                >
+                  去完成
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* 订单基本信息 */}
         <div className="bg-card rounded-xl p-4 shadow-card border border-border/50 space-y-3">

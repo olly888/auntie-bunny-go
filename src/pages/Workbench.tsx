@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { BottomNav } from "@/components/ui/bottom-nav";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -20,47 +20,67 @@ const getOnboardingTasks = (profile: any): OnboardingTask[] => {
     return [];
   }
   
-  return [
-    {
+  let stepNumber = 1;
+  const tasks: OnboardingTask[] = [];
+  
+  // 实名认证任务
+  if (!profile?.is_id_verified) {
+    tasks.push({
       id: 'onboarding-id-verify',
-      type: '💎 解锁接单资格',
-      duration: '',
-      address: '✨ 快速认证',
+      type: '📋 实名认证',
+      duration: '5分钟',
+      address: '完成身份验证',
       distance: '',
       payout: '0',
       isOnboardingTask: true,
-      completed: profile?.is_id_verified || false,
-      route: '/certification',
-      description: '🎁 通过认证即可开始接单赚钱',
-      benefit: '解锁接单能力'
-    },
-    {
+      completed: false,
+      route: '/certification/intro',
+      description: '扫描身份证 + 人脸识别',
+      benefit: '解锁接单能力',
+      reward: '获得5元奖励',
+      stepNumber: stepNumber++,
+    });
+  }
+  
+  // 培训任务
+  if (!profile?.is_training_completed) {
+    tasks.push({
       id: 'onboarding-training',
-      type: '🚀 掌握赚钱技巧',
-      duration: '',
-      address: '💡 轻松学习',
+      type: '📖 新人培训',
+      duration: '10分钟',
+      address: '学习服务规范',
       distance: '',
       payout: '0',
       isOnboardingTask: true,
-      completed: profile?.is_training_completed || false,
-      route: '/skills-training',
-      description: '📈 学会服务技巧，订单源源不断',
-      benefit: '提升接单成功率'
-    },
-    {
+      completed: false,
+      route: '/newbie-course',
+      description: '掌握服务技巧，提升接单成功率',
+      benefit: '提升接单成功率',
+      reward: '优先推送订单',
+      stepNumber: stepNumber++,
+    });
+  }
+  
+  // 签署协议任务
+  if (!profile?.agreement_signed_at) {
+    tasks.push({
       id: 'onboarding-agreement',
-      type: '🛡️ 开启收入保障',
-      duration: '',
-      address: '📝 电子签署',
+      type: '📝 签署协议',
+      duration: '3分钟',
+      address: '保障双方权益',
       distance: '',
       payout: '0',
       isOnboardingTask: true,
-      completed: !!profile?.agreement_signed_at,
+      completed: false,
       route: '/profile/agreements',
-      description: '💰 签署协议，收入结算有保障',
-      benefit: '获得平台保障'
-    }
-  ];
+      description: '阅读并同意服务协议',
+      benefit: '获得平台保障',
+      reward: '正式开启接单',
+      stepNumber: stepNumber++,
+    });
+  }
+  
+  return tasks;
 };
 
 const Workbench = () => {
@@ -410,22 +430,47 @@ const Workbench = () => {
           <TabsContent value="hall" className="mt-4">
             {onboardingTasks.length > 0 || pendingOrders.length > 0 ? (
               <div className="space-y-3">
-                {/* 新手任务提示卡片 */}
+                {/* 社交证明和紧迫感 */}
                 {onboardingTasks.length > 0 && (
-                  <Card className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border-amber-200 dark:border-amber-800">
-                    <div className="flex items-start gap-3">
-                      <div className="text-3xl">🎉</div>
+                  <Card className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border-green-200 dark:border-green-800">
+                    <div className="flex items-center gap-3">
+                      <div className="text-2xl">🔥</div>
                       <div className="flex-1">
-                        <h3 className="font-bold text-foreground mb-1.5 text-base">
-                          距离开始赚钱，只差 {onboardingTasks.filter(t => !t.completed).length} 步！
-                        </h3>
-                        <p className="text-sm font-medium text-amber-700 dark:text-amber-400">
-                          💰 完成即可开启月入过万之旅
+                        <p className="text-sm font-medium text-foreground">
+                          <span className="text-primary font-bold">今天已有128人</span> 完成新手任务并成功接单
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          平均用时18分钟，立即开始赚钱
                         </p>
                       </div>
                     </div>
                   </Card>
                 )}
+                
+                {/* 新手任务进度卡片 */}
+                {onboardingTasks.length > 0 && (
+                  <Card className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border-amber-200 dark:border-amber-800">
+                    <div className="flex items-start gap-3 mb-3">
+                      <div className="text-3xl">🎁</div>
+                      <div className="flex-1">
+                        <h3 className="font-bold text-lg text-foreground mb-1">
+                          新手任务 ({3 - onboardingTasks.length}/3 已完成)
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          按步骤完成任务，最快18分钟开始接单赚钱
+                        </p>
+                      </div>
+                    </div>
+                    {/* 进度条 */}
+                    <div className="w-full bg-muted rounded-full h-2">
+                      <div 
+                        className="bg-gradient-to-r from-primary to-primary/80 h-2 rounded-full transition-all duration-500"
+                        style={{ width: `${((3 - onboardingTasks.length) / 3) * 100}%` }}
+                      />
+                    </div>
+                  </Card>
+                )}
+                
                 {/* 新手任务置顶显示 */}
                 {onboardingTasks.map((task) => (
                   <OrderCard
@@ -447,7 +492,7 @@ const Workbench = () => {
             ) : (
               <Card className="p-8 text-center border-2 border-dashed border-primary/30 bg-primary/5">
                 <img 
-                  src={rabbitMascot} 
+                  src={rabbitMascot}
                   alt="兔到到吉祥物" 
                   className="w-20 h-20 mx-auto mb-4 opacity-80"
                 />

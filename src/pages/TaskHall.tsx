@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { OrderCard } from "@/components/order/OrderCard";
 import { RefreshCw, ArrowLeft } from "lucide-react";
@@ -48,32 +48,25 @@ const TaskHall = () => {
       // 计算未完成的任务
       const incompleteTasks = [];
       if (!userProfile.is_id_verified) {
-        incompleteTasks.push({ name: "实名认证", route: "/certification" });
+        incompleteTasks.push({ name: "实名认证", route: "/certification/intro" });
       }
       if (!userProfile.is_training_completed) {
-        incompleteTasks.push({ name: "培训学习", route: "/skills-training" });
+        incompleteTasks.push({ name: "新人培训", route: "/newbie-course" });
       }
       if (!userProfile.agreement_signed_at) {
-        incompleteTasks.push({ name: "签署合同", route: "/profile/agreements" });
+        incompleteTasks.push({ name: "签署协议", route: "/profile/agreements" });
       }
 
       // 显示友好提示
       toast({
-        title: "🔒 账户尚未激活",
-        description: `还需完成 ${incompleteTasks.length} 个新手任务才能抢单`,
-        action: (
-          <Button 
-            size="sm" 
-            onClick={() => {
-              // 导航到第一个未完成的任务
-              navigate(incompleteTasks[0].route);
-            }}
-          >
-            立即前往
-          </Button>
-        ),
-        duration: 6000
+        title: "请先完成新手任务",
+        description: `还需完成：${incompleteTasks.map(t => t.name).join('、')}`,
+        variant: "destructive",
+        duration: 5000,
       });
+      
+      // 导航到第一个未完成的任务
+      navigate(incompleteTasks[0].route);
       return;
     }
 
@@ -86,6 +79,12 @@ const TaskHall = () => {
       });
       navigate("/");
     }
+  };
+
+  // 处理"偷看"订单详情
+  const handleViewOrder = (orderId: string) => {
+    // 未激活用户也可以查看订单详情，但看到的是预览模式
+    navigate(`/order/${orderId}?preview=true`);
   };
 
   const handleCreateDemoOrder = () => {
@@ -138,6 +137,23 @@ const TaskHall = () => {
 
         <div className="p-4 space-y-4">
           
+          {/* 社交证明和紧迫感提示 */}
+          {profile && profile.onboarding_status !== 'activated' && (
+            <Card className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border-green-200 dark:border-green-800">
+              <div className="flex items-center gap-3">
+                <div className="text-2xl">🔥</div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-foreground">
+                    <span className="text-primary font-bold">今天已有128人</span> 完成任务并开始接单
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    现在完成任务，即可抢下方热门订单
+                  </p>
+                </div>
+              </div>
+            </Card>
+          )}
+
           {/* 新手任务提示卡片 */}
           {profile && profile.onboarding_status !== 'activated' && (
             <Card className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border-amber-200 dark:border-amber-800">
@@ -145,34 +161,37 @@ const TaskHall = () => {
                 <div className="text-3xl">🎁</div>
                 <div className="flex-1">
                   <h3 className="font-bold text-foreground mb-2">
-                    完成新手任务，解锁抢单权限
+                    快速开启接单 - 最快18分钟
                   </h3>
                   <div className="space-y-1.5 mb-3">
                     {!profile.is_id_verified && (
                       <div className="flex items-center gap-2 text-sm">
-                        <span className="w-5 h-5 rounded-full bg-amber-500 text-white flex items-center justify-center text-xs">1</span>
-                        <span className="text-muted-foreground">实名认证</span>
+                        <span className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold">1</span>
+                        <span className="text-foreground font-medium">实名认证</span>
+                        <span className="text-primary text-xs font-bold">+5元</span>
                       </div>
                     )}
                     {!profile.is_training_completed && (
                       <div className="flex items-center gap-2 text-sm">
-                        <span className="w-5 h-5 rounded-full bg-amber-500 text-white flex items-center justify-center text-xs">2</span>
-                        <span className="text-muted-foreground">培训学习</span>
+                        <span className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold">2</span>
+                        <span className="text-foreground font-medium">新人培训</span>
+                        <span className="text-primary text-xs font-bold">优先推送</span>
                       </div>
                     )}
                     {!profile.agreement_signed_at && (
                       <div className="flex items-center gap-2 text-sm">
-                        <span className="w-5 h-5 rounded-full bg-amber-500 text-white flex items-center justify-center text-xs">3</span>
-                        <span className="text-muted-foreground">签署合同</span>
+                        <span className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold">3</span>
+                        <span className="text-foreground font-medium">签署协议</span>
+                        <span className="text-primary text-xs font-bold">正式开单</span>
                       </div>
                     )}
                   </div>
                   <Button 
                     size="sm" 
-                    className="bg-primary hover:bg-primary/90"
+                    className="w-full bg-gradient-to-r from-primary to-primary/80 hover:opacity-90 font-bold"
                     onClick={() => navigate("/workbench")}
                   >
-                    前往完成
+                    立即完成任务 🚀
                   </Button>
                 </div>
               </div>
@@ -197,15 +216,33 @@ const TaskHall = () => {
             </div>
           </Card>
 
-          {/* 订单列表 */}
+          {/* 订单列表 - 带偷看功能 */}
           {pendingOrders.length > 0 ? (
             <div className="space-y-3">
+              {profile?.onboarding_status !== 'activated' && (
+                <div className="bg-primary/10 border border-primary/20 rounded-lg p-3">
+                  <p className="text-sm text-center text-primary font-medium">
+                    👀 可以先查看订单详情，完成任务后即可抢单
+                  </p>
+                </div>
+              )}
               {pendingOrders.map((order) => (
-                <OrderCard
-                  key={order.id}
-                  order={order}
-                  onClaim={handleClaimOrder}
-                />
+                <div key={order.id} className="relative">
+                  <OrderCard
+                    order={order}
+                    onClaim={profile?.onboarding_status === 'activated' ? handleClaimOrder : undefined}
+                  />
+                  {profile?.onboarding_status !== 'activated' && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="absolute top-3 right-3 text-xs bg-background/95 backdrop-blur-sm"
+                      onClick={() => handleViewOrder(order.id)}
+                    >
+                      👀 偷看详情
+                    </Button>
+                  )}
+                </div>
               ))}
             </div>
           ) : (

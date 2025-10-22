@@ -17,6 +17,8 @@ export interface OnboardingTask {
   route: string;
   description: string;
   benefit?: string;
+  reward?: string;
+  stepNumber?: number;
 }
 
 interface OrderCardProps {
@@ -36,6 +38,11 @@ export const OrderCard = ({ order, onClaim, variant = 'default' }: OrderCardProp
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
+                {isOnboardingTask && order.stepNumber && (
+                  <Badge variant="outline" className="text-xs font-bold bg-primary/20 border-primary/40">
+                    步骤 {order.stepNumber}
+                  </Badge>
+                )}
                 <span className="font-semibold text-card-foreground">{order.type}</span>
                 {isOnboardingTask && order.completed && (
                   <Badge variant="default" className="text-xs">
@@ -55,10 +62,9 @@ export const OrderCard = ({ order, onClaim, variant = 'default' }: OrderCardProp
               </div>
               <div className="flex items-center gap-1 text-sm text-muted-foreground truncate">
                 {isOnboardingTask ? (
-                  order.benefit && (
+                  order.reward && (
                     <>
-                      <span className="text-primary font-medium">✓</span>
-                      <span className="text-primary text-xs font-medium">{order.benefit}</span>
+                      <span className="text-primary font-medium text-sm">💰 {order.reward}</span>
                       <span>·</span>
                     </>
                   )
@@ -95,7 +101,7 @@ export const OrderCard = ({ order, onClaim, variant = 'default' }: OrderCardProp
               className="w-full bg-gradient-to-r from-primary to-primary/80 hover:opacity-90 text-primary-foreground font-bold shadow-lg"
               onClick={() => navigate(order.route)}
             >
-              立即解锁 🎁
+              立即完成 🎁
             </Button>
             )
           ) : (
@@ -119,6 +125,11 @@ export const OrderCard = ({ order, onClaim, variant = 'default' }: OrderCardProp
             <span className="text-2xl">{order.type.split(' ')[0]}</span>
             <div>
               <div className="flex items-center gap-2">
+                {isOnboardingTask && order.stepNumber && (
+                  <Badge variant="outline" className="font-bold bg-primary/20 border-primary/40">
+                    步骤 {order.stepNumber}
+                  </Badge>
+                )}
                 <div className="font-semibold text-card-foreground">{order.type}</div>
                 {isOnboardingTask && order.completed && (
                   <Badge variant="default">
@@ -137,6 +148,11 @@ export const OrderCard = ({ order, onClaim, variant = 'default' }: OrderCardProp
             <div className="text-right">
               <div className="text-2xl font-bold text-primary">¥{order.payout}</div>
               <div className="text-xs text-muted-foreground">预计提成</div>
+            </div>
+          )}
+          {isOnboardingTask && order.reward && (
+            <div className="text-right">
+              <div className="text-lg font-bold text-primary">💰 {order.reward}</div>
             </div>
           )}
         </div>
@@ -168,7 +184,7 @@ export const OrderCard = ({ order, onClaim, variant = 'default' }: OrderCardProp
               className="w-full bg-gradient-to-r from-primary to-primary/80 hover:opacity-90 text-primary-foreground font-bold shadow-lg"
               onClick={() => navigate(order.route)}
             >
-              立即解锁 🎁
+              立即完成 🎁
             </Button>
           )
         ) : (
