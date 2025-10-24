@@ -137,63 +137,82 @@ const TaskHall = () => {
 
         <div className="p-4 space-y-4">
           
-          {/* 社交证明和紧迫感提示 */}
-          {profile && profile.onboarding_status !== 'activated' && (
-            <Card className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border-green-200 dark:border-green-800">
-              <div className="flex items-center gap-3">
-                <div className="text-2xl">🔥</div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-foreground">
-                    <span className="text-primary font-bold">今天已有128人</span> 完成任务并开始接单
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    现在完成任务，即可抢下方热门订单
-                  </p>
-                </div>
-              </div>
-            </Card>
-          )}
-
-          {/* 新手任务提示卡片 */}
+          {/* 合并后的新手引导卡片 */}
           {profile && profile.onboarding_status !== 'activated' && (
             <Card className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border-amber-200 dark:border-amber-800">
-              <div className="flex items-start gap-3">
-                <div className="text-3xl">🎁</div>
-                <div className="flex-1">
-                  <h3 className="font-bold text-foreground mb-2">
-                    快速开启接单 - 最快18分钟
-                  </h3>
-                  <div className="space-y-1.5 mb-3">
-                    {!profile.is_id_verified && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <span className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold">1</span>
-                        <span className="text-foreground font-medium">实名认证</span>
-                        <span className="text-primary text-xs font-bold">+5元</span>
-                      </div>
-                    )}
-                    {!profile.is_training_completed && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <span className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold">2</span>
-                        <span className="text-foreground font-medium">新人培训</span>
-                        <span className="text-primary text-xs font-bold">优先推送</span>
-                      </div>
-                    )}
-                    {!profile.agreement_signed_at && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <span className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold">3</span>
-                        <span className="text-foreground font-medium">签署协议</span>
-                        <span className="text-primary text-xs font-bold">正式开单</span>
-                      </div>
-                    )}
+              <div className="space-y-3">
+                {/* 社交证明 + 紧迫感 */}
+                <div className="flex items-center gap-3">
+                  <div className="text-2xl">🔥</div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-foreground">
+                      <span className="text-primary font-bold">今天已有128人</span> 完成新手任务并成功接单
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      平均用时18分钟，立即开始赚钱
+                    </p>
                   </div>
-                  <Button 
-                    size="sm" 
-                    className="w-full bg-gradient-to-r from-primary to-primary/80 hover:opacity-90 font-bold"
-                    onClick={() => navigate("/workbench")}
-                  >
-                    立即完成任务 🚀
-                  </Button>
                 </div>
+                
+                {/* 分隔线 */}
+                <div className="border-t border-amber-200 dark:border-amber-700"></div>
+                
+                {/* 任务列表标题 */}
+                <div className="flex items-start gap-3">
+                  <div className="text-3xl">🎁</div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-foreground mb-1">
+                      新手任务 ({3 - [!profile.is_id_verified, !profile.is_training_completed, !profile.agreement_signed_at].filter(Boolean).length}/3 已完成)
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      按步骤完成，解锁抢单权限
+                    </p>
+                  </div>
+                </div>
+                
+                {/* 进度条 */}
+                <div className="w-full bg-muted/50 rounded-full h-2">
+                  <div 
+                    className="bg-gradient-to-r from-primary to-primary/80 h-2 rounded-full transition-all duration-500"
+                    style={{ 
+                      width: `${((3 - [!profile.is_id_verified, !profile.is_training_completed, !profile.agreement_signed_at].filter(Boolean).length) / 3) * 100}%` 
+                    }}
+                  />
+                </div>
+                
+                {/* 任务清单 */}
+                <div className="space-y-1.5">
+                  {!profile.is_id_verified && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold">1</span>
+                      <span className="text-foreground font-medium">实名认证</span>
+                      <span className="text-primary text-xs font-bold">+5元</span>
+                    </div>
+                  )}
+                  {!profile.is_training_completed && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold">2</span>
+                      <span className="text-foreground font-medium">新人培训</span>
+                      <span className="text-primary text-xs font-bold">优先推送</span>
+                    </div>
+                  )}
+                  {!profile.agreement_signed_at && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold">3</span>
+                      <span className="text-foreground font-medium">签署协议</span>
+                      <span className="text-primary text-xs font-bold">正式开单</span>
+                    </div>
+                  )}
+                </div>
+                
+                {/* 行动按钮 */}
+                <Button 
+                  size="sm" 
+                  className="w-full bg-gradient-to-r from-primary to-primary/80 hover:opacity-90 font-bold"
+                  onClick={() => navigate("/workbench")}
+                >
+                  立即完成任务 🚀
+                </Button>
               </div>
             </Card>
           )}

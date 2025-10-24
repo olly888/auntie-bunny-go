@@ -63,7 +63,8 @@ function App() {
           <Route path="/auth" element={<Auth />} />
           <Route path="/register" element={<Navigate to="/auth" replace />} />
           <Route path="/register/location" element={<LocationSelection />} />
-          <Route path="/certification" element={<CertificationIntro />} />
+          <Route path="/certification" element={<Navigate to="/certification/intro" replace />} />
+          <Route path="/certification/intro" element={<CertificationIntro />} />
           <Route path="/certification/process" element={<CertificationProcess />} />
           <Route path="/tasks" element={<TaskHall />} />
           <Route path="/grab/:orderId" element={<OrderGrab />} />

@@ -33,7 +33,7 @@ export const OrderCard = ({ order, onClaim, variant = 'default' }: OrderCardProp
   
   if (variant === 'compact') {
     return (
-      <Card className={`p-4 ${isOnboardingTask ? 'bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20' : 'bg-gradient-card'}`}>
+      <Card className={`p-4 bg-gradient-card ${isOnboardingTask ? 'border-primary/20' : ''}`}>
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex-1">
@@ -118,7 +118,7 @@ export const OrderCard = ({ order, onClaim, variant = 'default' }: OrderCardProp
   }
 
   return (
-    <Card className={`p-6 shadow-card ${isOnboardingTask ? 'bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20' : 'bg-gradient-card'}`}>
+    <Card className={`p-6 shadow-card bg-gradient-card ${isOnboardingTask ? 'border-primary/20' : ''}`}>
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
