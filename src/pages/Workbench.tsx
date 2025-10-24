@@ -53,7 +53,7 @@ const getOnboardingTasks = (profile: any): OnboardingTask[] => {
       payout: '0',
       isOnboardingTask: true,
       completed: false,
-      route: '/newbie-course',
+      route: '/skills-training/course/0',
       description: '掌握服务技巧，提升接单成功率',
       benefit: '提升接单成功率',
       reward: '优先推送订单',
@@ -430,46 +430,37 @@ const Workbench = () => {
           <TabsContent value="hall" className="mt-4">
             {onboardingTasks.length > 0 || pendingOrders.length > 0 ? (
               <div className="space-y-3">
-                {/* 合并后的新手引导卡片 */}
+                {/* 精简版新手引导卡片 */}
                 {onboardingTasks.length > 0 && (
-                  <Card className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border-amber-200 dark:border-amber-800">
-                    <div className="space-y-3">
-                      {/* 社交证明 + 紧迫感 */}
-                      <div className="flex items-center gap-3">
-                        <div className="text-2xl">🔥</div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-foreground">
-                            <span className="text-primary font-bold">今天已有128人</span> 完成新手任务并成功接单
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            平均用时18分钟，立即开始赚钱
-                          </p>
-                        </div>
-                      </div>
-                      
-                      {/* 分隔线 */}
-                      <div className="border-t border-amber-200 dark:border-amber-700"></div>
-                      
-                      {/* 任务列表标题 */}
-                      <div className="flex items-start gap-3">
-                        <div className="text-3xl">🎁</div>
-                        <div className="flex-1">
-                          <h3 className="font-bold text-foreground mb-1">
-                            新手任务 ({3 - onboardingTasks.length}/3 已完成)
-                          </h3>
-                          <p className="text-xs text-muted-foreground">
-                            按步骤完成，解锁抢单权限
-                          </p>
-                        </div>
+                  <Card className="p-3 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border-amber-200 dark:border-amber-800">
+                    <div className="space-y-2.5">
+                      {/* 核心信息 */}
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">🔥</span>
+                        <p className="text-xs text-foreground/90">
+                          <span className="font-semibold text-primary">今日128人</span>已完成任务开单
+                          <span className="text-muted-foreground ml-1">• 平均18分钟</span>
+                        </p>
                       </div>
                       
                       {/* 进度条 */}
-                      <div className="w-full bg-muted/50 rounded-full h-2">
-                        <div 
-                          className="bg-gradient-to-r from-primary to-primary/80 h-2 rounded-full transition-all duration-500"
-                          style={{ width: `${((3 - onboardingTasks.length) / 3) * 100}%` }}
-                        />
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-medium text-foreground">新手任务进度</span>
+                          <span className="text-muted-foreground">{3 - onboardingTasks.length}/3</span>
+                        </div>
+                        <div className="w-full bg-muted/50 rounded-full h-1.5">
+                          <div 
+                            className="bg-gradient-to-r from-primary to-primary/80 h-1.5 rounded-full transition-all duration-500"
+                            style={{ width: `${((3 - onboardingTasks.length) / 3) * 100}%` }}
+                          />
+                        </div>
                       </div>
+                      
+                      {/* 提示文案 */}
+                      <p className="text-xs text-muted-foreground">
+                        完成下方任务，解锁接单权限
+                      </p>
                     </div>
                   </Card>
                 )}
