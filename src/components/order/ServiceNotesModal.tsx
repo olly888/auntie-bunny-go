@@ -77,7 +77,6 @@ const ServiceNotesModal = ({ open, onOpenChange, orderId, customerPhone, onCompl
           variant: "destructive",
         });
       } else {
-        console.error('Submit notes error:', error);
         toast({
           title: "保存失败",
           description: "请稍后重试",

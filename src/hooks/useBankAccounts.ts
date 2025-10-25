@@ -18,18 +18,14 @@ export const useBankAccounts = () => {
   return useQuery({
     queryKey: ['bank-accounts'],
     queryFn: async () => {
-      console.log('Fetching bank accounts...');
       const { data, error } = await supabase
         .from('bank_accounts')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching bank accounts:', error);
         throw error;
       }
-
-      console.log('Bank accounts fetched:', data);
       return data as BankAccount[];
     },
   });
@@ -45,7 +41,6 @@ export const useAddBankAccount = () => {
       account_number: string;
       is_default?: boolean;
     }) => {
-      console.log('Adding bank account:', bankData);
       
       // Get current user's profile ID
       const { data: { user } } = await supabase.auth.getUser();
@@ -89,7 +84,6 @@ export const useAddBankAccount = () => {
         throw error;
       }
 
-      console.log('Bank account added:', data);
       return data;
     },
     onSuccess: () => {
@@ -99,8 +93,7 @@ export const useAddBankAccount = () => {
         description: "您的银行卡已成功添加",
       });
     },
-    onError: (error: any) => {
-      console.error('Failed to add bank account:', error);
+    onError: () => {
       toast({
         title: "添加失败",
         description: "银行卡添加失败，请稍后重试",
@@ -115,7 +108,6 @@ export const useUpdateBankAccount = () => {
   
   return useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<BankAccount> }) => {
-      console.log('Updating bank account:', id, updates);
       
       // If setting as default, first unset any existing default
       if (updates.is_default) {
@@ -137,11 +129,8 @@ export const useUpdateBankAccount = () => {
         .single();
 
       if (error) {
-        console.error('Error updating bank account:', error);
         throw error;
       }
-
-      console.log('Bank account updated:', data);
       return data;
     },
     onSuccess: () => {
@@ -151,8 +140,7 @@ export const useUpdateBankAccount = () => {
         description: "银行卡信息已更新",
       });
     },
-    onError: (error: any) => {
-      console.error('Failed to update bank account:', error);
+    onError: () => {
       toast({
         title: "更新失败",
         description: "银行卡更新失败，请稍后重试",
@@ -167,19 +155,14 @@ export const useDeleteBankAccount = () => {
   
   return useMutation({
     mutationFn: async (id: string) => {
-      console.log('Deleting bank account:', id);
-      
       const { error } = await supabase
         .from('bank_accounts')
         .delete()
         .eq('id', id);
 
       if (error) {
-        console.error('Error deleting bank account:', error);
         throw error;
       }
-
-      console.log('Bank account deleted:', id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bank-accounts'] });
@@ -188,8 +171,7 @@ export const useDeleteBankAccount = () => {
         description: "银行卡已删除",
       });
     },
-    onError: (error: any) => {
-      console.error('Failed to delete bank account:', error);
+    onError: () => {
       toast({
         title: "删除失败",
         description: "银行卡删除失败，请稍后重试",

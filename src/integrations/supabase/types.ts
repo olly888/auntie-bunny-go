@@ -610,7 +610,7 @@ export type Database = {
           experience_years: number | null
           gender: string | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           motivation: string | null
           name: string
           notes: string | null
@@ -628,7 +628,7 @@ export type Database = {
           experience_years?: number | null
           gender?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           motivation?: string | null
           name: string
           notes?: string | null
@@ -646,7 +646,7 @@ export type Database = {
           experience_years?: number | null
           gender?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           motivation?: string | null
           name?: string
           notes?: string | null
@@ -754,7 +754,7 @@ export type Database = {
           created_at: string | null
           details: Json | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           resource_id: string | null
           resource_type: string | null
           user_agent: string | null
@@ -765,7 +765,7 @@ export type Database = {
           created_at?: string | null
           details?: Json | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           resource_id?: string | null
           resource_type?: string | null
           user_agent?: string | null
@@ -776,7 +776,7 @@ export type Database = {
           created_at?: string | null
           details?: Json | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           resource_id?: string | null
           resource_type?: string | null
           user_agent?: string | null
@@ -934,12 +934,9 @@ export type Database = {
           updated_at: string
         }[]
       }
-      claim_order: {
-        Args: { order_id: string }
-        Returns: boolean
-      }
+      claim_order: { Args: { order_id: string }; Returns: boolean }
       create_demo_completed_orders: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           order_id: string
           order_type: string
@@ -947,10 +944,7 @@ export type Database = {
           status: string
         }[]
       }
-      create_demo_order_for_my_store: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      create_demo_order_for_my_store: { Args: never; Returns: string }
       ensure_referral: {
         Args: { invite_type: string }
         Returns: {
@@ -964,9 +958,15 @@ export type Database = {
           status: string
           updated_at: string
         }
+        SetofOptions: {
+          from: "*"
+          to: "referrals"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       get_abnormal_orders: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           address: string
           assigned_at: string
@@ -988,16 +988,10 @@ export type Database = {
           updated_at: string
         }[]
       }
-      get_current_user_role: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      get_current_user_role_secure: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      get_current_user_role: { Args: never; Returns: string }
+      get_current_user_role_secure: { Args: never; Returns: string }
       get_filtered_orders: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           address: string
           assigned_at: string
@@ -1020,7 +1014,7 @@ export type Database = {
         }[]
       }
       get_user_notifications: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           content: string
           created_at: string
@@ -1039,10 +1033,7 @@ export type Database = {
         }
         Returns: boolean
       }
-      mark_all_notifications_read: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
+      mark_all_notifications_read: { Args: never; Returns: boolean }
       mark_notification_read: {
         Args: { notification_id: string }
         Returns: boolean

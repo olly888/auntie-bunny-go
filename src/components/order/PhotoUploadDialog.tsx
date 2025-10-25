@@ -122,7 +122,6 @@ const PhotoUploadDialog = ({ open, onOpenChange, orderId, onUploadComplete }: Ph
       }, 1500);
 
     } catch (error) {
-      console.error('Upload error:', error);
       toast({
         title: "上传失败",
         description: "请稍后重试",

@@ -78,7 +78,6 @@ export const BankCardForm = ({ isOpen, onClose, editingCard }: BankCardFormProps
       if (error instanceof z.ZodError) {
         toast.error(error.errors[0].message);
       } else {
-        console.error('Failed to save bank card:', error);
         toast.error("保存失败，请重试");
       }
     }
