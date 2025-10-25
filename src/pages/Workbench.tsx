@@ -432,34 +432,11 @@ const Workbench = () => {
               <div className="space-y-3">
                 {/* 精简版新手引导卡片 */}
                 {onboardingTasks.length > 0 && (
-                  <Card className="p-3 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border-amber-200 dark:border-amber-800">
-                    <div className="space-y-2.5">
-                      {/* 核心信息 */}
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg">🔥</span>
-                        <p className="text-xs text-foreground/90">
-                          <span className="font-semibold text-primary">今日128人</span>已完成任务开单
-                          <span className="text-muted-foreground ml-1">• 平均18分钟</span>
-                        </p>
-                      </div>
-                      
-                      {/* 进度条 */}
-                      <div className="space-y-1">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="font-medium text-foreground">新手任务进度</span>
-                          <span className="text-muted-foreground">{3 - onboardingTasks.length}/3</span>
-                        </div>
-                        <div className="w-full bg-muted/50 rounded-full h-1.5">
-                          <div 
-                            className="bg-gradient-to-r from-primary to-primary/80 h-1.5 rounded-full transition-all duration-500"
-                            style={{ width: `${((3 - onboardingTasks.length) / 3) * 100}%` }}
-                          />
-                        </div>
-                      </div>
-                      
-                      {/* 提示文案 */}
-                      <p className="text-xs text-muted-foreground">
-                        完成下方任务，解锁接单权限
+                  <Card className="p-2.5 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border-amber-200 dark:border-amber-800">
+                    <div className="flex items-start gap-2">
+                      <span className="text-base mt-0.5">🔥</span>
+                      <p className="text-xs text-foreground/90 leading-relaxed flex-1">
+                        <span className="font-semibold text-primary">今日128人已完成任务开单</span>，完成下方任务，解锁接单权限，开始赚钱
                       </p>
                     </div>
                   </Card>
