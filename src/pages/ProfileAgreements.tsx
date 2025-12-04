@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, FileText, CheckCircle2, Clock } from "lucide-react";
+import { ArrowLeft, FileText, CheckCircle2, Clock, PenLine } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,8 @@ interface Agreement {
   required: boolean;
   signed: boolean;
   signedAt?: string;
+  signatureUrl?: string;
+  signatureDevice?: string;
 }
 
 const ProfileAgreements = () => {
@@ -40,8 +42,9 @@ const ProfileAgreements = () => {
           required: true,
           signed: !!parsedProfile.agreement_signed_at,
           signedAt: parsedProfile.agreement_signed_at || undefined,
+          signatureUrl: parsedProfile.signature_url || undefined,
+          signatureDevice: parsedProfile.signature_device || undefined,
         },
-        // 未来可以在这里添加更多协议
       ];
 
       setAgreements(agreementList);
@@ -61,7 +64,7 @@ const ProfileAgreements = () => {
   };
 
   // 签署成功回调
-  const handleAgreeSuccess = (agreementId: string) => {
+  const handleAgreeSuccess = (agreementId: string, signatureDataUrl: string, deviceInfo: string) => {
     const now = new Date().toISOString();
 
     // 更新 localStorage 中的 profile
@@ -70,6 +73,8 @@ const ProfileAgreements = () => {
       const parsedProfile = JSON.parse(storedProfile);
       parsedProfile.agreement_signed_at = now;
       parsedProfile.agreement_version = "v2.0";
+      parsedProfile.signature_url = signatureDataUrl;
+      parsedProfile.signature_device = deviceInfo;
       localStorage.setItem("mock_user_profile", JSON.stringify(parsedProfile));
 
       // 触发 storage 事件通知其他组件
@@ -80,7 +85,13 @@ const ProfileAgreements = () => {
     setAgreements((prev) =>
       prev.map((agreement) =>
         agreement.id === agreementId
-          ? { ...agreement, signed: true, signedAt: now }
+          ? { 
+              ...agreement, 
+              signed: true, 
+              signedAt: now,
+              signatureUrl: signatureDataUrl,
+              signatureDevice: deviceInfo,
+            }
           : agreement
       )
     );
@@ -104,20 +115,38 @@ const ProfileAgreements = () => {
   };
 
   // 查看协议内容
-  const handleViewAgreement = (agreementId: string) => {
+  const handleViewAgreement = (agreement: Agreement) => {
     // 从 localStorage 获取用户信息
     const userProfile = localStorage.getItem("mock_user_profile");
     let userName = "___________";
     let idNumber = "___________";
+    let signedAt = agreement.signedAt || "";
+    let signatureUrl = agreement.signatureUrl || "";
+    let deviceInfo: any = {};
     
     if (userProfile) {
       const data = JSON.parse(userProfile);
       userName = data.name || "___________";
       idNumber = data.id_number || "___________";
+      
+      if (data.signature_device) {
+        try {
+          deviceInfo = JSON.parse(data.signature_device);
+        } catch (e) {
+          // ignore
+        }
+      }
     }
 
-    const today = new Date();
-    const signDate = `${today.getFullYear()}年${today.getMonth() + 1}月${today.getDate()}日`;
+    const signDate = signedAt 
+      ? new Date(signedAt).toLocaleString('zh-CN', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        })
+      : "___________";
 
     const agreementContent = `
 <!DOCTYPE html>
@@ -208,6 +237,12 @@ const ProfileAgreements = () => {
       border-radius: 6px;
       margin: 20px 0;
     }
+    .signature-image {
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      max-width: 300px;
+      margin: 10px 0;
+    }
     ul {
       padding-left: 25px;
     }
@@ -222,6 +257,14 @@ const ProfileAgreements = () => {
       border-top: 1px solid #e5e7eb;
       color: #6b7280;
       font-size: 12px;
+    }
+    .device-info {
+      background: #f3f4f6;
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      color: #6b7280;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -250,21 +293,21 @@ const ProfileAgreements = () => {
     <p><strong>1.2 兔管家：</strong>指符合平台注册要求，使用"兔管家端"小程序接受服务订单并为用户提供服务的乙方。</p>
 
     <h2>第二条：合作关系与性质</h2>
-    <p><strong>2.1</strong> 双方一致确认并同意，本协议项下的合作关系为平等的民事合作关系，不构成任何形式的劳动关系、劳务关系、雇佣关系或合伙关系。乙方并非甲方的员工，不受甲方内部劳动规章制度的管理。</p>
+    <p><strong>2.1</strong> 双方一致确认并同意，本协议项下的合作关系为平等的民事合作关系，不构成任何形式的劳动关系、劳务关系、雇佣关系或合伙关系。</p>
     <p><strong>2.2</strong> 乙方作为独立的家政服务提供者，自主决定是否在平台注册、上线接单时间、以及是否接受平台推送的服务订单。</p>
 
     <h2>第三条：合作范围与流程</h2>
     <p><strong>3.1</strong> 甲方负责提供平台的技术支持与维护，发布来自用户的服务订单信息，并提供订单管理、费用代收代付等服务。</p>
-    <p><strong>3.2</strong> 乙方通过"兔管家端"接收订单信息，自主决定是否接单。一旦接单，应按照平台展示的服务项目标准（SOP）和应用内规定的流程（如"我已到达"、"开始服务"等）完成服务，并确保服务状态的实时、准确同步。</p>
+    <p><strong>3.2</strong> 乙方通过"兔管家端"接收订单信息，自主决定是否接单。一旦接单，应按照平台展示的服务项目标准（SOP）和应用内规定的流程完成服务。</p>
 
     <h2>第四条：资质与培训</h2>
     <p><strong>4.1</strong> 乙方保证其为平台提供的所有个人资料（包括但不限于身份证信息、健康状况等）均真实、准确、合法、有效。</p>
-    <p><strong>4.2</strong> 乙方同意并承诺，在激活接单资格前，必须完成平台提供的线上服务标准培训与考核，以确保其提供的服务符合平台质量要求。</p>
+    <p><strong>4.2</strong> 乙方同意并承诺，在激活接单资格前，必须完成平台提供的线上服务标准培训与考核。</p>
 
     <h2>第五条：服务费用与结算</h2>
-    <p><strong>5.1</strong> 每笔订单的服务费用由平台根据市场价格确定，并在订单推送时向乙方明确展示。乙方接受订单即视为对该笔费用的认可。</p>
+    <p><strong>5.1</strong> 每笔订单的服务费用由平台根据市场价格确定，并在订单推送时向乙方明确展示。</p>
     <p><strong>5.2</strong> 乙方在此不可撤销地授权甲方，作为乙方向用户收取服务费用的唯一代收方。</p>
-    <p><strong>5.3</strong> 平台以周为单位为乙方结算上一自然周（周一至周日）内所有已完成订单的服务费用，并于约定的结算日（以平台公示为准）支付至乙方在平台绑定的有效收款账户。</p>
+    <p><strong>5.3</strong> 平台以周为单位为乙方结算上一自然周（周一至周日）内所有已完成订单的服务费用。</p>
 
     <h2>第六条：甲方的权利与义务</h2>
     <p><strong>6.1</strong> 审核乙方的注册资料，并决定是否与乙方建立合作关系。</p>
@@ -274,12 +317,12 @@ const ProfileAgreements = () => {
 
     <h2>第七条：乙方的权利与义务</h2>
     <p><strong>7.1</strong> 按照本协议约定，获得提供服务的报酬。</p>
-    <p><strong>7.2</strong> 严格遵守平台的所有服务规范、操作流程（SOP）和行为准则（详见附件一）。</p>
+    <p><strong>7.2</strong> 严格遵守平台的所有服务规范、操作流程（SOP）和行为准则。</p>
     <p><strong>7.3</strong> 服务期间，应保持专业、友好的服务态度，维护平台及自身的良好形象。</p>
-    <p><strong>7.4</strong> 对服务过程中获悉的任何用户信息（地址、电话、家庭情况等）负有严格的保密义务，不得以任何形式泄露、传播或用于服务之外的任何目的。</p>
+    <p><strong>7.4</strong> 对服务过程中获悉的任何用户信息负有严格的保密义务。</p>
     
     <div class="warning">
-      <p><strong>7.5【核心条款】</strong> 乙方承诺绝不以任何形式（包括但不限于口头、微信、电话）引导、暗示或接受用户进行绕开平台的私下交易（"跳单"）。一经发现，甲方有权立即单方面解除本协议，永久封停乙方账户，并扣除所有未结算费用，同时保留追究乙方违约责任的权利。</p>
+      <p><strong>7.5【核心条款】</strong> 乙方承诺绝不以任何形式引导、暗示或接受用户进行绕开平台的私下交易（"跳单"）。一经发现，甲方有权立即单方面解除本协议，永久封停乙方账户。</p>
     </div>
 
     <h2>第八条：责任承担</h2>
@@ -288,7 +331,7 @@ const ProfileAgreements = () => {
 
     <h2>第九条：协议期限与解除</h2>
     <p><strong>9.1</strong> 本协议自乙方在线点击同意之日起生效，有效期一年，到期后若双方无异议则自动续期。</p>
-    <p><strong>9.2</strong> 任何一方提前7日书面通知对方，均可解除本协议。若乙方严重违反本协议约定（尤其是第七条第五款），甲方有权单方面立即解除协议。</p>
+    <p><strong>9.2</strong> 任何一方提前7日书面通知对方，均可解除本协议。</p>
 
     <h2>第十条：争议解决</h2>
     <p><strong>10.1</strong> 因本协议引起的任何争议，双方应友好协商解决；协商不成的，任何一方均有权向甲方所在地有管辖权的人民法院提起诉讼。</p>
@@ -298,26 +341,44 @@ const ProfileAgreements = () => {
     <div class="attachment">
       <h3 style="text-align: center; color: #1f2937;">附件一：《兔管家服务安全与行为准则承诺书》</h3>
       
-      <p>本人 <span class="emphasis">${userName}</span> (身份证号: <span class="emphasis">${idNumber}</span>)，作为"兔到到"平台的独立合作服务者，为保障用户体验与自身安全，郑重作出以下承诺：</p>
+      <p>本人 <span class="emphasis">${userName}</span> 作为"兔到到"平台的独立合作服务者，郑重作出以下承诺：</p>
 
       <ul>
         <li><strong>专业形象：</strong>服务期间，按平台要求着装，仪表整洁，精神饱满。</li>
         <li><strong>服务礼仪：</strong>使用文明用语，态度亲切，不大声喧哗。</li>
-        <li><strong>用户隐私保护：</strong>绝不主动询问用户隐私，绝不在用户家中进行任何形式的拍照、录像、录音（平台要求作为服务凭证的除外），绝不泄露用户任何信息。</li>
+        <li><strong>用户隐私保护：</strong>绝不主动询问用户隐私，绝不在用户家中进行任何形式的拍照、录像、录音。</li>
         <li><strong>财产物品安全：</strong>爱护用户家中物品，轻拿轻放，如遇用户贵重物品，主动提醒用户收管。</li>
-        <li><strong>禁止私下交易：</strong>坚决拒绝任何形式的私下交易（"跳单"）请求，并有义务告知用户通过平台交易的安全性。</li>
-        <li><strong>人身安全：</strong>服务期间注意用电、用水、用气安全，不进行任何危险操作，遇紧急情况第一时间报警并通知平台。</li>
+        <li><strong>禁止私下交易：</strong>坚决拒绝任何形式的私下交易（"跳单"）请求。</li>
+        <li><strong>人身安全：</strong>服务期间注意用电、用水、用气安全，不进行任何危险操作。</li>
       </ul>
 
       <p style="border-top: 1px solid #e5e7eb; padding-top: 15px; margin-top: 15px;">
-        我已完整阅读、充分理解并同意严格遵守以上所有条款。如有违反，愿意接受平台根据合作协议进行的处理，并承担由此产生的一切责任。
+        我已完整阅读、充分理解并同意严格遵守以上所有条款。
       </p>
     </div>
 
+    ${agreement.signed && signatureUrl ? `
     <div class="signature-box">
       <h3 style="text-align: center;">【电子签署确认】</h3>
-      <p><strong>乙方确认：</strong>本人在同意本协议前，已完整阅读、充分理解并自愿接受本协议及附件的全部条款内容。乙方的在线点击"同意"、"接受"或勾选"我已阅读并同意"并继续使用平台的行为，即视为乙方本人真实意愿的表示，构成对本协议及附件的有效签署，具有与手写签名同等的法律效力。</p>
+      <p><strong>签署状态：</strong><span style="color: #059669;">✓ 已签署</span></p>
+      <p><strong>签署时间：</strong>${signDate}</p>
+      <p><strong>乙方签名：</strong></p>
+      <img src="${signatureUrl}" alt="签名" class="signature-image" />
+      ${deviceInfo.platform ? `
+      <div class="device-info">
+        <strong>签署设备信息：</strong><br/>
+        设备：${deviceInfo.platform || '未知'}<br/>
+        屏幕：${deviceInfo.screenSize || '未知'}<br/>
+        时间：${deviceInfo.timestamp || signDate}
+      </div>
+      ` : ''}
     </div>
+    ` : `
+    <div class="signature-box">
+      <h3 style="text-align: center;">【电子签署确认】</h3>
+      <p><strong>签署状态：</strong><span style="color: #dc2626;">✗ 待签署</span></p>
+    </div>
+    `}
 
     <div class="footer">
       <p>版本：v2.0 | 最后更新时间：2025年1月17日</p>
@@ -409,29 +470,41 @@ const ProfileAgreements = () => {
                   )}
                 </div>
 
-                {agreement.signed && agreement.signedAt && (
-                  <div className="text-xs text-muted-foreground">
-                    签署时间：{new Date(agreement.signedAt).toLocaleString("zh-CN")}
+                {/* 签名预览 */}
+                {agreement.signed && agreement.signatureUrl && (
+                  <div className="bg-muted/50 rounded-lg p-3">
+                    <p className="text-xs text-muted-foreground mb-2">
+                      签署时间：{agreement.signedAt ? new Date(agreement.signedAt).toLocaleString('zh-CN') : '-'}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <PenLine className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">我的签名：</span>
+                    </div>
+                    <img 
+                      src={agreement.signatureUrl} 
+                      alt="签名" 
+                      className="mt-2 max-h-16 border border-border rounded bg-white"
+                    />
                   </div>
                 )}
 
                 <div className="flex gap-2">
-                  {agreement.signed ? (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1"
-                      onClick={() => handleViewAgreement(agreement.id)}
-                    >
-                      查看内容
-                    </Button>
-                  ) : (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => handleViewAgreement(agreement)}
+                  >
+                    查看协议
+                  </Button>
+                  {!agreement.signed && (
                     <Button
                       size="sm"
                       className="flex-1"
                       onClick={() => handleSignAgreement(agreement.id)}
                     >
-                      立即签署
+                      <PenLine className="w-4 h-4 mr-1" />
+                      手写签署
                     </Button>
                   )}
                 </div>
@@ -441,24 +514,21 @@ const ProfileAgreements = () => {
         </div>
 
         {/* 提示信息 */}
-        <Card className="p-4 bg-muted/50">
-          <div className="flex gap-3">
-            <FileText className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" />
-            <div className="text-sm text-muted-foreground">
-              <p className="font-medium text-foreground mb-1">温馨提示</p>
-              <p>根据《中华人民共和国电子签名法》，电子合同与纸质合同具有同等法律效力。</p>
-            </div>
-          </div>
-        </Card>
+        <div className="text-center text-xs text-muted-foreground space-y-1">
+          <p>根据《电子签名法》，可靠的电子签名与手写签名具有同等法律效力</p>
+          <p>您的签名将被安全保存，并用于协议的法律效力证明</p>
+        </div>
       </div>
 
-      {/* 协议签署弹窗 */}
+      {/* 签署协议弹窗 */}
       {currentAgreement && (
         <AgreementDialog
           open={showAgreementDialog}
           agreementId={currentAgreement.id}
           agreementTitle={currentAgreement.title}
-          onAgree={() => handleAgreeSuccess(currentAgreement.id)}
+          onAgree={(signatureDataUrl, deviceInfo) => 
+            handleAgreeSuccess(currentAgreement.id, signatureDataUrl, deviceInfo)
+          }
           onDisagree={() => {
             setShowAgreementDialog(false);
             setCurrentAgreementId(null);

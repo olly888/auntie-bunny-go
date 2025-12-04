@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,12 +11,15 @@ import {
 } from "@/components/ui/alert-dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import SignatureCanvas from "@/components/ui/signature-canvas";
 
 interface AgreementDialogProps {
   open: boolean;
   agreementId?: string;
   agreementTitle?: string;
-  onAgree: () => void;
+  onAgree: (signatureDataUrl: string, deviceInfo: string) => void;
   onDisagree: () => void;
 }
 
@@ -28,8 +31,11 @@ const AgreementDialog = ({
   onDisagree 
 }: AgreementDialogProps) => {
   const [readTime, setReadTime] = useState(0);
-  const minReadTime = 10; // 最少阅读10秒
-  const canAgree = readTime >= minReadTime;
+  const [hasSignature, setHasSignature] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const minReadTime = 10;
+  const canAgree = readTime >= minReadTime && hasSignature && confirmed;
 
   useEffect(() => {
     if (!open) return;
@@ -41,22 +47,51 @@ const AgreementDialog = ({
     return () => {
       clearInterval(interval);
       setReadTime(0);
+      setHasSignature(false);
+      setConfirmed(false);
     };
   }, [open]);
 
   const progress = (readTime / minReadTime) * 100;
 
+  const handleAgree = () => {
+    // Get signature from canvas
+    const canvas = document.querySelector('canvas') as any;
+    if (!canvas?.getSignatureDataUrl || !canvas?.isValidSignature) return;
+    
+    if (!canvas.isValidSignature()) {
+      return; // Invalid signature
+    }
+
+    const signatureDataUrl = canvas.getSignatureDataUrl();
+    
+    // Collect device info
+    const deviceInfo = JSON.stringify({
+      userAgent: navigator.userAgent,
+      platform: navigator.platform,
+      screenSize: `${screen.width}x${screen.height}`,
+      timestamp: new Date().toISOString(),
+      language: navigator.language,
+    });
+
+    onAgree(signatureDataUrl, deviceInfo);
+  };
+
+  const handleSignatureChange = (isEmpty: boolean) => {
+    setHasSignature(!isEmpty);
+  };
+
   return (
     <AlertDialog open={open}>
-      <AlertDialogContent className="max-w-md max-h-[80vh]">
+      <AlertDialogContent className="max-w-md max-h-[90vh] flex flex-col">
         <AlertDialogHeader>
           <AlertDialogTitle>{agreementTitle}</AlertDialogTitle>
           <AlertDialogDescription>
-            请仔细阅读以下协议内容
+            请仔细阅读以下协议内容并手写签名
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        {!canAgree && (
+        {readTime < minReadTime && (
           <div className="space-y-2">
             <Progress value={progress} className="h-2" />
             <p className="text-xs text-center text-muted-foreground">
@@ -65,7 +100,7 @@ const AgreementDialog = ({
           </div>
         )}
 
-        <ScrollArea className="h-[400px] pr-4">
+        <ScrollArea className="flex-1 min-h-0 max-h-[300px] pr-4">
           <div className="space-y-3 text-xs leading-relaxed">
             {/* 甲乙方信息 */}
             <div className="bg-muted/50 p-3 rounded-lg space-y-1.5">
@@ -271,13 +306,6 @@ const AgreementDialog = ({
               </p>
             </section>
 
-            <div className="bg-primary/5 border border-primary/20 rounded p-3">
-              <h4 className="font-semibold text-foreground mb-2 text-center text-sm">【电子签署确认】</h4>
-              <p className="text-muted-foreground">
-                <strong className="text-foreground">乙方确认：</strong>本人在同意本协议前，已完整阅读、充分理解并自愿接受本协议及附件的全部条款内容。乙方的在线点击"同意"、"接受"或勾选"我已阅读并同意"并继续使用平台的行为，即视为乙方本人真实意愿的表示，构成对本协议及附件的有效签署，具有与手写签名同等的法律效力。
-              </p>
-            </div>
-
             <div className="pt-2 border-t text-center">
               <p className="text-muted-foreground">
                 版本：v2.0 | 最后更新时间：2025年1月17日
@@ -286,13 +314,54 @@ const AgreementDialog = ({
           </div>
         </ScrollArea>
 
+        {/* 手写签名区域 */}
+        {readTime >= minReadTime && (
+          <div className="space-y-3 border-t pt-4">
+            <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
+              <p className="text-xs text-muted-foreground mb-2">
+                <strong className="text-foreground">法律声明：</strong>
+                您的手写签名将具有与纸质签名同等的法律效力。根据《电子签名法》，可靠的电子签名与手写签名具有同等法律效力。
+              </p>
+            </div>
+
+            <div>
+              <p className="text-sm font-medium mb-2">请在下方手写签名：</p>
+              <SignatureCanvas 
+                width={280}
+                height={120}
+                onSignatureChange={handleSignatureChange}
+              />
+            </div>
+
+            <div className="flex items-start gap-2">
+              <Checkbox 
+                id="confirm-signature" 
+                checked={confirmed}
+                onCheckedChange={(checked) => setConfirmed(checked === true)}
+              />
+              <Label 
+                htmlFor="confirm-signature" 
+                className="text-xs text-muted-foreground leading-tight cursor-pointer"
+              >
+                我已完整阅读并理解上述协议全部内容，确认以上签名为本人真实意愿表示，同意受本协议约束。
+              </Label>
+            </div>
+          </div>
+        )}
+
         <AlertDialogFooter>
           <AlertDialogCancel onClick={onDisagree}>不同意</AlertDialogCancel>
           <AlertDialogAction 
-            onClick={onAgree}
+            onClick={handleAgree}
             disabled={!canAgree}
           >
-            {canAgree ? '同意并签署' : `${minReadTime - readTime}秒后可操作`}
+            {readTime < minReadTime 
+              ? `${minReadTime - readTime}秒后可操作`
+              : !hasSignature 
+                ? '请先签名' 
+                : !confirmed 
+                  ? '请勾选确认' 
+                  : '确认签署'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

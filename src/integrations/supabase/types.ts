@@ -445,6 +445,9 @@ export type Database = {
           prejob_training_completed_at: string | null
           require_password_change: boolean
           role: string
+          signature_device: string | null
+          signature_fingerprint: string | null
+          signature_url: string | null
           skill_cert_type: string | null
           skill_cert_url: string | null
           skill_level: Database["public"]["Enums"]["skill_level"]
@@ -480,6 +483,9 @@ export type Database = {
           prejob_training_completed_at?: string | null
           require_password_change?: boolean
           role?: string
+          signature_device?: string | null
+          signature_fingerprint?: string | null
+          signature_url?: string | null
           skill_cert_type?: string | null
           skill_cert_url?: string | null
           skill_level?: Database["public"]["Enums"]["skill_level"]
@@ -515,6 +521,9 @@ export type Database = {
           prejob_training_completed_at?: string | null
           require_password_change?: boolean
           role?: string
+          signature_device?: string | null
+          signature_fingerprint?: string | null
+          signature_url?: string | null
           skill_cert_type?: string | null
           skill_cert_url?: string | null
           skill_level?: Database["public"]["Enums"]["skill_level"]
