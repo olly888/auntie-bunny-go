@@ -57,6 +57,32 @@ const ProfileAgreements = () => {
   const progress = totalCount > 0 ? (signedCount / totalCount) * 100 : 0;
   const allSigned = signedCount === totalCount;
 
+  // 重置协议状态（用于测试）
+  const handleResetAgreement = (agreementId: string) => {
+    const storedProfile = localStorage.getItem("mock_user_profile");
+    if (storedProfile) {
+      const parsedProfile = JSON.parse(storedProfile);
+      delete parsedProfile.agreement_signed_at;
+      delete parsedProfile.signature_url;
+      delete parsedProfile.signature_device;
+      localStorage.setItem("mock_user_profile", JSON.stringify(parsedProfile));
+      window.dispatchEvent(new Event("storage"));
+    }
+
+    setAgreements((prev) =>
+      prev.map((agreement) =>
+        agreement.id === agreementId
+          ? { ...agreement, signed: false, signedAt: undefined, signatureUrl: undefined, signatureDevice: undefined }
+          : agreement
+      )
+    );
+
+    toast({
+      title: "已重置",
+      description: "协议已重置为待签署状态",
+    });
+  };
+
   // 处理签署协议
   const handleSignAgreement = (agreementId: string) => {
     setCurrentAgreementId(agreementId);
@@ -497,7 +523,16 @@ const ProfileAgreements = () => {
                   >
                     查看协议
                   </Button>
-                  {!agreement.signed && (
+                  {agreement.signed ? (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleResetAgreement(agreement.id)}
+                      className="text-muted-foreground"
+                    >
+                      重置
+                    </Button>
+                  ) : (
                     <Button
                       size="sm"
                       className="flex-1"
